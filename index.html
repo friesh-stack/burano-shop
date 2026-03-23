@@ -300,7 +300,42 @@ footer strong{color:var(--gold);}
       </select>
       <input class="pcinp" id="pctext" type="text" placeholder="Eigener Text (optional)..." oninput="renderPC()">
     </div>
-    <button class="btnDL" onclick="dlPC()" id="t_pc_buy">&#128229; Download &amp; kaufen - 1,99 EUR via PayPal</button>
+    <div style="margin-bottom:14px">
+      <p style="color:rgba(255,255,255,.7);font-size:.85rem;margin-bottom:8px;font-weight:700">Grusstext waehlen:</p>
+      <select class="pcsel" id="pcgreeting" onchange="renderPC()">
+        <option value="0">Herzliche Gruesse von der Insel Burano sendet Dir</option>
+        <option value="1">Buongiorno da Burano! Die Farben hier sind unvergesslich</option>
+        <option value="2">Wish you were here - Burano ist ein Traum!</option>
+        <option value="3">Die schoenste Insel der Welt gruest Dich herzlich</option>
+        <option value="4">Erinnerungen an Burano - fuer immer in meinem Herzen</option>
+      </select>
+    </div>
+    <div style="background:rgba(255,210,63,.1);border:1px solid rgba(255,210,63,.3);border-radius:12px;padding:14px;margin-bottom:14px">
+      <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px">
+        <div>
+          <div style="font-weight:900;font-size:1rem;color:var(--gold)">1 Postkarte</div>
+          <div style="font-size:.8rem;opacity:.7">Sofort-Download als JPG</div>
+        </div>
+        <button class="btnPP" onclick="buyPostcard(1)" style="padding:10px 20px">&#128153; 0,99 EUR</button>
+      </div>
+      <hr style="border:none;border-top:1px solid rgba(255,255,255,.1);margin:12px 0">
+      <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px">
+        <div>
+          <div style="font-weight:900;font-size:1rem;color:var(--gold)">10 Postkarten</div>
+          <div style="font-size:.8rem;opacity:.7">Alle Motive - Spare 50%!</div>
+        </div>
+        <button class="btnPP" onclick="buyPostcard(10)" style="padding:10px 20px">&#128153; 4,99 EUR</button>
+      </div>
+      <hr style="border:none;border-top:1px solid rgba(255,255,255,.1);margin:12px 0">
+      <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px">
+        <div>
+          <div style="font-weight:900;font-size:1rem;color:var(--gold)">Jede weitere</div>
+          <div style="font-size:.8rem;opacity:.7">Ab der 11. Postkarte</div>
+        </div>
+        <button class="btnPP" onclick="buyPostcard(0)" style="padding:10px 20px">&#128153; 0,45 EUR</button>
+      </div>
+    </div>
+    <button class="btnDL" onclick="previewAndDownload()">&#128229; Postkarte downloaden &amp; kaufen</button>
   </div>
 </div></div>
 
@@ -338,6 +373,24 @@ footer strong{color:var(--gold);}
   <br>
   <a href="mailto:info@myburano.com?subject=Partnership" class="btnH out" style="text-decoration:none;display:inline-block;padding:11px 26px" id="t_btn_partner">&#9993; Jetzt Partner werden</a>
 </div></div>
+
+<!-- MAZZORBO & TORCELLO -->
+<div class="b2">
+<div class="sec rev">
+  <h2 class="stit">&#127754; <span id="t_isles_title">Mazzorbo &amp; Torcello</span></h2>
+  <p class="ssub" id="t_isles_sub">Die Nachbarinseln - Geschichte und Natur pur</p>
+  <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:20px">
+    <div style="background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:18px;padding:24px">
+      <h3 style="color:var(--gold);font-size:1.2rem;margin-bottom:10px">&#127747; Mazzorbo</h3>
+      <p style="opacity:.8;font-size:.9rem;line-height:1.7">Mazzorbo ist mit Burano durch eine Holzbruecke verbunden. Die ruhige Insel ist bekannt fuer ihren historischen Weinanbau - hier waechst der seltene <strong style="color:var(--gold)">Dorona-Wein</strong>, eine fast ausgestorbene venezianische Rebsorte. Mazzorbo war einst dichter besiedelt als heute und beherbergt die gotische Kirche Santa Caterina aus dem 14. Jahrhundert.</p>
+    </div>
+    <div style="background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:18px;padding:24px">
+      <h3 style="color:var(--gold);font-size:1.2rem;margin-bottom:10px">&#127963; Torcello</h3>
+      <p style="opacity:.8;font-size:.9rem;line-height:1.7">Torcello war einst die <strong style="color:var(--gold)">mächtigste Stadt der Lagune</strong> mit über 20.000 Einwohnern. Heute leben dort nur noch etwa 20 Menschen. Der Dom Santa Maria Assunta aus dem Jahr 639 n.Chr. ist einer der aeltesten Sakralbauten Venedigs. Der geheimnisvolle <strong style="color:var(--gold)">"Thron des Attila"</strong> - ein steinerner Sessel auf dem Platz - zieht Besucher aus aller Welt an.</p>
+    </div>
+  </div>
+</div>
+</div>
 
 <!-- RENTAL -->
 <div class="b2">
@@ -442,6 +495,7 @@ footer strong{color:var(--gold);}
   <div class="aihdr">
     <span style="font-size:1.3rem">&#129302;</span>
     <div><div class="ainm">Marco - KI-Reiseleiter</div><div class="aist" id="t_ai_status">Ihr Burano-Guide</div></div>
+    <button onclick="stopSpeak()" title="Stopp" style="background:none;border:none;color:#fff;font-size:1rem;cursor:pointer;margin-right:4px">&#9209;</button>
     <button class="aiclose" onclick="toggleChat()">&#10005;</button>
   </div>
   <div class="aimsg" id="aimsgs"></div>
@@ -503,7 +557,7 @@ var TXT = {
     btn_buy:"Kaufen via PayPal",
     gal_title:"Unsere Burano-Aufnahmen", gal_sub:"Aufgenommen direkt vor Ort - Terra Nova 112",
     pc_title:"Postkarten-Generator", pc_sub:"Mit Briefmarke, Stempel und persoenlichem Gruss",
-    pc_buy:"Download kaufen - 1,99 EUR via PayPal",
+    pc_buy:"1 Postkarte 0,99 EUR - 10 Postkarten 4,99 EUR",
     vid_title:"Burano Video-Clips", vid_sub:"Full HD mit persoenlichem Text",
     v1:"Standard Clip - 16 Sekunden", v1d:"Atmosphaerisches Burano-Video mit Text. Perfekt fuer Instagram Reels und WhatsApp Status.",
     v2:"Premium Clip - 20 Sekunden", v2d:"Mehrere Burano-Szenen, Musik und Text. Das ultimative Souvenir!",
@@ -862,7 +916,8 @@ function renderPC() {
       ctx.font="7px sans-serif"; ctx.fillText("* * *",mx,my+26);
       ctx.globalAlpha=1; ctx.restore();
       // GREETING TEXT
-      var greet = custom || ((TXT[pl]||TXT.de).pc_greeting || tx("pc_greeting"));
+      var selEl = document.getElementById("pcgreeting");
+  var greet = custom || (selEl ? selEl.options[selEl.selectedIndex].text : ((TXT[pl]||TXT.de).pc_greeting || tx("pc_greeting")));
       ctx.shadowColor="rgba(0,0,0,.7)"; ctx.shadowBlur=10;
       ctx.fillStyle="#fff"; ctx.textAlign="center"; ctx.font="bold 20px serif";
       var mxW=W-80, words=greet.split(" "), line="", lines=[];
@@ -883,8 +938,36 @@ function renderPC() {
   img.src = POSTCARDS[pk] || "";
 }
 
+var GREETINGS_DE = [
+  "Herzliche Gruesse von der Insel Burano sendet Dir",
+  "Buongiorno da Burano! Die Farben hier sind unvergesslich",
+  "Wish you were here - Burano ist ein Traum!",
+  "Die schoenste Insel der Welt gruest Dich herzlich",
+  "Erinnerungen an Burano - fuer immer in meinem Herzen"
+];
+
+function getSelectedGreeting() {
+  var sel = document.getElementById("pcgreeting");
+  return sel ? sel.options[sel.selectedIndex].text : GREETINGS_DE[0];
+}
+
+function buyPostcard(count) {
+  if(count===1) ppGo("1 Burano Postkarte", 0.99);
+  else if(count===10) ppGo("10 Burano Postkarten", 4.99);
+  else ppGo("Weitere Burano Postkarte", 0.45);
+}
+
+function previewAndDownload() {
+  buyPostcard(1);
+  var cv=document.getElementById("pcanv");
+  var a=document.createElement("a");
+  a.href=cv.toDataURL("image/jpeg",.92);
+  a.download="burano-postkarte-"+Date.now()+".jpg";
+  a.click();
+}
+
 function dlPC() {
-  ppGo("Burano Postkarte digital", 1.99);
+  previewAndDownload();
   var cv = document.getElementById("pcanv");
   var a = document.createElement("a");
   a.href = cv.toDataURL("image/jpeg", 0.92);
@@ -974,8 +1057,20 @@ function openChat() {
   document.getElementById("aichat").classList.add("open");
   if(aiHist.length===0) initAI();
 }
+function speak(text) {
+  if(!window.speechSynthesis) return;
+  window.speechSynthesis.cancel();
+  var utt = new SpeechSynthesisUtterance(text);
+  utt.lang = curLang === 'de' ? 'de-DE' : curLang === 'it' ? 'it-IT' : curLang === 'fr' ? 'fr-FR' : curLang === 'es' ? 'es-ES' : curLang === 'ja' ? 'ja-JP' : curLang === 'zh' ? 'zh-CN' : curLang === 'pl' ? 'pl-PL' : 'en-US';
+  utt.rate = 0.9;
+  window.speechSynthesis.speak(utt);
+}
+function stopSpeak() { if(window.speechSynthesis) window.speechSynthesis.cancel(); }
+
 function initAI() {
-  addMsg(tx("ai_welcome"),"bot");
+  var welcome = tx("ai_welcome");
+  addMsg(welcome,"bot");
+  setTimeout(function(){ speak(welcome); }, 500);
   if(!apiKey){
     setTimeout(function(){
       addMsg("Tipp: API-Key im Admin-Bereich eintragen fuer smarte Antworten.","bot");
@@ -985,7 +1080,18 @@ function initAI() {
   aiHist=[{role:"user",content:"Tell me about Burano."},{role:"assistant",content:tx("ai_welcome")}];
 }
 function addMsg(txt, who) {
-  var d=document.createElement("div"); d.className="msg "+who; d.textContent=txt;
+  var d=document.createElement("div"); d.className="msg "+who;
+  if(who==="bot"){
+    d.textContent=txt;
+    var sp=document.createElement("button");
+    sp.textContent="&#128266;";
+    sp.title="Vorlesen";
+    sp.style.cssText="background:none;border:none;cursor:pointer;font-size:.9rem;margin-left:6px;opacity:.6;";
+    sp.onclick=function(){speak(txt);};
+    d.appendChild(sp);
+  } else {
+    d.textContent=txt;
+  }
   var c=document.getElementById("aimsgs"); c.appendChild(d); c.scrollTop=c.scrollHeight; return d;
 }
 function sendAI() {
