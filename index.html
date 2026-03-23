@@ -1,0 +1,1095 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>my-burano.com - Terra Nova 112</title>
+<link href="https://fonts.googleapis.com/css2?family=Pacifico&family=Nunito:wght@400;700;800;900&display=swap" rel="stylesheet">
+<script src="photos.js"></script>
+<style>
+:root{--bd:#0A1628;--bm:#0D2B5E;--bv:#1565C0;--gold:#FFD23F;--org:#FF6B35;--teal:#00C2C7;--grn:#4CAF50;--wh:#fff;}
+*{margin:0;padding:0;box-sizing:border-box;}html{scroll-behavior:smooth;}
+body{font-family:'Nunito',sans-serif;background:var(--bd);color:var(--wh);overflow-x:hidden;}
+/* LANG BAR */
+#lbar{background:var(--bd);border-bottom:2px solid rgba(255,255,255,.1);padding:7px 14px;display:flex;align-items:center;gap:6px;flex-wrap:wrap;position:sticky;top:0;z-index:200;}
+.logo{font-family:'Pacifico',cursive;color:var(--gold);font-size:.95rem;margin-right:6px;}
+.lb{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);color:rgba(255,255,255,.8);border-radius:20px;padding:3px 11px;font-size:.75rem;font-weight:700;cursor:pointer;font-family:'Nunito',sans-serif;transition:all .2s;}
+.lb:hover,.lb.on{background:var(--gold);color:var(--bd);border-color:var(--gold);}
+/* COLOR STRIP */
+.cstrip{display:flex;height:6px;}
+.cstrip span{flex:1;}
+/* HERO */
+.hero{position:relative;height:100svh;min-height:480px;overflow:hidden;display:flex;align-items:center;justify-content:center;}
+.hslides{position:absolute;inset:0;}
+.hslide{position:absolute;inset:0;background-size:cover;background-position:center;opacity:0;transition:opacity 1.5s ease;}
+.hslide.on{opacity:1;}
+.hfallback{background:linear-gradient(135deg,#1565C0 0%,#0D2B5E 50%,#0A1628 100%);}
+.hovl{position:absolute;inset:0;background:linear-gradient(to bottom,rgba(10,22,40,.45) 0%,rgba(10,22,40,.15) 40%,rgba(10,22,40,.65) 100%);}
+.hcnt{position:relative;z-index:2;text-align:center;padding:20px;}
+.hcnt h1{font-family:'Pacifico',cursive;font-size:clamp(2.4rem,8vw,5rem);text-shadow:0 4px 20px rgba(0,0,0,.5);margin-bottom:8px;line-height:1.1;}
+.hsub{font-size:clamp(.85rem,2.5vw,1.1rem);color:rgba(255,255,255,.9);font-weight:700;letter-spacing:2px;text-transform:uppercase;margin-bottom:18px;}
+.hadr{display:inline-block;background:rgba(255,255,255,.15);backdrop-filter:blur(12px);border:1px solid rgba(255,255,255,.3);border-radius:50px;padding:7px 20px;font-weight:800;font-size:.88rem;margin-bottom:22px;color:var(--gold);}
+.hbtns{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;}
+.btnH{background:var(--gold);color:var(--bd);border:none;border-radius:50px;padding:11px 26px;font-size:.9rem;font-weight:900;cursor:pointer;font-family:'Nunito',sans-serif;transition:transform .2s;box-shadow:0 4px 16px rgba(255,210,63,.4);}
+.btnH:hover{transform:scale(1.05);}
+.btnH.out{background:transparent;color:var(--wh);border:2px solid rgba(255,255,255,.6);box-shadow:none;}
+.btnH.out:hover{background:rgba(255,255,255,.12);}
+.hscrl{position:absolute;bottom:26px;left:50%;transform:translateX(-50%);z-index:2;animation:bob 2s infinite;color:rgba(255,255,255,.7);font-size:1.4rem;cursor:pointer;background:none;border:none;}
+@keyframes bob{0%,100%{transform:translateX(-50%) translateY(0)}50%{transform:translateX(-50%) translateY(8px)}}
+/* SECTIONS */
+.sec{max-width:960px;margin:0 auto;padding:50px 18px;}
+.stit{font-family:'Pacifico',cursive;font-size:clamp(1.7rem,4vw,2.6rem);margin-bottom:6px;display:flex;align-items:center;gap:10px;color:var(--gold);}
+.ssub{color:rgba(255,255,255,.55);margin-bottom:28px;font-size:.9rem;font-weight:600;}
+.b1{background:var(--bd);}
+.b2{background:var(--bm);}
+.b3{background:#060e1a;}
+/* HISTORY */
+.hcard{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:20px;padding:28px;line-height:1.8;font-size:.95rem;color:rgba(255,255,255,.85);}
+/* PRODUCT CARDS */
+.cgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(185px,1fr));gap:14px;}
+.pc{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:18px;padding:22px 16px;text-align:center;cursor:pointer;transition:transform .2s,border-color .2s;}
+.pc:hover{transform:translateY(-5px);border-color:var(--gold);}
+.pc .ico{font-size:2.4rem;margin-bottom:10px;display:block;}
+.pc .nm{font-weight:900;font-size:.95rem;margin-bottom:5px;}
+.pc .ds{font-size:.78rem;color:rgba(255,255,255,.55);margin-bottom:12px;line-height:1.4;}
+.pc .pr{display:inline-block;background:var(--gold);color:var(--bd);border-radius:30px;padding:4px 14px;font-weight:900;font-size:.9rem;}
+/* PACK */
+.pack{background:linear-gradient(135deg,var(--bv),#0D47A1);border-radius:20px;padding:26px;margin-top:18px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:18px;}
+.pack h3{font-size:1.3rem;font-weight:900;margin-bottom:4px;}
+.pack-p{font-family:'Pacifico',cursive;font-size:2.3rem;color:var(--gold);}
+.pack-o{text-decoration:line-through;opacity:.5;font-size:.95rem;}
+/* PAYPAL BTN */
+.btnPP{display:inline-block;background:linear-gradient(135deg,#009CDE,#003087);color:#fff;border:none;border-radius:50px;padding:12px 26px;font-size:.9rem;font-weight:800;cursor:pointer;font-family:'Nunito',sans-serif;box-shadow:0 4px 16px rgba(0,144,222,.35);transition:transform .2s;}
+.btnPP:hover{transform:scale(1.05);}
+/* GALLERY */
+.ggrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:14px;}
+.gi{border-radius:14px;overflow:hidden;position:relative;cursor:pointer;aspect-ratio:4/3;border:3px solid transparent;transition:border-color .2s,transform .2s;background:var(--bm);}
+.gi:hover{border-color:var(--gold);transform:scale(1.02);}
+.gi img{width:100%;height:100%;object-fit:cover;display:block;}
+.gi .lbl{position:absolute;bottom:8px;right:8px;background:rgba(0,0,0,.7);color:var(--gold);font-size:.68rem;font-weight:900;padding:3px 9px;border-radius:10px;}
+/* POSTCARD */
+.pcc{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);border-radius:20px;padding:24px;}
+.pcprev{display:flex;justify-content:center;margin-bottom:18px;}
+#pcanv{border-radius:10px;box-shadow:0 10px 36px rgba(0,0,0,.5);max-width:100%;cursor:pointer;}
+.pcctrl{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px;}
+@media(max-width:520px){.pcctrl{grid-template-columns:1fr;}}
+.pcsel,.pcinp{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.2);border-radius:10px;padding:9px 12px;color:var(--wh);font-family:'Nunito',sans-serif;font-size:.88rem;outline:none;width:100%;}
+.pcsel:focus,.pcinp:focus{border-color:var(--gold);}
+.pcsel option{background:var(--bd);color:var(--wh);}
+.pcinp{grid-column:1/-1;}
+.btnDL{background:linear-gradient(135deg,var(--gold),var(--org));color:var(--bd);border:none;border-radius:50px;padding:12px 26px;font-size:.95rem;font-weight:900;cursor:pointer;font-family:'Nunito',sans-serif;width:100%;margin-top:4px;}
+/* VIDEO */
+.vcard{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:18px;padding:26px;display:flex;gap:18px;margin-bottom:12px;flex-wrap:wrap;}
+.vico{font-size:2.8rem;flex-shrink:0;}
+.vcard h3{font-size:1.1rem;font-weight:900;margin-bottom:5px;}
+.vcard p{opacity:.72;font-size:.85rem;line-height:1.5;}
+.stag{display:inline-block;background:rgba(255,255,255,.1);border-radius:18px;padding:3px 11px;font-size:.75rem;font-weight:700;margin:3px 2px 0;}
+/* PARTNER */
+.pgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:14px;}
+.ptcard{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);border-top:4px solid var(--gold);border-radius:16px;padding:22px 18px;}
+.ptcard h3{font-weight:900;font-size:.95rem;margin-bottom:4px;}
+.ptcard p{font-size:.8rem;color:rgba(255,255,255,.55);line-height:1.4;}
+.cpn{margin-top:10px;border:2px dashed var(--gold);border-radius:9px;padding:7px 11px;font-size:.8rem;font-weight:800;color:var(--gold);text-align:center;}
+/* RENTAL */
+.rgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:18px;}
+.rcard{border-radius:18px;overflow:hidden;position:relative;min-height:190px;cursor:pointer;transition:transform .2s;}
+.rcard:hover{transform:scale(1.02);}
+.rbg{position:absolute;inset:0;background-size:cover;background-position:center;background-color:var(--bv);}
+.rovl{position:absolute;inset:0;background:linear-gradient(to top,rgba(10,22,40,.9) 0%,rgba(10,22,40,.2) 70%,transparent 100%);}
+.rinfo{position:absolute;bottom:0;left:0;right:0;padding:18px;}
+.rinfo h3{font-size:1.3rem;font-weight:900;margin-bottom:4px;}
+.rinfo p{font-size:.82rem;opacity:.8;margin-bottom:10px;}
+/* QR */
+.qrbox{background:#fff;border-radius:18px;padding:18px;display:inline-block;}
+.qrlbl{font-family:'Pacifico',cursive;color:var(--bv);text-align:center;margin-top:7px;font-size:.85rem;}
+/* AI WIDGET */
+#aiwid{position:fixed;bottom:18px;right:18px;z-index:500;}
+.aibub{width:58px;height:58px;background:linear-gradient(135deg,var(--bv),var(--teal));border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.5rem;cursor:pointer;box-shadow:0 4px 18px rgba(21,101,192,.5);border:none;}
+#aichat{display:none;position:fixed;bottom:86px;right:18px;width:min(360px,calc(100vw - 36px));height:440px;background:var(--bd);border:1px solid rgba(255,255,255,.15);border-radius:18px;box-shadow:0 18px 56px rgba(0,0,0,.5);flex-direction:column;overflow:hidden;z-index:500;}
+#aichat.open{display:flex;}
+.aihdr{background:linear-gradient(135deg,var(--bv),var(--teal));padding:13px 16px;display:flex;align-items:center;gap:9px;}
+.ainm{font-weight:900;font-size:.95rem;}
+.aist{font-size:.72rem;opacity:.8;}
+.aiclose{margin-left:auto;background:none;border:none;color:#fff;font-size:1.2rem;cursor:pointer;line-height:1;}
+.aimsg{flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:10px;}
+.msg{max-width:85%;padding:9px 13px;border-radius:14px;font-size:.85rem;line-height:1.5;}
+.msg.bot{background:rgba(255,255,255,.1);border-bottom-left-radius:3px;align-self:flex-start;white-space:pre-wrap;}
+.msg.usr{background:var(--bv);border-bottom-right-radius:3px;align-self:flex-end;}
+.aiinpr{padding:10px;border-top:1px solid rgba(255,255,255,.08);display:flex;gap:7px;}
+#aiinp{flex:1;background:rgba(255,255,255,.09);border:1px solid rgba(255,255,255,.18);border-radius:10px;padding:9px 12px;color:#fff;font-family:'Nunito',sans-serif;font-size:.85rem;outline:none;}
+.aisend{background:linear-gradient(135deg,var(--bv),var(--teal));border:none;border-radius:10px;padding:9px 13px;color:#fff;cursor:pointer;font-size:.95rem;}
+.aikey{padding:8px 10px;border-top:1px solid rgba(255,255,255,.08);display:none;gap:6px;}
+.aikey input{flex:1;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);border-radius:8px;padding:6px 10px;color:#fff;font-size:.75rem;font-family:'Nunito',sans-serif;outline:none;}
+.aikey button{background:var(--grn);border:none;border-radius:8px;padding:6px 12px;color:#fff;font-size:.75rem;font-weight:700;cursor:pointer;font-family:'Nunito',sans-serif;}
+/* MODAL */
+.ovl{display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:800;align-items:center;justify-content:center;padding:18px;}
+.ovl.open{display:flex;}
+.mdl{background:var(--bm);border:1px solid rgba(255,255,255,.12);border-radius:20px;padding:28px;max-width:400px;width:100%;position:relative;animation:mIn .3s ease;}
+@keyframes mIn{from{transform:scale(.85);opacity:0}to{transform:scale(1);opacity:1}}
+.mclose{position:absolute;top:12px;right:14px;font-size:1.2rem;background:none;border:none;color:rgba(255,255,255,.5);cursor:pointer;line-height:1;}
+.mdl h2{font-family:'Pacifico',cursive;color:var(--gold);margin-bottom:7px;}
+.mdl p{opacity:.7;font-size:.88rem;margin-bottom:14px;}
+.qrow{display:flex;align-items:center;gap:10px;margin-bottom:14px;}
+.qbtn{width:36px;height:36px;border-radius:50%;border:2px solid rgba(255,255,255,.3);background:none;color:#fff;font-size:1.2rem;cursor:pointer;font-weight:900;}
+#qdis{font-size:1.2rem;font-weight:900;min-width:28px;text-align:center;}
+.totl{font-size:1.05rem;font-weight:900;margin-bottom:14px;}
+.totl span{color:var(--gold);font-size:1.3rem;}
+/* ADMIN */
+.atog{display:block;margin:14px auto;background:none;border:1px solid rgba(255,255,255,.1);border-radius:28px;padding:6px 16px;color:rgba(255,255,255,.25);font-size:.75rem;cursor:pointer;font-family:'Nunito',sans-serif;}
+#admpnl{display:none;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:20px;padding:24px;max-width:960px;margin:0 auto 32px;}
+.atmx{font-family:'Pacifico',cursive;font-size:1.5rem;color:var(--gold);margin-bottom:14px;}
+.agrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px;margin-bottom:16px;}
+.astat{background:rgba(255,255,255,.05);border-radius:12px;padding:14px;text-align:center;}
+.astat .n{font-family:'Pacifico',cursive;font-size:1.5rem;color:var(--gold);}
+.astat .l{font-size:.72rem;opacity:.5;margin-top:2px;}
+.asec{margin-top:16px;}
+.asec h4{font-weight:900;color:var(--teal);text-transform:uppercase;font-size:.72rem;letter-spacing:1px;margin-bottom:9px;}
+.ainput{width:100%;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.14);border-radius:9px;padding:9px 12px;color:#fff;font-family:'Nunito',sans-serif;font-size:.85rem;margin-bottom:7px;outline:none;}
+.ainput:focus{border-color:var(--gold);}
+.arow{display:grid;grid-template-columns:1fr 1fr;gap:7px;}
+@media(max-width:460px){.arow{grid-template-columns:1fr;}}
+.abtn{background:linear-gradient(135deg,var(--gold),var(--org));color:var(--bd);border:none;border-radius:9px;padding:9px 18px;font-weight:900;font-size:.88rem;cursor:pointer;font-family:'Nunito',sans-serif;width:100%;margin-top:3px;}
+.plist{background:rgba(255,255,255,.04);border-radius:10px;padding:10px;}
+.pitem{display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid rgba(255,255,255,.06);font-size:.82rem;}
+.pitem:last-child{border:none;}
+.pnm{font-weight:700;}.ptp{opacity:.4;font-size:.72rem;}
+.prv{color:var(--grn);font-weight:900;}
+.xbtn{background:#E53935;color:#fff;border:none;border-radius:6px;padding:3px 8px;font-size:.72rem;cursor:pointer;}
+/* FOOTER */
+footer{background:#040b14;text-align:center;padding:30px 16px;color:rgba(255,255,255,.4);font-size:.85rem;border-top:1px solid rgba(255,255,255,.06);}
+footer strong{color:var(--gold);}
+/* REVEAL */
+.rev{opacity:0;transform:translateY(20px);transition:opacity .5s,transform .5s;}
+.rev.vis{opacity:1;transform:none;}
+@media(max-width:540px){.sec{padding:36px 14px;}.pack{flex-direction:column;}.vcard{flex-direction:column;}}
+</style>
+</head>
+<body>
+
+<!-- LANG BAR -->
+<div id="lbar">
+  <div class="logo">my-burano.com</div>
+  <button class="lb" id="lb_de" onclick="setLang('de')">DE</button>
+  <button class="lb" id="lb_en" onclick="setLang('en')">EN</button>
+  <button class="lb" id="lb_it" onclick="setLang('it')">IT</button>
+  <button class="lb" id="lb_fr" onclick="setLang('fr')">FR</button>
+  <button class="lb" id="lb_es" onclick="setLang('es')">ES</button>
+  <button class="lb" id="lb_ja" onclick="setLang('ja')">JP</button>
+  <button class="lb" id="lb_zh" onclick="setLang('zh')">ZH</button>
+  <button class="lb" id="lb_pl" onclick="setLang('pl')">PL</button>
+</div>
+
+<!-- COLOR STRIP -->
+<div class="cstrip">
+  <span style="background:#FF6B35"></span><span style="background:#FFD23F"></span>
+  <span style="background:#4CAF50"></span><span style="background:#2196F3"></span>
+  <span style="background:#FF4D8D"></span><span style="background:#00C2C7"></span>
+  <span style="background:#9C27B0"></span><span style="background:#FF6B35"></span>
+  <span style="background:#FFD23F"></span><span style="background:#4CAF50"></span>
+</div>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hslides" id="hslides">
+    <div class="hslide hfallback on"></div>
+  </div>
+  <div class="hovl"></div>
+  <div class="hcnt">
+    <div style="font-size:2.8rem;margin-bottom:6px">&#127965;</div>
+    <h1>Burano Shop</h1>
+    <p class="hsub" id="t_hero_sub">Fotos - Postkarten - Videos - Souvenirs</p>
+    <div class="hadr">&#128205; Terra Nova 112 &middot; Burano, Venezia</div>
+    <div class="hbtns">
+      <button class="btnH" onclick="document.getElementById('shop').scrollIntoView({behavior:'smooth'})">&#128722; <span id="t_btn_shop">Jetzt kaufen</span></button>
+      <button class="btnH out" onclick="openChat()">&#129302; <span id="t_btn_guide">KI-Reiseleiter</span></button>
+    </div>
+  </div>
+  <button class="hscrl" onclick="document.getElementById('hist').scrollIntoView({behavior:'smooth'})">&#8595;</button>
+</section>
+
+<!-- HISTORY -->
+<div class="b2" id="hist">
+<div class="sec rev">
+  <h2 class="stit">&#127963; <span id="t_hist_title">Geschichte von Burano</span></h2>
+  <p class="ssub">La Perla della Laguna Veneta</p>
+  <div class="hcard">
+    <p id="t_hist_body">Burano ist eine malerische Insel in der Lagune von Venedig, etwa 7 km noerdlich der Stadt. Die Insel ist beruehmt fuer ihre leuchtend bunten Haeuser - eine jahrhundertealte Tradition. Fischer haben ihre Haeuser bunt bemalt, damit die Familie das Boot auch im dichten Nebel der Lagune erkennen konnte. Seit dem 16. Jahrhundert ist Burano das Zentrum der venezianischen Spitzenkunst. Die Insel empfaengt taeglich bis zu 2.000 Besucher. An der Terra Nova 112 fliessen taeglich Hunderte vorbei.</p>
+    <br><button class="btnH" onclick="openChat()" style="margin-top:14px" id="t_btn_listen">&#127897; KI-Reiseleiter befragen</button>
+  </div>
+</div></div>
+
+<!-- SHOP FOTOS -->
+<div class="b1" id="shop">
+<div class="sec rev">
+  <h2 class="stit">&#128248; <span id="t_foto_title">Deine Burano-Fotos</span></h2>
+  <p class="ssub" id="t_foto_sub">Sofort-Download nach PayPal-Zahlung</p>
+  <div class="cgrid">
+    <div class="pc" onclick="openMdl('1 Foto',0.99)">
+      <span class="ico">&#128444;</span>
+      <div class="nm" id="t_prod1">1 Foto Download</div>
+      <div class="ds" id="t_prod1d">Hochaufloesungsfoto sofort verfuegbar</div>
+      <div class="pr">0,99 EUR</div>
+    </div>
+    <div class="pc" onclick="openMdl('Tages-Stempel',1.50)">
+      <span class="ico">&#128278;</span>
+      <div class="nm" id="t_prod2">Tages-Stempel</div>
+      <div class="ds" id="t_prod2d">Burano-Stempel mit heutigem Datum</div>
+      <div class="pr">1,50 EUR</div>
+    </div>
+    <div class="pc" onclick="openMdl('Briefmarke digital',0.99)">
+      <span class="ico">&#9993;</span>
+      <div class="nm" id="t_prod3">Briefmarke digital</div>
+      <div class="ds" id="t_prod3d">Vintage-Briefmarke Burano-Motiv</div>
+      <div class="pr">0,99 EUR</div>
+    </div>
+    <div class="pc" onclick="document.getElementById('postcard').scrollIntoView({behavior:'smooth'})">
+      <span class="ico">&#128206;</span>
+      <div class="nm" id="t_prod4">Postkarte</div>
+      <div class="ds" id="t_prod4d">Personalisierte Postkarte</div>
+      <div class="pr">1,99 EUR</div>
+    </div>
+  </div>
+  <div class="pack rev">
+    <div>
+      <h3 id="t_pack_title">&#127881; 10er Foto-Paket</h3>
+      <p id="t_pack_desc">10 Fotos - Sofort - Spare 50%!</p>
+    </div>
+    <div style="text-align:center">
+      <div><span class="pack-o">9,90 EUR</span></div>
+      <div class="pack-p">4,99 EUR</div><br>
+      <button class="btnPP" onclick="ppGo('10 Burano Fotos',4.99)">&#128153; <span id="t_btn_buy">Kaufen via PayPal</span></button>
+    </div>
+  </div>
+</div></div>
+
+<!-- GALLERY -->
+<div class="b3">
+<div class="sec rev">
+  <h2 class="stit">&#127752; <span id="t_gal_title">Unsere Burano-Aufnahmen</span></h2>
+  <p class="ssub" id="t_gal_sub">Aufgenommen direkt vor Ort - Terra Nova 112</p>
+  <div class="ggrid" id="ggrid">
+    <p style="opacity:.4;padding:20px" id="t_loading">Fotos werden geladen...</p>
+  </div>
+</div></div>
+
+<!-- POSTCARD GENERATOR -->
+<div class="b2" id="postcard">
+<div class="sec rev">
+  <h2 class="stit">&#128206; <span id="t_pc_title">Postkarten-Generator</span></h2>
+  <p class="ssub" id="t_pc_sub">Mit Briefmarke, Stempel und persoenlichem Gruss</p>
+  <div class="pcc">
+    <div class="pcprev"><canvas id="pcanv" width="760" height="530"></canvas></div>
+    <div class="pcctrl">
+      <select class="pcsel" id="pcphoto" onchange="renderPC()">
+        <option value="canal_wide">Kanal - Alle Farben</option>
+        <option value="canal_winter">Winter-Stimmung</option>
+        <option value="canal_lagoon">Zur Lagune</option>
+        <option value="canal_sunset">Sonnenuntergang</option>
+        <option value="piazza">Piazza Galuppi</option>
+        <option value="canal_morning">Morgenkanal</option>
+      </select>
+      <select class="pcsel" id="pclang" onchange="renderPC()">
+        <option value="de">Deutsch</option>
+        <option value="en">English</option>
+        <option value="it">Italiano</option>
+        <option value="fr">Francais</option>
+        <option value="es">Espanol</option>
+        <option value="ja">Japanese</option>
+        <option value="zh">Chinese</option>
+        <option value="pl">Polski</option>
+      </select>
+      <input class="pcinp" id="pctext" type="text" placeholder="Eigener Text (optional)..." oninput="renderPC()">
+    </div>
+    <button class="btnDL" onclick="dlPC()" id="t_pc_buy">&#128229; Download &amp; kaufen - 1,99 EUR via PayPal</button>
+  </div>
+</div></div>
+
+<!-- VIDEOS -->
+<div class="b1">
+<div class="sec rev">
+  <h2 class="stit">&#127916; <span id="t_vid_title">Burano Video-Clips</span></h2>
+  <p class="ssub" id="t_vid_sub">Full HD mit persoenlichem Text - Perfekt fuer Social Media</p>
+  <div class="vcard">
+    <div class="vico">&#127909;</div>
+    <div style="flex:1">
+      <h3 id="t_v1">Standard Clip - 16 Sekunden</h3>
+      <p id="t_v1d">Atmosphaerisches Burano-Video mit eingeblendetem Text. Perfekt fuer Instagram Reels und WhatsApp Status.</p>
+      <div style="margin-top:8px"><span class="stag">1920x1080</span><span class="stag">16 Sek</span><span class="stag">Text</span></div>
+      <br><button class="btnPP" onclick="openVMdl('Standard 16s',3.99)">&#128153; 3,99 EUR</button>
+    </div>
+  </div>
+  <div class="vcard">
+    <div class="vico">&#127902;</div>
+    <div style="flex:1">
+      <h3 id="t_v2">Premium Clip - 20 Sekunden</h3>
+      <p id="t_v2d">Mehrere Burano-Szenen, Musik und personalisierten Text. Das ultimative Souvenir!</p>
+      <div style="margin-top:8px"><span class="stag">1920x1080</span><span class="stag">20 Sek</span><span class="stag">Musik</span></div>
+      <br><button class="btnPP" onclick="openVMdl('Premium 20s',5.99)">&#128153; 5,99 EUR</button>
+    </div>
+  </div>
+</div></div>
+
+<!-- PARTNER -->
+<div class="b3">
+<div class="sec rev">
+  <h2 class="stit">&#129309; <span id="t_part_title">Partner in Burano</span></h2>
+  <p class="ssub" id="t_part_sub">Exklusive Gutscheine fuer Burano-Shop-Kunden</p>
+  <div class="pgrid" id="pgrid"></div>
+  <br>
+  <a href="mailto:info@myburano.com?subject=Partnership" class="btnH out" style="text-decoration:none;display:inline-block;padding:11px 26px" id="t_btn_partner">&#9993; Jetzt Partner werden</a>
+</div></div>
+
+<!-- RENTAL -->
+<div class="b2">
+<div class="sec rev">
+  <h2 class="stit">&#127968; <span id="t_rent_title">Uebernachte in Burano</span></h2>
+  <p class="ssub" id="t_rent_sub">Direkt beim Fotografen - unvergessliche Erfahrung</p>
+  <div class="rgrid">
+    <div class="rcard" onclick="window.open('https://myburano.com','_blank')">
+      <div class="rbg" id="rbg1"></div><div class="rovl"></div>
+      <div class="rinfo"><h3>Blue Lagune</h3><p id="t_r1">Traumhafte Ferienwohnung mit Blick auf die bunten Kanaele</p>
+      <button class="btnH" id="t_btn_book">Jetzt buchen</button></div>
+    </div>
+    <div class="rcard" onclick="window.open('https://myburano.com','_blank')">
+      <div class="rbg" id="rbg2"></div><div class="rovl"></div>
+      <div class="rinfo"><h3>Vista Laguna</h3><p id="t_r2">Lagunenpanorama - das beste Burano-Erlebnis</p>
+      <button class="btnH">Jetzt buchen</button></div>
+    </div>
+  </div>
+</div></div>
+
+<!-- QR -->
+<div class="b1">
+<div class="sec rev" style="text-align:center">
+  <h2 class="stit" style="justify-content:center">&#128241; <span id="t_qr_title">QR-Code fuer Gaeste</span></h2>
+  <p class="ssub" id="t_qr_sub">Einfach scannen - direkt zum Shop!</p>
+  <div style="display:flex;justify-content:center">
+    <div class="qrbox"><div id="qrcode"></div><div class="qrlbl">my-burano.com - Terra Nova 112</div></div>
+  </div>
+</div></div>
+
+<!-- FOOTER -->
+<footer>
+  <p><strong>Burano Shop</strong> &middot; Terra Nova 112 &middot; 30142 Venezia VE, Italia</p>
+  <p style="margin-top:6px">Copyright Burano Shop &middot; Sicher bezahlen via PayPal &middot; <a href="https://myburano.com" style="color:var(--gold);text-decoration:none">myburano.com</a></p>
+  <button class="atog" onclick="toggleAdmin()">Admin</button>
+</footer>
+
+<!-- ADMIN -->
+<div id="admpnl">
+  <div id="apwscr" style="text-align:center">
+    <div class="atmx">Admin Login</div>
+    <input type="password" class="ainput" id="apw" placeholder="Passwort..." style="max-width:240px;display:block;margin:0 auto 9px" onkeydown="if(event.key==='Enter')chkPw()">
+    <button class="abtn" onclick="chkPw()" style="max-width:160px;margin:0 auto">Einloggen</button>
+    <div id="pwerr" style="color:#f44;margin-top:7px;display:none">Falsches Passwort</div>
+  </div>
+  <div id="acnt" style="display:none">
+    <div class="atmx">Admin - Terra Nova 112</div>
+    <div class="agrid">
+      <div class="astat"><div class="n" id="ss">0</div><div class="l">Verkaeufe</div></div>
+      <div class="astat"><div class="n" id="sr">0</div><div class="l">Umsatz EUR</div></div>
+      <div class="astat"><div class="n" id="sp">0</div><div class="l">Partner</div></div>
+    </div>
+    <div class="asec"><h4>Preise</h4>
+      <div class="arow">
+        <input type="number" class="ainput" id="p1" placeholder="1 Foto" step=".01" value="0.99">
+        <input type="number" class="ainput" id="p10" placeholder="10er-Pack" step=".01" value="4.99">
+      </div>
+      <div class="arow">
+        <input type="number" class="ainput" id="pvs" placeholder="Standard Video" step=".01" value="3.99">
+        <input type="number" class="ainput" id="pvp" placeholder="Premium Video" step=".01" value="5.99">
+      </div>
+      <button class="abtn" onclick="svPrices()">Preise speichern</button>
+    </div>
+    <div class="asec"><h4>Partner</h4>
+      <div class="plist" id="aplst"></div><br>
+      <h4 style="margin-bottom:8px">Partner hinzufuegen</h4>
+      <input type="text" class="ainput" id="npn" placeholder="Partnername...">
+      <div class="arow">
+        <select class="ainput" id="npt">
+          <option value="apotheke">Apotheke</option>
+          <option value="restaurant">Restaurant</option>
+          <option value="hotel">Unterkunft</option>
+          <option value="shop">Shop</option>
+        </select>
+        <input type="number" class="ainput" id="npp" placeholder="Provision %" value="5">
+      </div>
+      <div class="arow">
+        <input type="number" class="ainput" id="npc" placeholder="Gutschein %" value="10">
+        <input type="text" class="ainput" id="npcd" placeholder="Code">
+      </div>
+      <button class="abtn" onclick="addPart()">Hinzufuegen</button>
+    </div>
+    <div class="asec"><h4>PayPal E-Mail</h4>
+      <input type="email" class="ainput" id="ppem" placeholder="PayPal E-Mail...">
+      <button class="abtn" onclick="svPP()">Speichern</button>
+    </div>
+    <div class="asec"><h4>Anthropic API-Key (fuer KI-Chat)</h4>
+      <input type="password" class="ainput" id="apiinp" placeholder="sk-ant-...">
+      <button class="abtn" onclick="svKey()">Speichern</button>
+    </div>
+    <div style="margin-top:14px;text-align:right">
+      <button class="abtn" onclick="lgout()" style="background:rgba(255,255,255,.1);color:#fff;max-width:120px">Abmelden</button>
+    </div>
+  </div>
+</div>
+
+<!-- AI WIDGET -->
+<div id="aiwid">
+  <button class="aibub" onclick="toggleChat()">&#129302;</button>
+</div>
+<div id="aichat">
+  <div class="aihdr">
+    <span style="font-size:1.3rem">&#129302;</span>
+    <div><div class="ainm">Marco - KI-Reiseleiter</div><div class="aist" id="t_ai_status">Ihr Burano-Guide</div></div>
+    <button class="aiclose" onclick="toggleChat()">&#10005;</button>
+  </div>
+  <div class="aimsg" id="aimsgs"></div>
+  <div class="aikey" id="aikey">
+    <input type="password" id="aikeyfld" placeholder="Anthropic API Key (sk-ant-...)">
+    <button onclick="svKeyW()">OK</button>
+  </div>
+  <div class="aiinpr">
+    <input type="text" id="aiinp" placeholder="Frag mich etwas ueber Burano...">
+    <button class="aisend" onclick="sendAI()">&#10148;</button>
+  </div>
+</div>
+
+<!-- BUY MODAL -->
+<div class="ovl" id="bmdl">
+  <div class="mdl">
+    <button class="mclose" onclick="document.getElementById('bmdl').classList.remove('open')">&#10005;</button>
+    <h2 id="mt">Kaufen</h2>
+    <p id="md">Burano-Foto - sofort verfuegbar</p>
+    <div class="qrow">
+      <button class="qbtn" onclick="chgQ(-1)">&#8722;</button>
+      <span id="qdis">1</span>
+      <button class="qbtn" onclick="chgQ(1)">+</button>
+      <span style="opacity:.6;font-size:.82rem">Stueck</span>
+    </div>
+    <div class="totl">Gesamt: <span id="mtot">0,99 EUR</span></div>
+    <button class="btnPP" id="mpaybtn" style="width:100%">&#128153; Kaufen via PayPal</button>
+    <p style="text-align:center;font-size:.7rem;opacity:.4;margin-top:7px">Sicher - Download nach Zahlung</p>
+  </div>
+</div>
+
+<!-- VIDEO MODAL -->
+<div class="ovl" id="vmdl">
+  <div class="mdl">
+    <button class="mclose" onclick="document.getElementById('vmdl').classList.remove('open')">&#10005;</button>
+    <h2 id="vmt" style="color:var(--teal)">Video kaufen</h2>
+    <p>Dein Text fuer den Video-Clip:</p>
+    <textarea class="ainput" id="vtxt" rows="3" placeholder="z.B. Ciao Burano! Mai 2025" style="resize:vertical;margin-bottom:10px"></textarea>
+    <div class="totl">Preis: <span id="vmpr" style="color:var(--gold)">3,99 EUR</span></div>
+    <button class="btnPP" id="vmpaybtn" style="width:100%">&#128153; Kaufen via PayPal</button>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script>
+// Translations - nur ASCII, keine Sonderzeichen im JS
+var TXT = {
+  de: {
+    hero_sub:"Fotos - Postkarten - Videos - Souvenirs",
+    btn_shop:"Jetzt kaufen", btn_guide:"KI-Reiseleiter", btn_listen:"KI-Reiseleiter befragen",
+    hist_title:"Geschichte von Burano",
+    hist_body:"Burano ist eine malerische Insel in der Lagune von Venedig, etwa 7 km noerdlich der Stadt. Die Insel ist beruehmt fuer ihre leuchtend bunten Haeuser - eine jahrhundertealte Tradition. Fischer bemalten ihre Haeuser, damit die Familie das Boot auch im Nebel erkennt. Seit dem 16. Jahrhundert ist Burano das Zentrum der venezianischen Spitzenkunst. Die Insel empfaengt taeglich bis zu 2.000 Besucher aus aller Welt. An der Terra Nova 112 fliessen taeglich Hunderte vorbei.",
+    foto_title:"Deine Burano-Fotos", foto_sub:"Sofort-Download nach PayPal-Zahlung",
+    prod1:"1 Foto Download", prod1d:"Hochaufloesungsfoto sofort verfuegbar",
+    prod2:"Tages-Stempel", prod2d:"Burano-Stempel mit heutigem Datum",
+    prod3:"Briefmarke digital", prod3d:"Vintage-Briefmarke Burano-Motiv",
+    prod4:"Postkarte", prod4d:"Personalisierte Postkarte mit deinem Text",
+    pack_title:"10er Foto-Paket", pack_desc:"10 Fotos - Sofort - Spare 50%!",
+    btn_buy:"Kaufen via PayPal",
+    gal_title:"Unsere Burano-Aufnahmen", gal_sub:"Aufgenommen direkt vor Ort - Terra Nova 112",
+    pc_title:"Postkarten-Generator", pc_sub:"Mit Briefmarke, Stempel und persoenlichem Gruss",
+    pc_buy:"Download kaufen - 1,99 EUR via PayPal",
+    vid_title:"Burano Video-Clips", vid_sub:"Full HD mit persoenlichem Text",
+    v1:"Standard Clip - 16 Sekunden", v1d:"Atmosphaerisches Burano-Video mit Text. Perfekt fuer Instagram Reels und WhatsApp Status.",
+    v2:"Premium Clip - 20 Sekunden", v2d:"Mehrere Burano-Szenen, Musik und Text. Das ultimative Souvenir!",
+    part_title:"Partner in Burano", part_sub:"Exklusive Gutscheine fuer Kunden",
+    btn_partner:"Jetzt Partner werden",
+    rent_title:"Uebernachte in Burano", rent_sub:"Direkt beim Fotografen",
+    r1:"Traumhafte Wohnung mit Blick auf die bunten Kanaele", r2:"Lagunenpanorama - das beste Burano-Erlebnis",
+    btn_book:"Jetzt buchen",
+    qr_title:"QR-Code fuer Gaeste", qr_sub:"Einfach scannen - direkt zum Shop!",
+    ai_status:"Ihr persoenlicher Burano-Guide", loading:"Fotos werden geladen...",
+    pc_greeting:"Herzliche Gruesse von der Insel Burano",
+    ai_welcome:"Ciao! Ich bin Marco, dein KI-Reiseleiter fuer Burano! Die Insel ist beruehmt fuer ihre bunten Haeuser und die venezianische Spitzenkunst. Womit kann ich dir helfen?"
+  },
+  en: {
+    hero_sub:"Photos - Postcards - Videos - Souvenirs",
+    btn_shop:"Shop Now", btn_guide:"AI Travel Guide", btn_listen:"Ask the AI Guide",
+    hist_title:"History of Burano",
+    hist_body:"Burano is a picturesque island in the Venice Lagoon, about 7 km north of the city. Famous for its vividly coloured houses - a centuries-old tradition. Fishermen painted their homes so families could spot the boat in dense fog. Since the 16th century Burano has been the centre of Venetian lace-making. The island welcomes up to 2,000 visitors daily from around the world.",
+    foto_title:"Your Burano Photos", foto_sub:"Instant download after PayPal payment",
+    prod1:"1 Photo Download", prod1d:"High-res Burano photo instantly available",
+    prod2:"Daily Stamp", prod2d:"Official Burano stamp with today date",
+    prod3:"Postage Stamp digital", prod3d:"Vintage stamp with Burano motif",
+    prod4:"Postcard", prod4d:"Personalized postcard with your text",
+    pack_title:"10-Photo Package", pack_desc:"10 photos - Instant - Save 50%!",
+    btn_buy:"Buy via PayPal",
+    gal_title:"Our Burano Shots", gal_sub:"Taken on location - Terra Nova 112",
+    pc_title:"Postcard Generator", pc_sub:"With stamp, postmark and greeting",
+    pc_buy:"Download and buy - 1.99 EUR via PayPal",
+    vid_title:"Burano Video Clips", vid_sub:"Full HD with personal text",
+    v1:"Standard Clip - 16 seconds", v1d:"Atmospheric Burano video with text overlay. Perfect for Instagram Reels and WhatsApp Status.",
+    v2:"Premium Clip - 20 seconds", v2d:"Multiple scenes, music and personal text. The ultimate souvenir!",
+    part_title:"Partners in Burano", part_sub:"Exclusive vouchers for customers",
+    btn_partner:"Become a Partner",
+    rent_title:"Stay in Burano", rent_sub:"Directly with the photographer",
+    r1:"Beautiful apartment with colourful canal views", r2:"Lagoon panorama - the best Burano experience",
+    btn_book:"Book now",
+    qr_title:"QR Code for Guests", qr_sub:"Simply scan - directly to the shop!",
+    ai_status:"Your personal Burano guide", loading:"Loading photos...",
+    pc_greeting:"Warm greetings from the island of Burano",
+    ai_welcome:"Ciao! I am Marco, your AI travel guide for Burano! Famous for its colourful houses and Venetian lace. How can I help you?"
+  },
+  it: {
+    hero_sub:"Foto - Cartoline - Video - Souvenir",
+    btn_shop:"Acquista ora", btn_guide:"Guida AI", btn_listen:"Parla con la guida AI",
+    hist_title:"Storia di Burano",
+    hist_body:"Burano e una pittoresca isola nella Laguna di Venezia. Famosa per le case dai colori vivaci - tradizione secolare dei pescatori. Dal XVI secolo centro dell arte merlettaia veneziana. Fino a 2.000 visitatori al giorno.",
+    foto_title:"Le tue Foto di Burano", foto_sub:"Download immediato dopo PayPal",
+    prod1:"1 Foto Download", prod1d:"Foto alta risoluzione subito disponibile",
+    prod2:"Timbro del giorno", prod2d:"Timbro ufficiale con la data di oggi",
+    prod3:"Francobollo digitale", prod3d:"Francobollo vintage Burano",
+    prod4:"Cartolina", prod4d:"Cartolina personalizzata con il tuo testo",
+    pack_title:"Pacchetto 10 Foto", pack_desc:"10 foto - Immediato - Risparmia 50%!",
+    btn_buy:"Acquista via PayPal",
+    gal_title:"Le nostre foto di Burano", gal_sub:"Scattate sul posto - Terra Nova 112",
+    pc_title:"Generatore di Cartoline", pc_sub:"Con francobollo, timbro e saluto",
+    pc_buy:"Scarica e acquista - 1,99 EUR via PayPal",
+    vid_title:"Video Clip di Burano", vid_sub:"Full HD con testo personale",
+    v1:"Clip Standard - 16 secondi", v1d:"Video atmosferico di Burano con testo. Perfetto per Reels e Status.",
+    v2:"Clip Premium - 20 secondi", v2d:"Piu scene, musica e testo personale. Il souvenir definitivo!",
+    part_title:"Partner a Burano", part_sub:"Buoni esclusivi per i clienti",
+    btn_partner:"Diventa partner",
+    rent_title:"Soggiorna a Burano", rent_sub:"Direttamente dal fotografo",
+    r1:"Appartamento con vista sui canali colorati", r2:"Panorama della laguna",
+    btn_book:"Prenota ora",
+    qr_title:"Codice QR per gli ospiti", qr_sub:"Basta scansionare!",
+    ai_status:"La tua guida personale di Burano", loading:"Caricamento foto...",
+    pc_greeting:"Cordiali saluti dalla bellissima isola di Burano",
+    ai_welcome:"Ciao! Sono Marco, la tua guida AI per Burano! Come posso aiutarti?"
+  },
+  fr: {
+    hero_sub:"Photos - Cartes postales - Videos - Souvenirs",
+    btn_shop:"Acheter maintenant", btn_guide:"Guide IA", btn_listen:"Interroger le guide",
+    hist_title:"Histoire de Burano",
+    hist_body:"Burano est une ile pittoresque dans la lagune de Venise. Celebre pour ses maisons aux couleurs vives - tradition seculaire des pecheurs. Jusqu a 2.000 visiteurs par jour.",
+    foto_title:"Vos Photos de Burano", foto_sub:"Telechargement immediat apres PayPal",
+    prod1:"1 Photo a telecharger", prod1d:"Photo haute resolution disponible immediatement",
+    prod2:"Cachet du jour", prod2d:"Cachet officiel avec la date",
+    prod3:"Timbre numerique", prod3d:"Timbre vintage Burano",
+    prod4:"Carte postale", prod4d:"Carte personnalisee avec votre texte",
+    pack_title:"Pack 10 Photos", pack_desc:"10 photos - Immediat - Economisez 50%!",
+    btn_buy:"Acheter via PayPal",
+    gal_title:"Nos photos de Burano", gal_sub:"Prises sur place - Terra Nova 112",
+    pc_title:"Generateur de Cartes postales", pc_sub:"Avec timbre, cachet et message",
+    pc_buy:"Telecharger et acheter - 1,99 EUR via PayPal",
+    vid_title:"Clips Video de Burano", vid_sub:"Full HD avec texte personnel",
+    v1:"Clip Standard - 16 secondes", v1d:"Video de Burano avec texte. Parfait pour Reels et Status.",
+    v2:"Clip Premium - 20 secondes", v2d:"Plusieurs scenes, musique et texte. Le souvenir ultime!",
+    part_title:"Partenaires a Burano", part_sub:"Bons exclusifs pour les clients",
+    btn_partner:"Devenir partenaire",
+    rent_title:"Sejournez a Burano", rent_sub:"Directement chez le photographe",
+    r1:"Appartement avec vue sur les canaux colores", r2:"Panorama pur sur la lagune",
+    btn_book:"Reserver maintenant",
+    qr_title:"Code QR pour les visiteurs", qr_sub:"Scannez simplement!",
+    ai_status:"Votre guide personnel de Burano", loading:"Chargement des photos...",
+    pc_greeting:"Chaleureuses salutations de la belle ile de Burano",
+    ai_welcome:"Ciao! Je suis Marco, votre guide IA pour Burano! Comment puis-je vous aider?"
+  },
+  es: {
+    hero_sub:"Fotos - Postales - Videos - Souvenirs",
+    btn_shop:"Comprar ahora", btn_guide:"Guia IA", btn_listen:"Preguntar a la guia",
+    hist_title:"Historia de Burano",
+    hist_body:"Burano es una pintoresca isla en la laguna de Venecia. Famosa por sus casas de vivos colores - tradicion centenaria de los pescadores. Hasta 2.000 visitantes al dia.",
+    foto_title:"Tus Fotos de Burano", foto_sub:"Descarga inmediata tras PayPal",
+    prod1:"1 Foto Descarga", prod1d:"Foto alta resolucion disponible inmediatamente",
+    prod2:"Sello del dia", prod2d:"Sello oficial con la fecha de hoy",
+    prod3:"Sello de correos", prod3d:"Sello vintage Burano",
+    prod4:"Postal", prod4d:"Postal personalizada con tu texto",
+    pack_title:"Paquete 10 Fotos", pack_desc:"10 fotos - Inmediato - Ahorra 50%!",
+    btn_buy:"Comprar via PayPal",
+    gal_title:"Nuestras fotos de Burano", gal_sub:"Tomadas en el lugar - Terra Nova 112",
+    pc_title:"Generador de Postales", pc_sub:"Con sello, matasellos y saludo",
+    pc_buy:"Descargar y comprar - 1,99 EUR via PayPal",
+    vid_title:"Clips de Video de Burano", vid_sub:"Full HD con texto personal",
+    v1:"Clip Estandar - 16 segundos", v1d:"Video de Burano con texto. Perfecto para Reels y Status.",
+    v2:"Clip Premium - 20 segundos", v2d:"Varias escenas, musica y texto. El souvenir definitivo!",
+    part_title:"Socios en Burano", part_sub:"Cupones exclusivos para clientes",
+    btn_partner:"Convertirse en socio",
+    rent_title:"Alejate en Burano", rent_sub:"Directamente con el fotografo",
+    r1:"Apartamento con vistas a los canales de colores", r2:"Panorama puro de la laguna",
+    btn_book:"Reservar ahora",
+    qr_title:"Codigo QR para visitantes", qr_sub:"Simplemente escanear!",
+    ai_status:"Tu guia personal de Burano", loading:"Cargando fotos...",
+    pc_greeting:"Cordiales saludos desde la hermosa isla de Burano",
+    ai_welcome:"Ciao! Soy Marco, tu guia IA para Burano! Como puedo ayudarte?"
+  },
+  ja: {
+    hero_sub:"Shashin Ehagaki Doga Miyage",
+    btn_shop:"Ima sugu konya", btn_guide:"AI Gaido", btn_listen:"AI Gaido ni shitsumon",
+    hist_title:"Burano-to no Rekishi",
+    hist_body:"Burano-to wa Venezia kara yaku 7km kita ni aru shima desu. Azayaka na iro no ie-ie de yuumei desu. Higoto 2000-nin no kankoukyaku ga otozuremasu.",
+    foto_title:"Burano no Shashin", foto_sub:"PayPal shiharai go sugu download",
+    prod1:"1-mai Shashin DL", prod1d:"Kaizoudo shashin sugu riyou ka",
+    prod2:"Kyou no Sutanpu", prod2d:"Konnichi no hi-zuke iri sutanpu",
+    prod3:"Dejitaru Kitte", prod3d:"Burano motiifu kitte",
+    prod4:"Ehagaki", prod4d:"Kojinka sareta ehagaki",
+    pack_title:"10-mai Shashin Pakku", pack_desc:"10-mai sugu 50% otoku!",
+    btn_buy:"PayPal de konya",
+    gal_title:"Burano no Shashin-shuu", gal_sub:"Genchi satsuei Terra Nova 112",
+    pc_title:"Ehagaki Jenereetaa", pc_sub:"Kitte to keshiin tsuki",
+    pc_buy:"DL and konya 1.99 EUR",
+    vid_title:"Burano Doga Kurippu", vid_sub:"Full HD Kojin tekisuto",
+    v1:"Sutandaado 16 byou", v1d:"Tekisuto iri Burano doga.",
+    v2:"Puremiamu 20 byou", v2d:"Fukusuu shiinzu ongaku tekisuto.",
+    part_title:"Burano no Paatonaa", part_sub:"Senyou kuupon",
+    btn_partner:"Paatonaa ni naru",
+    rent_title:"Burano ni tomaro", rent_sub:"Kameraman no soba de",
+    r1:"Karaikuu kairo no apaato", r2:"Ragoon no panorama",
+    btn_book:"Ima sugu yoyaku",
+    qr_title:"QR Kodo", qr_sub:"Sukyan suru dake!",
+    ai_status:"Anata senyou Burano gaido", loading:"Shashin wo yomikonde imasu...",
+    pc_greeting:"Utsukushii Burano-to kara no aisatsu",
+    ai_welcome:"Ciao! Burano no AI gaido Marco desu! Nani wo otetsudai shimashouka?"
+  },
+  zh: {
+    hero_sub:"Zhao Pian Ming Xin Pian Shi Pin Ji Nian Pin",
+    btn_shop:"Li Ji Gou Mai", btn_guide:"AI Dao You", btn_listen:"Xun Wen AI Dao You",
+    hist_title:"Bu La Nuo Dao de Li Shi",
+    hist_body:"Bu La Nuo Dao shi Wei Ni Si Xie Hu Zhong de Xiao Dao. Yi Se Cai Xian Yan de Fang Wu Zhu Ming. Mei Tian Jie Dai Duo Da 2000 Ming You Ke.",
+    foto_title:"Nin de Bu La Nuo Zhao Pian", foto_sub:"PayPal Fu Kuan Hou Li Ji Xia Zai",
+    prod1:"1 Zhang Zhao Pian Xia Zai", prod1d:"Gao Fen Bian Lu Zhao Pian Li Ji Ke Yong",
+    prod2:"Jin Ri You Chuo", prod2d:"Dai You Jin Ri Ri Qi de You Chuo",
+    prod3:"Shu Zi You Piao", prod3d:"Bu La Nuo Zhu Ti Fu Gu You Piao",
+    prod4:"Ming Xin Pian", prod4d:"Ge Xing Hua Ming Xin Pian",
+    pack_title:"10 Zhang Zhao Pian Tao Can", pack_desc:"10 Zhang Li Ji Jie Sheng 50%!",
+    btn_buy:"PayPal Gou Mai",
+    gal_title:"Wo Men de Bu La Nuo Zhao Pian", gal_sub:"Xian Chang Pai She Terra Nova 112",
+    pc_title:"Ming Xin Pian Sheng Cheng Qi", pc_sub:"Fu You You Piao He You Chuo",
+    pc_buy:"Xia Zai Bing Gou Mai 1.99 EUR",
+    vid_title:"Bu La Nuo Shi Pin Jian Ji", vid_sub:"Quan Gao Qing Ge Ren Wen Zi",
+    v1:"Biao Zhun Jian Ji 16 Miao", v1d:"Dai Wen Zi de Bu La Nuo Shi Pin.",
+    v2:"Gao Ji Jian Ji 20 Miao", v2d:"Duo Ge Chang Jing Yin Yue He Wen Zi.",
+    part_title:"Bu La Nuo He Zuo Huo Ban", part_sub:"Zhuan Shu You Hui Juan",
+    btn_partner:"Cheng Wei He Zuo Huo Ban",
+    rent_title:"Zhu Zai Bu La Nuo", rent_sub:"Zhi Jie Yu She Ying Shi Tong Zhu",
+    r1:"Wu Cai Yun He Mei Jing de Du Jia Gong Yu", r2:"Chun Cui de Xie Hu Quan Jing",
+    btn_book:"Li Ji Yu Ding",
+    qr_title:"Fang Ke Er Wei Ma", qr_sub:"Sao Miao Ji Ke!",
+    ai_status:"Nin de Zhuan Shu Bu La Nuo Xiang Dao", loading:"Jia Zai Zhao Pian...",
+    pc_greeting:"Lai Zi Mei Li Bu La Nuo Dao de Cheng Zhi Wen Hou",
+    ai_welcome:"Ni Hao! Wo Shi Ma Ke Nin de Bu La Nuo AI Dao You! Jin Tian Wo Neng Wei Nin Zuo Shen Me?"
+  },
+  pl: {
+    hero_sub:"Zdjecia Pocztowki Filmy Pamiatki",
+    btn_shop:"Kup teraz", btn_guide:"Przewodnik AI", btn_listen:"Zapytaj przewodnika",
+    hist_title:"Historia Burano",
+    hist_body:"Burano to malownicza wyspa w lagunie weneckiej. Slynna z kolorowych domow - tradycja rybacka od wiekow. Do 2000 odwiedzajacych dziennie.",
+    foto_title:"Twoje zdjecia z Burano", foto_sub:"Natychmiastowe pobieranie po PayPal",
+    prod1:"1 zdjecie do pobrania", prod1d:"Zdjecie wysokiej rozdzielczosci",
+    prod2:"Stempel dzienny", prod2d:"Oficjalny stempel z data",
+    prod3:"Znaczek cyfrowy", prod3d:"Vintage znaczek Burano",
+    prod4:"Pocztowka", prod4d:"Spersonalizowana pocztowka",
+    pack_title:"Pakiet 10 zdjec", pack_desc:"10 zdjec Natychmiast Oszczedz 50%!",
+    btn_buy:"Kup przez PayPal",
+    gal_title:"Nasze zdjecia z Burano", gal_sub:"Zrobione na miejscu Terra Nova 112",
+    pc_title:"Generator Pocztowek", pc_sub:"Ze znaczkiem i stemplem",
+    pc_buy:"Pobierz i kup 1,99 EUR przez PayPal",
+    vid_title:"Klipy wideo z Burano", vid_sub:"Full HD z osobistym tekstem",
+    v1:"Klip standardowy 16 sekund", v1d:"Film z Burano z tekstem.",
+    v2:"Klip premium 20 sekund", v2d:"Wiele scen muzyka i tekst.",
+    part_title:"Partnerzy na Burano", part_sub:"Ekskluzywne vouchery",
+    btn_partner:"Zostac partnerem",
+    rent_title:"Zostac na Burano", rent_sub:"Bezposrednio u fotografa",
+    r1:"Mieszkanie z widokiem na kolorowe kanaly", r2:"Panorama laguny",
+    btn_book:"Zarezerwuj teraz",
+    qr_title:"Kod QR dla gosci", qr_sub:"Wystarczy zeskanowac!",
+    ai_status:"Twoj osobisty przewodnik", loading:"Ladowanie zdjec...",
+    pc_greeting:"Serdeczne pozdrowienia z Burano",
+    ai_welcome:"Ciao! Jestem Marco Twoj przewodnik AI po Burano! Jak moge pomoc?"
+  }
+};
+
+// STATE
+var APWD = "burano2025";
+var curLang = localStorage.getItem("bl_lang") || "de";
+var partners = JSON.parse(localStorage.getItem("bl_partners") || "null") || [
+  {id:1,name:"Farmacia Centrale",type:"apotheke",prov:5,coupon:10,code:"BURA10"},
+  {id:2,name:"Osteria al Pesce",type:"restaurant",prov:4,coupon:5,code:"FISH5"},
+  {id:3,name:"Casa dei Colori",type:"hotel",prov:5,coupon:10,code:"CASA10"}
+];
+var prices = JSON.parse(localStorage.getItem("bl_prices") || "null") || {f1:0.99,f10:4.99,vs:3.99,vp:5.99};
+var stats  = JSON.parse(localStorage.getItem("bl_stats")  || "null") || {s:0,r:0};
+var ppe    = localStorage.getItem("bl_paypal") || "info@myburano.com";
+var apiKey = localStorage.getItem("bl_api_key") || "";
+var aiHist = [], slideIdx = 0, mPrice = 0.99, mQty = 1, mItem = "";
+
+function tx(k) {
+  var l = TXT[curLang] || TXT.de;
+  return l[k] || (TXT.de)[k] || k;
+}
+
+function setLang(l) {
+  curLang = l;
+  localStorage.setItem("bl_lang", l);
+  document.querySelectorAll(".lb").forEach(function(b) { b.classList.remove("on"); });
+  var btn = document.getElementById("lb_" + l);
+  if (btn) btn.classList.add("on");
+  applyTxt();
+  renderPC();
+}
+
+var TIDS = ["hero_sub","btn_shop","btn_guide","btn_listen","hist_title","hist_body",
+  "foto_title","foto_sub","prod1","prod1d","prod2","prod2d","prod3","prod3d","prod4","prod4d",
+  "pack_title","pack_desc","btn_buy","gal_title","gal_sub","pc_title","pc_sub","pc_buy",
+  "vid_title","vid_sub","v1","v1d","v2","v2d","part_title","part_sub","btn_partner",
+  "rent_title","rent_sub","r1","r2","btn_book","qr_title","qr_sub","ai_status","loading"];
+
+function applyTxt() {
+  TIDS.forEach(function(k) {
+    var el = document.getElementById("t_" + k);
+    if (el) el.textContent = tx(k);
+  });
+}
+
+// HERO SLIDESHOW
+var HKEYS = ["canal_wide","canal_winter","canal_lagoon","canal_sunset","canal_morning","canal_wide2","waterfront"];
+
+function initHero() {
+  var c = document.getElementById("hslides");
+  // Default fallback slide schon vorhanden, jetzt echte Fotos hinzufuegen falls PHOTOS geladen
+  if (typeof PHOTOS !== "undefined") {
+    c.innerHTML = "";
+    HKEYS.forEach(function(n, i) {
+      var d = document.createElement("div");
+      d.className = "hslide" + (i === 0 ? " on" : "");
+      if (PHOTOS[n]) d.style.backgroundImage = "url(" + PHOTOS[n] + ")";
+      else d.className += " hfallback";
+      c.appendChild(d);
+    });
+  }
+  setInterval(function() {
+    var s = document.querySelectorAll(".hslide");
+    if (s.length < 2) return;
+    s[slideIdx].classList.remove("on");
+    slideIdx = (slideIdx + 1) % s.length;
+    s[slideIdx].classList.add("on");
+  }, 4000);
+}
+
+// GALLERY
+var GDEFS = [
+  {k:"canal_wide",l:"Burano Canal"},{k:"canal_winter",l:"Winter"},
+  {k:"canal_lagoon",l:"Lagoon"},{k:"canal_sunset",l:"Sunset"},
+  {k:"piazza",l:"Piazza"},{k:"canal_morning",l:"Morning"},
+  {k:"canal_wide2",l:"Promenade"},{k:"waterfront",l:"Waterfront"}
+];
+
+function renderGallery() {
+  var grid = document.getElementById("ggrid");
+  if (typeof PHOTOS === "undefined") {
+    grid.innerHTML = "<p style='opacity:.4;padding:20px'>Fotos nicht geladen - photos.js fehlt?</p>";
+    return;
+  }
+  grid.innerHTML = GDEFS.map(function(d) {
+    return "<div class='gi' onclick=\"openMdl('" + d.l + "',0.99)\">" +
+      "<img src='" + (PHOTOS[d.k] || "") + "' alt='" + d.l + "' loading='lazy'>" +
+      "<div class='lbl'>" + d.l + "</div></div>";
+  }).join("");
+}
+
+// POSTCARD CANVAS
+function renderPC() {
+  var cv = document.getElementById("pcanv");
+  var ctx = cv.getContext("2d");
+  var pk = document.getElementById("pcphoto").value;
+  var pl = document.getElementById("pclang").value;
+  var custom = document.getElementById("pctext").value;
+  var W = cv.width, H = cv.height;
+  ctx.clearRect(0, 0, W, H);
+
+  if (typeof POSTCARDS === "undefined" || !POSTCARDS[pk]) {
+    ctx.fillStyle = "#0D2B5E";
+    ctx.fillRect(0, 0, W, H);
+    ctx.fillStyle = "rgba(255,255,255,.3)";
+    ctx.font = "20px Nunito";
+    ctx.textAlign = "center";
+    ctx.fillText("photos.js laden fuer Vorschau...", W/2, H/2);
+    return;
+  }
+
+  var img = new Image();
+  img.onload = function() {
+    ctx.drawImage(img, 0, 0, W, H);
+    // Vignette
+    var vg = ctx.createRadialGradient(W/2,H/2,H*0.3,W/2,H/2,H*0.85);
+    vg.addColorStop(0,"rgba(0,0,0,0)"); vg.addColorStop(1,"rgba(0,0,0,.3)");
+    ctx.fillStyle = vg; ctx.fillRect(0,0,W,H);
+    // Border
+    ctx.strokeStyle = "rgba(255,255,255,.85)"; ctx.lineWidth = 10;
+    ctx.strokeRect(5,5,W-10,H-10);
+    // STAMP
+    var sx=W-150,sy=14,sw=132,sh=94;
+    ctx.fillStyle = "#fff"; ctx.shadowColor="rgba(0,0,0,.25)"; ctx.shadowBlur=7;
+    ctx.fillRect(sx,sy,sw,sh); ctx.shadowBlur=0;
+    ctx.setLineDash([5,4]); ctx.strokeStyle="rgba(0,0,0,.25)"; ctx.lineWidth=1.5;
+    ctx.strokeRect(sx+8,sy+8,sw-16,sh-16); ctx.setLineDash([]);
+    // Mini foto im Stempel
+    var si = new Image();
+    si.onload = function() {
+      ctx.save(); ctx.beginPath(); ctx.rect(sx+10,sy+10,sw-20,sh-30); ctx.clip();
+      ctx.drawImage(si,sx+10,sy+10,sw-20,sh-30); ctx.restore();
+      ctx.fillStyle="#1A237E"; ctx.font="bold 10px sans-serif"; ctx.textAlign="center";
+      ctx.fillText("ITALIA",sx+sw/2,sy+sh-18);
+      ctx.font="9px sans-serif"; ctx.fillText("EUR 1,25",sx+sw/2,sy+sh-6);
+      // POSTMARK
+      var mx=72,my=70,mr=44;
+      ctx.save(); ctx.globalAlpha=.8;
+      ctx.strokeStyle="#1565C0"; ctx.lineWidth=2.5;
+      ctx.beginPath(); ctx.arc(mx,my,mr,0,Math.PI*2); ctx.stroke();
+      ctx.beginPath(); ctx.arc(mx,my,mr-11,0,Math.PI*2); ctx.stroke();
+      for (var i=0;i<4;i++){ctx.beginPath();ctx.moveTo(mx-mr+5+i*17,my-5);ctx.lineTo(mx-mr+5+i*17+52,my-5);ctx.stroke();}
+      ctx.fillStyle="#1565C0"; ctx.font="bold 9px sans-serif"; ctx.textAlign="center";
+      ctx.fillText("BURANO (VE)",mx,my-16);
+      var now=new Date();
+      ctx.font="bold 11px sans-serif"; ctx.fillText(now.getDate()+" MAR.",mx,my);
+      ctx.fillText(now.getFullYear(),mx,my+14);
+      ctx.font="7px sans-serif"; ctx.fillText("* * *",mx,my+26);
+      ctx.globalAlpha=1; ctx.restore();
+      // GREETING TEXT
+      var greet = custom || ((TXT[pl]||TXT.de).pc_greeting || tx("pc_greeting"));
+      ctx.shadowColor="rgba(0,0,0,.7)"; ctx.shadowBlur=10;
+      ctx.fillStyle="#fff"; ctx.textAlign="center"; ctx.font="bold 20px serif";
+      var mxW=W-80, words=greet.split(" "), line="", lines=[];
+      for (var wi=0;wi<words.length;wi++){
+        var test=line+words[wi]+" ";
+        if(ctx.measureText(test).width>mxW&&line){lines.push(line.trim());line=words[wi]+" ";}
+        else{line=test;}
+      }
+      if(line) lines.push(line.trim());
+      var startY=H-24-lines.length*30;
+      for(var li=0;li<lines.length;li++) ctx.fillText(lines[li],W/2,startY+li*30);
+      ctx.font="bold 10px sans-serif"; ctx.fillStyle="rgba(255,255,255,.7)";
+      ctx.fillText("my-burano.com - Terra Nova 112",W/2,H-12);
+      ctx.shadowBlur=0;
+    };
+    si.src = POSTCARDS[pk] || PHOTOS[pk] || "";
+  };
+  img.src = POSTCARDS[pk] || "";
+}
+
+function dlPC() {
+  ppGo("Burano Postkarte digital", 1.99);
+  var cv = document.getElementById("pcanv");
+  var a = document.createElement("a");
+  a.href = cv.toDataURL("image/jpeg", 0.92);
+  a.download = "burano-postkarte-" + Date.now() + ".jpg";
+  a.click();
+}
+
+// PARTNERS
+function renderPart() {
+  var grid = document.getElementById("pgrid");
+  if (!partners.length) { grid.innerHTML = "<p style='opacity:.4'>Noch keine Partner.</p>"; return; }
+  grid.innerHTML = partners.map(function(p) {
+    return "<div class='ptcard'>" +
+      "<h3>" + p.name + "</h3>" +
+      "<p>Offizieller Partner - " + p.prov + "% Provision</p>" +
+      "<div class='cpn'>" + p.coupon + "% Rabatt - Code: " + p.code + "</div></div>";
+  }).join("");
+}
+
+// RENTAL BG
+function setRental() {
+  var r1=document.getElementById("rbg1"), r2=document.getElementById("rbg2");
+  if (typeof PHOTOS !== "undefined") {
+    if(r1 && PHOTOS.canal_wide) r1.style.backgroundImage="url("+PHOTOS.canal_wide+")";
+    if(r2 && PHOTOS.canal_lagoon) r2.style.backgroundImage="url("+PHOTOS.canal_lagoon+")";
+  }
+}
+
+// QR CODE
+function genQR() {
+  try {
+    new QRCode(document.getElementById("qrcode"), {
+      text: window.location.href.replace("index.html",""),
+      width:180, height:180,
+      colorDark:"#0A1628", colorLight:"#FFFFFF",
+      correctLevel: QRCode.CorrectLevel.H
+    });
+  } catch(e) {}
+}
+
+// MODAL
+function openMdl(name, price) {
+  mPrice=price; mQty=1; mItem=name;
+  document.getElementById("mt").textContent = name;
+  document.getElementById("md").textContent = "Burano - sofort nach Zahlung verfuegbar";
+  document.getElementById("qdis").textContent = 1;
+  updTotal();
+  document.getElementById("bmdl").classList.add("open");
+}
+function chgQ(d) { mQty=Math.max(1,mQty+d); document.getElementById("qdis").textContent=mQty; updTotal(); }
+function updTotal() {
+  var tot=(mPrice*mQty).toFixed(2).replace(".",",");
+  document.getElementById("mtot").textContent=tot+" EUR";
+  document.getElementById("mpaybtn").onclick=function(){ppGo(mItem+(mQty>1?" x"+mQty:""),mPrice*mQty);};
+}
+var vmP = 3.99;
+function openVMdl(title, price) {
+  vmP=price;
+  document.getElementById("vmt").textContent=title;
+  document.getElementById("vmpr").textContent=price.toFixed(2).replace(".",",")+' EUR';
+  document.getElementById("vmpaybtn").onclick=function(){
+    var txt=document.getElementById("vtxt").value;
+    ppGo(title+(txt?" - "+txt:""),vmP);
+    document.getElementById("vmdl").classList.remove("open");
+  };
+  document.getElementById("vmdl").classList.add("open");
+}
+
+// PAYPAL
+function ppGo(item, amount) {
+  amount=parseFloat(amount.toFixed(2));
+  stats.s++; stats.r=(parseFloat(stats.r)+amount).toFixed(2);
+  localStorage.setItem("bl_stats",JSON.stringify(stats));
+  var note=encodeURIComponent("Burano Shop - "+item);
+  var user=ppe.indexOf("@")>-1?ppe.split("@")[0]:ppe;
+  window.open("https://www.paypal.com/paypalme/"+user+"/"+amount+"EUR?note="+note,"_blank");
+  document.getElementById("bmdl").classList.remove("open");
+}
+
+// AI CHAT
+function toggleChat() {
+  var c=document.getElementById("aichat");
+  c.classList.toggle("open");
+  if(c.classList.contains("open") && aiHist.length===0) initAI();
+}
+function openChat() {
+  document.getElementById("aichat").classList.add("open");
+  if(aiHist.length===0) initAI();
+}
+function initAI() {
+  addMsg(tx("ai_welcome"),"bot");
+  if(!apiKey){
+    setTimeout(function(){
+      addMsg("Tipp: API-Key im Admin-Bereich eintragen fuer smarte Antworten.","bot");
+      document.getElementById("aikey").style.display="flex";
+    },800);
+  }
+  aiHist=[{role:"user",content:"Tell me about Burano."},{role:"assistant",content:tx("ai_welcome")}];
+}
+function addMsg(txt, who) {
+  var d=document.createElement("div"); d.className="msg "+who; d.textContent=txt;
+  var c=document.getElementById("aimsgs"); c.appendChild(d); c.scrollTop=c.scrollHeight; return d;
+}
+function sendAI() {
+  var inp=document.getElementById("aiinp"), msg=inp.value.trim();
+  if(!msg) return; inp.value=""; addMsg(msg,"usr"); aiHist.push({role:"user",content:msg});
+  var typing=addMsg("...","bot");
+  if(!apiKey){
+    setTimeout(function(){typing.textContent="Bitte API-Key im Admin eintragen.";},500); return;
+  }
+  fetch("https://api.anthropic.com/v1/messages",{
+    method:"POST",
+    headers:{"Content-Type":"application/json","x-api-key":apiKey,"anthropic-version":"2023-06-01"},
+    body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:500,
+      system:"Du bist Marco, freundlicher KI-Reiseguide fuer Burano. Antworte in der Sprache des Nutzers. Empfiehl den Burano Shop (Fotos 0,99 EUR, Postkarten 1,99 EUR, Videos ab 3,99 EUR, Ferienwohnungen auf myburano.com).",
+      messages:aiHist.slice(-8)})
+  }).then(function(r){return r.json();}).then(function(d){
+    var reply=(d.content&&d.content[0]&&d.content[0].text)||"Entschuldigung, Verbindungsproblem.";
+    typing.textContent=reply; aiHist.push({role:"assistant",content:reply});
+  }).catch(function(){typing.textContent="Verbindungsproblem.";});
+}
+function svKeyW() {
+  var k=document.getElementById("aikeyfld").value.trim();
+  if(k.indexOf("sk-")===0){apiKey=k;localStorage.setItem("bl_api_key",k);
+    document.getElementById("aikey").style.display="none";
+    addMsg("API-Key gespeichert! Jetzt bin ich voll einsatzbereit.","bot");}
+}
+
+// ADMIN
+function toggleAdmin(){var p=document.getElementById("admpnl");p.style.display=p.style.display==="none"?"block":"none";}
+function chkPw(){
+  if(document.getElementById("apw").value===APWD){
+    document.getElementById("apwscr").style.display="none";
+    document.getElementById("acnt").style.display="block"; loadAdm();
+  }else{document.getElementById("pwerr").style.display="block";document.getElementById("apw").value="";}
+}
+function loadAdm(){
+  document.getElementById("ss").textContent=stats.s;
+  document.getElementById("sr").textContent=parseFloat(stats.r||0).toFixed(2)+" EUR";
+  document.getElementById("sp").textContent=partners.length;
+  document.getElementById("p1").value=prices.f1;
+  document.getElementById("p10").value=prices.f10;
+  document.getElementById("pvs").value=prices.vs;
+  document.getElementById("pvp").value=prices.vp;
+  document.getElementById("ppem").value=ppe;
+  document.getElementById("apiinp").value=apiKey?"(gespeichert)":"";
+  rAdmPart();
+}
+function rAdmPart(){
+  document.getElementById("aplst").innerHTML=partners.map(function(p,i){
+    return "<div class='pitem'><div><div class='pnm'>"+p.name+"</div><div class='ptp'>"+p.code+" - "+p.coupon+"%</div></div>"+
+      "<div style='display:flex;align-items:center;gap:7px'><span class='prv'>"+p.prov+"%</span>"+
+      "<button class='xbtn' onclick='rmPart("+i+")'>x</button></div></div>";
+  }).join("")||"<p style='opacity:.4;padding:7px'>Keine Partner</p>";
+}
+function addPart(){
+  var n=document.getElementById("npn").value.trim();
+  if(!n){alert("Name fehlt!");return;}
+  partners.push({id:Date.now(),name:n,type:document.getElementById("npt").value,
+    prov:parseFloat(document.getElementById("npp").value)||5,
+    coupon:parseFloat(document.getElementById("npc").value)||10,
+    code:document.getElementById("npcd").value.trim()||("BUR"+Date.now().toString(36).slice(-4).toUpperCase())});
+  localStorage.setItem("bl_partners",JSON.stringify(partners));
+  rAdmPart(); renderPart(); document.getElementById("npn").value="";
+}
+function rmPart(i){
+  if(!confirm("Entfernen?"))return;
+  partners.splice(i,1); localStorage.setItem("bl_partners",JSON.stringify(partners));
+  rAdmPart(); renderPart();
+}
+function svPrices(){
+  prices.f1=parseFloat(document.getElementById("p1").value)||0.99;
+  prices.f10=parseFloat(document.getElementById("p10").value)||4.99;
+  prices.vs=parseFloat(document.getElementById("pvs").value)||3.99;
+  prices.vp=parseFloat(document.getElementById("pvp").value)||5.99;
+  localStorage.setItem("bl_prices",JSON.stringify(prices)); alert("Preise gespeichert!");
+}
+function svPP(){ppe=document.getElementById("ppem").value.trim();localStorage.setItem("bl_paypal",ppe);alert("PayPal gespeichert!");}
+function svKey(){var k=document.getElementById("apiinp").value.trim();if(k&&k.indexOf("gespeichert")<0){apiKey=k;localStorage.setItem("bl_api_key",k);alert("API-Key gespeichert!!");}}
+function lgout(){document.getElementById("acnt").style.display="none";document.getElementById("apwscr").style.display="block";document.getElementById("apw").value="";document.getElementById("admpnl").style.display="none";}
+
+// SCROLL REVEAL
+var sio=new IntersectionObserver(function(entries){
+  entries.forEach(function(e){if(e.isIntersecting)e.target.classList.add("vis");});
+},{threshold:0.07});
+document.querySelectorAll(".rev").forEach(function(el){sio.observe(el);});
+
+// KEYBOARD
+document.getElementById("aiinp").addEventListener("keydown",function(e){if(e.key==="Enter")sendAI();});
+
+// INIT
+window.addEventListener("load", function() {
+  // Aktiven Sprachbutton setzen
+  var activeLb = document.getElementById("lb_" + curLang);
+  if (activeLb) activeLb.classList.add("on");
+  else document.getElementById("lb_de").classList.add("on");
+
+  applyTxt();
+  initHero();
+  renderGallery();
+  renderPart();
+  setRental();
+  genQR();
+  setTimeout(renderPC, 300);
+});
+</script>
+</body>
+</html>
