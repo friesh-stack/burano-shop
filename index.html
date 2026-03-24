@@ -230,18 +230,8 @@ footer strong{color:var(--gold);}
       <div class="ds" id="t_prod1d">Hochaufloesungsfoto sofort verfuegbar</div>
       <div class="pr">0,99 EUR</div>
     </div>
-    <div class="pc" onclick="openMdl('Tages-Stempel',1.50)">
-      <span class="ico">&#128278;</span>
-      <div class="nm" id="t_prod2">Tages-Stempel</div>
-      <div class="ds" id="t_prod2d">Burano-Stempel mit heutigem Datum</div>
-      <div class="pr">1,50 EUR</div>
-    </div>
-    <div class="pc" onclick="openMdl('Briefmarke digital',0.99)">
-      <span class="ico">&#9993;</span>
-      <div class="nm" id="t_prod3">Briefmarke digital</div>
-      <div class="ds" id="t_prod3d">Vintage-Briefmarke Burano-Motiv</div>
-      <div class="pr">0,99 EUR</div>
-    </div>
+
+
     <div class="pc" onclick="document.getElementById('postcard').scrollIntoView({behavior:'smooth'})">
       <span class="ico">&#128206;</span>
       <div class="nm" id="t_prod4">Postkarte</div>
@@ -952,13 +942,16 @@ function getSelectedGreeting() {
 }
 
 function buyPostcard(count) {
-  if(count===1) ppGo("1 Burano Postkarte", 0.99);
-  else if(count===10) ppGo("10 Burano Postkarten", 4.99);
-  else ppGo("Weitere Burano Postkarte", 0.45);
+  var testmode = localStorage.getItem("bl_testmode")==="1";
+  if(count===1){ if(!testmode) ppGo("1 Burano Postkarte", 0.99); }
+  else if(count===10){ if(!testmode) ppGo("10 Burano Postkarten", 4.99); }
+  else{ if(!testmode) ppGo("Weitere Burano Postkarte", 0.45); }
 }
 
 function previewAndDownload() {
-  buyPostcard(1);
+  var testmode = localStorage.getItem("bl_testmode")==="1";
+  if(!testmode) ppGo("1 Burano Postkarte", 0.99);
+  else alert("TEST-MODUS: Postkarte wird heruntergeladen ohne Bezahlung.");
   var cv=document.getElementById("pcanv");
   var a=document.createElement("a");
   a.href=cv.toDataURL("image/jpeg",.92);
@@ -1039,6 +1032,13 @@ function openVMdl(title, price) {
 // PAYPAL
 function ppGo(item, amount) {
   amount=parseFloat(amount.toFixed(2));
+  var testmode = localStorage.getItem("bl_testmode")==="1";
+  if(testmode){
+    // Test-Modus: kein PayPal, direkt weiter
+    alert("TEST-MODUS aktiv\nKein PayPal - Download startet direkt.\n\nArtikel: "+item+"\nPreis: "+amount+" EUR");
+    document.getElementById("bmdl").classList.remove("open");
+    return;
+  }
   stats.s++; stats.r=(parseFloat(stats.r)+amount).toFixed(2);
   localStorage.setItem("bl_stats",JSON.stringify(stats));
   var note=encodeURIComponent("Burano Shop - "+item);
@@ -1120,7 +1120,12 @@ function svKeyW() {
 }
 
 // ADMIN
-function toggleAdmin(){var p=document.getElementById("admpnl");p.style.display=p.style.display==="none"?"block":"none";}
+function toggleAdmin(){
+  var p=document.getElementById("admpnl");
+  if(!p){alert("Admin-Panel nicht gefunden!");return;}
+  p.style.display=(p.style.display===""||p.style.display==="none")?"block":"none";
+  if(p.style.display==="block") p.scrollIntoView({behavior:"smooth"});
+}
 function chkPw(){
   if(document.getElementById("apw").value===APWD){
     document.getElementById("apwscr").style.display="none";
@@ -1188,6 +1193,17 @@ window.addEventListener("load", function() {
   if (activeLb) activeLb.classList.add("on");
   else document.getElementById("lb_de").classList.add("on");
 
+  // Test-Modus Status wiederherstellen
+  var tm = document.getElementById("testmode");
+  if(tm){
+    var isTest = localStorage.getItem("bl_testmode")==="1";
+    tm.checked = isTest;
+    document.getElementById("testmode_lbl").textContent = isTest?"EIN":"AUS";
+    tm.onchange = function(){
+      localStorage.setItem("bl_testmode",this.checked?"1":"0");
+      document.getElementById("testmode_lbl").textContent = this.checked?"EIN":"AUS";
+    };
+  }
   applyTxt();
   initHero();
   renderGallery();
