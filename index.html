@@ -169,14 +169,14 @@ footer strong{color:var(--gold);}
 <!-- LANG BAR -->
 <div id="lbar">
   <div class="logo">my-burano.com</div>
-  <button class="lb" id="lb_de" onclick="setLang('de')">DE</button>
-  <button class="lb" id="lb_en" onclick="setLang('en')">EN</button>
-  <button class="lb" id="lb_it" onclick="setLang('it')">IT</button>
-  <button class="lb" id="lb_fr" onclick="setLang('fr')">FR</button>
-  <button class="lb" id="lb_es" onclick="setLang('es')">ES</button>
-  <button class="lb" id="lb_ja" onclick="setLang('ja')">JP</button>
-  <button class="lb" id="lb_zh" onclick="setLang('zh')">ZH</button>
-  <button class="lb" id="lb_pl" onclick="setLang('pl')">PL</button>
+  <button class="lb" id="lb_de" onclick="setLang('de')">Deutsch</button>
+  <button class="lb" id="lb_en" onclick="setLang('en')">English</button>
+  <button class="lb" id="lb_it" onclick="setLang('it')">Italiano</button>
+  <button class="lb" id="lb_fr" onclick="setLang('fr')">Français</button>
+  <button class="lb" id="lb_es" onclick="setLang('es')">Español</button>
+  <button class="lb" id="lb_ja" onclick="setLang('ja')">日本語</button>
+  <button class="lb" id="lb_zh" onclick="setLang('zh')">中文</button>
+  <button class="lb" id="lb_pl" onclick="setLang('pl')">Polski</button>
 </div>
 
 <!-- COLOR STRIP -->
@@ -247,7 +247,7 @@ footer strong{color:var(--gold);}
     <div style="text-align:center">
       <div><span class="pack-o">9,90 EUR</span></div>
       <div class="pack-p">4,99 EUR</div><br>
-      <button class="btnPP" onclick="ppGo('10 Burano Fotos',4.99)">&#128153; <span id="t_btn_buy">Kaufen via PayPal</span></button>
+      <button class="btnPP" onclick="ppGo('10 Burano Fotos',4.99)" id="pack_buy_btn">&#128153; <span id="t_btn_buy">Kaufen via PayPal</span></button>
     </div>
   </div>
 </div></div>
@@ -293,11 +293,11 @@ footer strong{color:var(--gold);}
     <div style="margin-bottom:14px">
       <p style="color:rgba(255,255,255,.7);font-size:.85rem;margin-bottom:8px;font-weight:700">Grusstext waehlen:</p>
       <select class="pcsel" id="pcgreeting" onchange="renderPC()">
-        <option value="0">Herzliche Gruesse von der Insel Burano sendet Dir</option>
-        <option value="1">Buongiorno da Burano! Die Farben hier sind unvergesslich</option>
-        <option value="2">Wish you were here - Burano ist ein Traum!</option>
-        <option value="3">Die schoenste Insel der Welt gruest Dich herzlich</option>
-        <option value="4">Erinnerungen an Burano - fuer immer in meinem Herzen</option>
+        <option value="0">Herzliche Grüße von der Insel Burano</option>
+        <option value="1">Die Farben Buranos bleiben unvergesslich</option>
+        <option value="2">Die schönste Insel der Welt grüßt Dich</option>
+        <option value="3">Erinnerungen an Burano – für immer</option>
+        <option value="4">Buono viaggio! Bis bald in Burano</option>
       </select>
     </div>
     <div style="background:rgba(255,210,63,.1);border:1px solid rgba(255,210,63,.3);border-radius:12px;padding:14px;margin-bottom:14px">
@@ -306,7 +306,7 @@ footer strong{color:var(--gold);}
           <div style="font-weight:900;font-size:1rem;color:var(--gold)">1 Postkarte</div>
           <div style="font-size:.8rem;opacity:.7">Sofort-Download als JPG</div>
         </div>
-        <button class="btnPP" onclick="buyPostcard(1)" style="padding:10px 20px">&#128153; 0,99 EUR</button>
+        <button class="btnPP" onclick="buyPostcard(1)" style="padding:10px 20px" id="pc_btn1">&#128153; 0,99 EUR</button>
       </div>
       <hr style="border:none;border-top:1px solid rgba(255,255,255,.1);margin:12px 0">
       <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px">
@@ -479,13 +479,13 @@ footer strong{color:var(--gold);}
 
 <!-- AI WIDGET -->
 <div id="aiwid">
-  <button class="aibub" onclick="toggleChat()">&#129302;</button>
+  <button class="aibub" onclick="toggleChat()" id="ai_fab_btn" title="">&#129302;</button>
 </div>
 <div id="aichat">
   <div class="aihdr">
     <span style="font-size:1.3rem">&#129302;</span>
     <div><div class="ainm">Marco - KI-Reiseleiter</div><div class="aist" id="t_ai_status">Ihr Burano-Guide</div></div>
-    <button onclick="stopSpeak()" title="Stopp" style="background:none;border:none;color:#fff;font-size:1rem;cursor:pointer;margin-right:4px">&#9209;</button>
+    <button onclick="stopSpeak()" id="ai_stop_btn" title="Stopp" style="background:none;border:none;color:#fff;font-size:1rem;cursor:pointer;margin-right:4px">&#9209;</button>
     <button class="aiclose" onclick="toggleChat()">&#10005;</button>
   </div>
   <div class="aimsg" id="aimsgs"></div>
@@ -785,11 +785,12 @@ function setLang(l) {
   var btn = document.getElementById("lb_" + l);
   if (btn) btn.classList.add("on");
   applyTxt();
+  updateGreetingSelect();
   renderPC();
 }
 
 var TIDS = ["hero_sub","btn_shop","btn_guide","btn_listen","hist_title","hist_body",
-  "foto_title","foto_sub","prod1","prod1d","prod2","prod2d","prod3","prod3d","prod4","prod4d",
+  "foto_title","foto_sub","prod1","prod1d","prod4","prod4d",
   "pack_title","pack_desc","btn_buy","gal_title","gal_sub","pc_title","pc_sub","pc_buy",
   "vid_title","vid_sub","v1","v1d","v2","v2d","part_title","part_sub","btn_partner",
   "rent_title","rent_sub","r1","r2","btn_book","qr_title","qr_sub","ai_status","loading"];
@@ -799,6 +800,27 @@ function applyTxt() {
     var el = document.getElementById("t_" + k);
     if (el) el.textContent = tx(k);
   });
+  // Dynamische Buttons je Sprache
+  var BT = {
+    de: {buy:"Kaufen via PayPal", book:"Jetzt buchen", guide:"KI-Reiseleiter fragen", stop:"Stopp", read:"Vorlesen"},
+    en: {buy:"Buy via PayPal", book:"Book now", guide:"Ask AI Guide", stop:"Stop", read:"Read aloud"},
+    it: {buy:"Acquista via PayPal", book:"Prenota ora", guide:"Chiedi alla guida AI", stop:"Ferma", read:"Leggi"},
+    fr: {buy:"Acheter via PayPal", book:"Réserver", guide:"Demander au guide IA", stop:"Arrêt", read:"Lire"},
+    es: {buy:"Comprar via PayPal", book:"Reservar", guide:"Preguntar al guía IA", stop:"Parar", read:"Leer"},
+    ja: {buy:"PayPalで購入", book:"今すぐ予約", guide:"AIガイドに質問", stop:"停止", read:"読み上げ"},
+    zh: {buy:"PayPal购买", book:"立即预订", guide:"咨询AI导游", stop:"停止", read:"朗读"},
+    pl: {buy:"Kup przez PayPal", book:"Zarezerwuj", guide:"Zapytaj przewodnika", stop:"Stop", read:"Czytaj"}
+  };
+  var b = BT[curLang] || BT.de;
+  // PayPal Buttons
+  document.querySelectorAll(".btnPP").forEach(function(el){ if(el.id!=="pc_btn1") el.innerHTML="&#128153; "+b.buy; });
+  // Stop/Read Buttons
+  var stopBtn = document.getElementById("ai_stop_btn");
+  if(stopBtn) stopBtn.title = b.stop;
+  var fabBtn = document.getElementById("ai_fab_btn");
+  if(fabBtn) fabBtn.title = b.guide;
+  // Rental book buttons
+  document.querySelectorAll(".rinfo .btnH").forEach(function(el){ el.textContent = b.book; });
 }
 
 // HERO SLIDESHOW
@@ -906,8 +928,7 @@ function renderPC() {
       ctx.font="7px sans-serif"; ctx.fillText("* * *",mx,my+26);
       ctx.globalAlpha=1; ctx.restore();
       // GREETING TEXT
-      var selEl = document.getElementById("pcgreeting");
-  var greet = custom || (selEl ? selEl.options[selEl.selectedIndex].text : ((TXT[pl]||TXT.de).pc_greeting || tx("pc_greeting")));
+      var greet = custom || getSelectedGreeting();
       ctx.shadowColor="rgba(0,0,0,.7)"; ctx.shadowBlur=10;
       ctx.fillStyle="#fff"; ctx.textAlign="center"; ctx.font="bold 20px serif";
       var mxW=W-80, words=greet.split(" "), line="", lines=[];
@@ -928,17 +949,80 @@ function renderPC() {
   img.src = POSTCARDS[pk] || "";
 }
 
-var GREETINGS_DE = [
-  "Herzliche Gruesse von der Insel Burano sendet Dir",
-  "Buongiorno da Burano! Die Farben hier sind unvergesslich",
-  "Wish you were here - Burano ist ein Traum!",
-  "Die schoenste Insel der Welt gruest Dich herzlich",
-  "Erinnerungen an Burano - fuer immer in meinem Herzen"
-];
+var GREETINGS = {
+  de: [
+    "Herzliche Grüße von der Insel Burano",
+    "Die Farben Buranos bleiben unvergesslich",
+    "Die schönste Insel der Welt grüßt Dich",
+    "Erinnerungen an Burano – für immer",
+    "Buono viaggio! Bis bald in Burano"
+  ],
+  en: [
+    "Warm greetings from the island of Burano",
+    "The colours of Burano – unforgettable forever",
+    "The most beautiful island in the world says hello",
+    "Memories of Burano – forever in my heart",
+    "Buono viaggio! See you soon in Burano"
+  ],
+  it: [
+    "Cordiali saluti dalla bellissima isola di Burano",
+    "I colori di Burano rimarranno per sempre nel cuore",
+    "La più bella isola del mondo ti saluta",
+    "Ricordi di Burano – per sempre con me",
+    "Buono viaggio! A presto a Burano"
+  ],
+  fr: [
+    "Chaleureuses salutations de la belle île de Burano",
+    "Les couleurs de Burano restent inoubliables",
+    "La plus belle île du monde vous salue",
+    "Souvenirs de Burano – pour toujours dans mon cœur",
+    "Buono viaggio! À bientôt à Burano"
+  ],
+  es: [
+    "Cordiales saludos desde la hermosa isla de Burano",
+    "Los colores de Burano son inolvidables para siempre",
+    "La isla más bella del mundo te saluda",
+    "Recuerdos de Burano – para siempre en mi corazón",
+    "Buono viaggio! Hasta pronto en Burano"
+  ],
+  ja: [
+    "美しいブラーノ島からの心温まるご挨拶",
+    "ブラーノの色彩は永遠に忘れられない",
+    "世界で最も美しい島からのご挨拶",
+    "ブラーノの思い出 – 永遠に心の中に",
+    "ブオン・ヴィアッジョ！またブラーノで会いましょう"
+  ],
+  zh: [
+    "来自美丽布拉诺岛的诚挚问候",
+    "布拉诺的色彩令人永生难忘",
+    "世界上最美丽的岛屿向您问候",
+    "布拉诺的回忆——永远铭记于心",
+    "一路顺风！期待再会布拉诺"
+  ],
+  pl: [
+    "Serdeczne pozdrowienia z pięknej wyspy Burano",
+    "Kolory Burano pozostają niezapomniane na zawsze",
+    "Najpiękniejsza wyspa świata pozdrawia Cię",
+    "Wspomnienia z Burano – na zawsze w moim sercu",
+    "Buono viaggio! Do zobaczenia wkrótce na Burano"
+  ]
+};
+
+function updateGreetingSelect() {
+  var sel = document.getElementById("pcgreeting");
+  if(!sel) return;
+  var greets = GREETINGS[curLang] || GREETINGS.de;
+  var current = sel.selectedIndex;
+  sel.innerHTML = greets.map(function(g, i) {
+    return '<option value="' + i + '">' + g + '</option>';
+  }).join('');
+  sel.selectedIndex = current;
+}
 
 function getSelectedGreeting() {
   var sel = document.getElementById("pcgreeting");
-  return sel ? sel.options[sel.selectedIndex].text : GREETINGS_DE[0];
+  var greets = GREETINGS[curLang] || GREETINGS.de;
+  return sel ? greets[sel.selectedIndex] || greets[0] : greets[0];
 }
 
 function buyPostcard(count) {
@@ -1205,6 +1289,7 @@ window.addEventListener("load", function() {
     };
   }
   applyTxt();
+  updateGreetingSelect();
   initHero();
   renderGallery();
   renderPart();
