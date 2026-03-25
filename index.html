@@ -300,7 +300,8 @@ footer strong{color:var(--gold);}
         <option value="zh">Chinese</option>
         <option value="pl">Polski</option>
       </select>
-      <input class="pcinp" id="pctext" type="text" placeholder="Eigener Text (optional)..." oninput="renderPC()">
+      <input class="pcinp" id="pctext" type="text" placeholder="Eigener Grußtext (optional)..." oninput="renderPC()">
+      <input class="pcinp" id="pc_customer_name" type="text" placeholder="✦ Ihr Name für die gestrichelte Linie..." oninput="renderPC()" style="margin-top:8px">
     </div>
     <div style="margin-bottom:14px">
       <p style="color:rgba(255,255,255,.7);font-size:.85rem;margin-bottom:8px;font-weight:700">Grusstext waehlen:</p>
@@ -503,9 +504,42 @@ footer strong{color:var(--gold);}
       <input type="email" class="ainput" id="ppem" placeholder="PayPal E-Mail...">
       <button class="abtn" onclick="svPP()">Speichern</button>
     </div>
-    <div class="asec"><h4>Anthropic API-Key (fuer KI-Chat)</h4>
+    <div class="asec"><h4>🔑 Anthropic API-Key (für KI-Chat)</h4>
       <input type="password" class="ainput" id="apiinp" placeholder="sk-ant-...">
       <button class="abtn" onclick="svKey()">Speichern</button>
+    </div>
+
+    <div class="asec">
+      <h4>📮 Postkarten-Foto hochladen</h4>
+      <p style="font-size:.8rem;opacity:.65;margin-bottom:12px">Lade dein fertiges Foto (bereits mit Briefmarke) hoch. Der Kunde wählt nur noch den Grußtext und seinen Namen.</p>
+      <div id="pc_upload_area" style="border:2px dashed rgba(255,210,63,.4);border-radius:12px;padding:20px;text-align:center;cursor:pointer;margin-bottom:10px;transition:border-color .2s" onclick="document.getElementById('pc_file_input').click()" ondragover="event.preventDefault();this.style.borderColor='var(--gold)'" ondrop="handlePcDrop(event)">
+        <div id="pc_upload_preview" style="margin-bottom:8px">
+          <div style="font-size:2rem">🖼️</div>
+          <div style="font-size:.85rem;opacity:.6">Foto hier reinziehen oder klicken</div>
+          <div style="font-size:.75rem;opacity:.4;margin-top:4px">JPG, PNG – empfohlen 4:3 Querformat</div>
+        </div>
+        <input type="file" id="pc_file_input" accept="image/*" style="display:none" onchange="loadPcPhoto(this)">
+      </div>
+      <div style="display:flex;gap:8px;margin-bottom:8px">
+        <div style="flex:1">
+          <label style="font-size:.75rem;opacity:.6;display:block;margin-bottom:4px">Text-Position</label>
+          <select class="ainput" id="pc_text_pos" onchange="updatePcPreview()" style="margin:0">
+            <option value="sky">Oben (Himmel)</option>
+            <option value="water">Unten (Wasser)</option>
+            <option value="middle">Mitte</option>
+          </select>
+        </div>
+        <div style="flex:1">
+          <label style="font-size:.75rem;opacity:.6;display:block;margin-bottom:4px">Textfarbe</label>
+          <select class="ainput" id="pc_text_color" onchange="updatePcPreview()" style="margin:0">
+            <option value="white">Weiß</option>
+            <option value="gold">Gold</option>
+            <option value="dark">Dunkel</option>
+          </select>
+        </div>
+      </div>
+      <canvas id="pc_admin_preview" width="700" height="490" style="width:100%;border-radius:10px;display:none;margin-bottom:8px"></canvas>
+      <button class="abtn" onclick="savePcPhoto()" id="pc_save_btn" style="display:none">✅ Als Postkarten-Hintergrundbild speichern</button>
     </div>
     <div style="margin-top:14px;text-align:right">
       <button class="abtn" onclick="lgout()" style="background:rgba(255,255,255,.1);color:#fff;max-width:120px">Abmelden</button>
@@ -816,6 +850,7 @@ var prices = JSON.parse(localStorage.getItem("bl_prices") || "null") || {f1:0.99
 var stats  = JSON.parse(localStorage.getItem("bl_stats")  || "null") || {s:0,r:0};
 var ppe    = localStorage.getItem("bl_paypal") || "info@myburano.com";
 var apiKey = localStorage.getItem("bl_api_key") || "";
+function getApiKey() { apiKey = localStorage.getItem("bl_api_key") || ""; return apiKey; }
 var aiHist = [], slideIdx = 0, mPrice = 0.99, mQty = 1, mItem = "";
 
 function tx(k) {
@@ -915,6 +950,50 @@ function renderGallery() {
 }
 
 // POSTCARD CANVAS
+function drawCurvedText(ctx, text, cx, cy, radius, startAngle, color, fontSize) {
+  // Geschwungener Text entlang eines Bogens
+  ctx.save();
+  ctx.font = "italic bold " + fontSize + "px 'Brush Script MT', 'Comic Sans MS', cursive";
+  ctx.fillStyle = color;
+  ctx.shadowColor = "rgba(0,0,0,0.6)";
+  ctx.shadowBlur = 6;
+  ctx.textAlign = "center";
+  ctx.textBaseline = "middle";
+  var chars = text.split("");
+  var totalWidth = chars.reduce(function(w,c){ return w + ctx.measureText(c).width; }, 0);
+  var angleStep = (totalWidth / radius) / chars.length;
+  var angle = startAngle - (totalWidth / radius) / 2;
+  chars.forEach(function(ch) {
+    ctx.save();
+    ctx.translate(cx + Math.cos(angle)*radius, cy + Math.sin(angle)*radius);
+    ctx.rotate(angle + Math.PI/2);
+    ctx.fillText(ch, 0, 0);
+    ctx.restore();
+    angle += angleStep;
+  });
+  ctx.restore();
+}
+
+function drawNameLine(ctx, W, H, yPos, color) {
+  // Gestrichelte Linie für Kundenname
+  ctx.save();
+  ctx.setLineDash([8,5]);
+  ctx.strokeStyle = color || "rgba(255,255,255,0.6)";
+  ctx.lineWidth = 1.5;
+  var margin = W * 0.12;
+  ctx.beginPath();
+  ctx.moveTo(margin, yPos);
+  ctx.lineTo(W - margin, yPos);
+  ctx.stroke();
+  ctx.setLineDash([]);
+  // Kleiner Hinweis-Text
+  ctx.font = "11px sans-serif";
+  ctx.fillStyle = color || "rgba(255,255,255,0.5)";
+  ctx.textAlign = "center";
+  ctx.fillText("✦ Ihr Name ✦", W/2, yPos - 10);
+  ctx.restore();
+}
+
 function renderPC() {
   var cv = document.getElementById("pcanv");
   var ctx = cv.getContext("2d");
@@ -924,13 +1003,16 @@ function renderPC() {
   var W = cv.width, H = cv.height;
   ctx.clearRect(0, 0, W, H);
 
-  if (typeof POSTCARDS === "undefined" || !POSTCARDS[pk]) {
+  // Prüfe ob Admin-Foto gespeichert
+  var adminPhoto = localStorage.getItem("bl_pc_custom_photo");
+
+  if (!adminPhoto && (typeof POSTCARDS === "undefined" || !POSTCARDS[pk])) {
     ctx.fillStyle = "#0D2B5E";
     ctx.fillRect(0, 0, W, H);
     ctx.fillStyle = "rgba(255,255,255,.3)";
-    ctx.font = "20px Nunito";
+    ctx.font = "20px sans-serif";
     ctx.textAlign = "center";
-    ctx.fillText("photos.js laden fuer Vorschau...", W/2, H/2);
+    ctx.fillText("Foto wird geladen...", W/2, H/2);
     return;
   }
 
@@ -974,24 +1056,59 @@ function renderPC() {
       ctx.globalAlpha=1; ctx.restore();
       // GREETING TEXT
       var greet = custom || getSelectedGreeting();
-      ctx.shadowColor="rgba(0,0,0,.7)"; ctx.shadowBlur=10;
-      ctx.fillStyle="#fff"; ctx.textAlign="center"; ctx.font="bold 20px serif";
-      var mxW=W-80, words=greet.split(" "), line="", lines=[];
-      for (var wi=0;wi<words.length;wi++){
-        var test=line+words[wi]+" ";
-        if(ctx.measureText(test).width>mxW&&line){lines.push(line.trim());line=words[wi]+" ";}
-        else{line=test;}
+      var customerName = document.getElementById("pc_customer_name") ?
+                         document.getElementById("pc_customer_name").value : "";
+
+      // Geschwungener Text - Position je nach Wahl
+      var textColor = "#fff";
+      var curveY, curveRadius, curveStart;
+      // Standard: unten im Wasser-/Himmelbereich
+      curveY = H * 0.82;
+      curveRadius = W * 0.9;
+      curveStart = -Math.PI * 0.12;
+
+      // Schreibschrift geschwungen
+      ctx.save();
+      ctx.shadowColor = "rgba(0,0,0,0.8)";
+      ctx.shadowBlur = 8;
+      ctx.font = "italic bold " + Math.round(W/28) + "px 'Brush Script MT', 'Comic Sans MS', cursive";
+      ctx.fillStyle = textColor;
+      ctx.textAlign = "center";
+      ctx.textBaseline = "alphabetic";
+
+      // Text entlang Bogen zeichnen
+      var fontSize = Math.round(W/28);
+      drawCurvedText(ctx, greet, W/2, curveY + curveRadius, curveRadius, -Math.PI/2 - 0.08, textColor, fontSize);
+      ctx.restore();
+
+      // Leerzeile für Kundenname
+      var lineY = H * 0.91;
+      var lineColor = "rgba(255,255,255,0.55)";
+      drawNameLine(ctx, W, H, lineY, lineColor);
+
+      // Wenn Kundenname eingegeben
+      if(customerName) {
+        ctx.save();
+        ctx.font = "italic " + Math.round(W/32) + "px 'Brush Script MT', cursive";
+        ctx.fillStyle = "rgba(255,255,255,0.9)";
+        ctx.textAlign = "center";
+        ctx.shadowColor = "rgba(0,0,0,0.6)";
+        ctx.shadowBlur = 5;
+        ctx.fillText(customerName, W/2, lineY + 18);
+        ctx.restore();
       }
-      if(line) lines.push(line.trim());
-      var startY=H-24-lines.length*30;
-      for(var li=0;li<lines.length;li++) ctx.fillText(lines[li],W/2,startY+li*30);
-      ctx.font="bold 10px sans-serif"; ctx.fillStyle="rgba(255,255,255,.7)";
-      ctx.fillText("my-burano.com - Terra Nova 112",W/2,H-12);
-      ctx.shadowBlur=0;
+
+      // Footer
+      ctx.font = "bold 10px sans-serif";
+      ctx.fillStyle = "rgba(255,255,255,.6)";
+      ctx.textAlign = "center";
+      ctx.shadowBlur = 0;
+      ctx.fillText("my-burano.com - Terra Nova 112", W/2, H-6);
     };
     si.src = POSTCARDS[pk] || PHOTOS[pk] || "";
   };
-  img.src = POSTCARDS[pk] || "";
+  var adminPhoto = localStorage.getItem("bl_pc_custom_photo");
+  img.src = adminPhoto || (POSTCARDS && POSTCARDS[pk]) || "";
 }
 
 var GREETINGS = {
@@ -1068,6 +1185,83 @@ function getSelectedGreeting() {
   var sel = document.getElementById("pcgreeting");
   var greets = GREETINGS[curLang] || GREETINGS.de;
   return sel ? greets[sel.selectedIndex] || greets[0] : greets[0];
+}
+
+// ── ADMIN FOTO UPLOAD ──
+var pcAdminImg = null;
+
+function handlePcDrop(e) {
+  e.preventDefault();
+  var file = e.dataTransfer.files[0];
+  if(file && file.type.startsWith("image/")) loadPcPhotoFile(file);
+}
+
+function loadPcPhoto(input) {
+  if(input.files && input.files[0]) loadPcPhotoFile(input.files[0]);
+}
+
+function loadPcPhotoFile(file) {
+  var reader = new FileReader();
+  reader.onload = function(e) {
+    pcAdminImg = e.target.result;
+    // Vorschau anzeigen
+    var prev = document.getElementById("pc_upload_preview");
+    prev.innerHTML = "<img src='" + pcAdminImg + "' style='max-width:100%;max-height:150px;border-radius:8px;'>";
+    document.getElementById("pc_admin_preview").style.display = "block";
+    document.getElementById("pc_save_btn").style.display = "block";
+    updatePcPreview();
+  };
+  reader.readAsDataURL(file);
+}
+
+function updatePcPreview() {
+  if(!pcAdminImg) return;
+  var cv = document.getElementById("pc_admin_preview");
+  var ctx = cv.getContext("2d");
+  var W = cv.width, H = cv.height;
+  var img = new Image();
+  img.onload = function() {
+    ctx.clearRect(0,0,W,H);
+    ctx.drawImage(img, 0, 0, W, H);
+    // Vorschau-Text
+    ctx.fillStyle = "rgba(0,0,0,0.35)";
+    var pos = document.getElementById("pc_text_pos") ? document.getElementById("pc_text_pos").value : "water";
+    var yFactor = pos === "sky" ? 0.18 : pos === "middle" ? 0.5 : 0.82;
+    ctx.fillRect(0, H*yFactor - 40, W, 80);
+    var colors = {white:"#fff", gold:"#FFD23F", dark:"#1A1A1A"};
+    var col = colors[document.getElementById("pc_text_color") ? document.getElementById("pc_text_color").value : "white"] || "#fff";
+    ctx.font = "italic bold 22px 'Brush Script MT', cursive";
+    ctx.fillStyle = col;
+    ctx.textAlign = "center";
+    ctx.fillText("Herzliche Grüße von der Insel Burano", W/2, H*yFactor + 8);
+    // Namens-Linie
+    drawNameLine(ctx, W, H, H*0.91, "rgba(255,255,255,0.5)");
+    ctx.font = "10px sans-serif";
+    ctx.fillStyle = "rgba(255,255,255,.5)";
+    ctx.fillText("my-burano.com - Terra Nova 112", W/2, H-6);
+  };
+  img.src = pcAdminImg;
+}
+
+function savePcPhoto() {
+  if(!pcAdminImg) return;
+  // Bild komprimieren bevor speichern
+  var cv = document.createElement("canvas");
+  cv.width = 700; cv.height = 490;
+  var ctx = cv.getContext("2d");
+  var img = new Image();
+  img.onload = function() {
+    ctx.drawImage(img, 0, 0, 700, 490);
+    var compressed = cv.toDataURL("image/jpeg", 0.85);
+    try {
+      localStorage.setItem("bl_pc_custom_photo", compressed);
+      alert("✅ Foto gespeichert! Es wird jetzt im Postkarten-Generator verwendet.");
+      renderPC();
+    } catch(e) {
+      alert("⚠️ Foto zu groß für lokale Speicherung. Bitte kleineres Bild verwenden (max 1MB).");
+    }
+  };
+  img.src = pcAdminImg;
 }
 
 function speakHistory() {
@@ -1332,8 +1526,12 @@ function sendAI() {
   var inp=document.getElementById("aiinp"), msg=inp.value.trim();
   if(!msg) return; inp.value=""; addMsg(msg,"usr"); aiHist.push({role:"user",content:msg});
   var typing=addMsg("...","bot");
+  apiKey = getApiKey(); // immer frisch aus localStorage
   if(!apiKey){
-    setTimeout(function(){typing.textContent="Bitte API-Key im Admin eintragen.";},500); return;
+    setTimeout(function(){
+      typing.textContent="Bitte API-Key im Admin-Bereich (ganz unten) eintragen.";
+      document.getElementById("aikey").style.display="flex";
+    },500); return;
   }
   fetch("https://api.anthropic.com/v1/messages",{
     method:"POST",
@@ -1351,9 +1549,14 @@ function sendAI() {
 }
 function svKeyW() {
   var k=document.getElementById("aikeyfld").value.trim();
-  if(k.indexOf("sk-")===0){apiKey=k;localStorage.setItem("bl_api_key",k);
+  if(k.length > 10){ // sk-ant-... oder anderes Format
+    apiKey=k;
+    localStorage.setItem("bl_api_key",k);
     document.getElementById("aikey").style.display="none";
-    addMsg("API-Key gespeichert! Jetzt bin ich voll einsatzbereit.","bot");}
+    addMsg("✅ API-Key gespeichert! Stelle mir deine Frage.", "bot", false);
+  } else {
+    addMsg("⚠️ Bitte vollständigen API-Key eingeben (beginnt mit sk-ant-).", "bot", false);
+  }
 }
 
 // ADMIN
