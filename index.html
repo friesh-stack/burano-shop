@@ -280,7 +280,7 @@ footer strong{color:var(--gold);}
   <h2 class="stit">&#128206; <span id="t_pc_title">Postkarten-Generator</span></h2>
   <p class="ssub" id="t_pc_sub">Mit Briefmarke, Stempel und persoenlichem Gruss</p>
   <div class="pcc">
-    <div class="pcprev"><canvas id="pcanv" width="760" height="530"></canvas></div>
+    <div class="pcprev"><canvas id="pcanv" width="600" height="800"></canvas></div>
     <div class="pcctrl">
       <select class="pcsel" id="pcphoto" onchange="renderPC()">
         <option value="canal_wide">Kanal - Alle Farben</option>
@@ -348,7 +348,10 @@ footer strong{color:var(--gold);}
   <h2 class="stit">&#127916; <span id="t_vid_title">Burano Video-Clips</span></h2>
   <p class="ssub" id="t_vid_sub">Full HD mit persoenlichem Text - Perfekt fuer Social Media</p>
   <div class="vcard">
-    <div class="vico">&#127909;</div>
+    <div style="flex-shrink:0;width:120px">
+      <div id="vico1_img"></div>
+      <div class="vico" id="vico1_fallback">&#127909;</div>
+    </div>
     <div style="flex:1">
       <h3 id="t_v1">Standard Clip - 16 Sekunden</h3>
       <p id="t_v1d">Atmosphaerisches Burano-Video mit eingeblendetem Text. Perfekt fuer Instagram Reels und WhatsApp Status.</p>
@@ -357,7 +360,10 @@ footer strong{color:var(--gold);}
     </div>
   </div>
   <div class="vcard">
-    <div class="vico">&#127902;</div>
+    <div style="flex-shrink:0;width:120px">
+      <div id="vico2_img"></div>
+      <div class="vico">&#127902;</div>
+    </div>
     <div style="flex:1">
       <h3 id="t_v2">Premium Clip - 20 Sekunden</h3>
       <p id="t_v2d">Mehrere Burano-Szenen, Musik und personalisierten Text. Das ultimative Souvenir!</p>
@@ -366,6 +372,39 @@ footer strong{color:var(--gold);}
     </div>
   </div>
 </div></div>
+
+
+<!-- MAP & WETTER -->
+<div class="b3" id="map_section">
+<div class="sec rev">
+  <h2 class="stit">&#127968; <span id="t_map_title">Karte & Wetter</span></h2>
+  <p class="ssub" id="t_map_sub">Burano, Mazzorbo und Torcello - dein Standort auf der Karte</p>
+
+  <!-- WETTER -->
+  <div id="weather_box" style="background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:18px;padding:20px;margin-bottom:20px;display:flex;align-items:center;gap:18px;flex-wrap:wrap">
+    <div style="font-size:3rem" id="wx_icon">&#9728;&#65039;</div>
+    <div style="flex:1">
+      <div style="font-weight:900;font-size:1.1rem" id="wx_temp">Lade Wetter...</div>
+      <div style="font-size:.85rem;opacity:.7" id="wx_desc">Burano, Venezia</div>
+      <div style="font-size:.8rem;opacity:.55;margin-top:4px" id="wx_extra"></div>
+    </div>
+    <div style="text-align:right">
+      <div style="font-size:.75rem;opacity:.5" id="wx_time">Aktualisiert gerade</div>
+      <button onclick="loadWeather()" style="background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);border-radius:8px;padding:5px 12px;color:#fff;font-size:.75rem;cursor:pointer;margin-top:6px;font-family:Nunito,sans-serif">&#8635; Neu laden</button>
+    </div>
+  </div>
+
+  <!-- LEAFLET MAP -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <div id="map" style="height:380px;border-radius:18px;overflow:hidden;border:1px solid rgba(255,255,255,.1);margin-bottom:12px"></div>
+  <div style="display:flex;gap:10px;flex-wrap:wrap">
+    <button onclick="locateUser()" class="btnH" style="flex:1">&#128205; Mein Standort anzeigen</button>
+    <button onclick="showRoute()" class="btnH out" id="route_btn" style="flex:1;display:none">&#128506; Route zu Terra Nova 112</button>
+  </div>
+  <div id="route_info" style="margin-top:12px;display:none;background:rgba(255,255,255,.06);border-radius:12px;padding:14px;font-size:.88rem"></div>
+</div>
+</div>
 
 <!-- PARTNER -->
 <div class="b3">
@@ -383,13 +422,25 @@ footer strong{color:var(--gold);}
   <h2 class="stit">&#127754; <span id="t_isles_title">Mazzorbo &amp; Torcello</span></h2>
   <p class="ssub" id="t_isles_sub">Die Nachbarinseln - Geschichte und Natur pur</p>
   <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:20px">
-    <div style="background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:18px;padding:24px">
+    <div style="background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:18px;overflow:hidden">
+      <div id="mazz_photo" onclick="if(document.getElementById('mazz_file').click)" style="height:160px;background:linear-gradient(135deg,#0D2B5E,#1565C0);display:flex;align-items:center;justify-content:center;cursor:pointer;position:relative">
+        <span style="font-size:2.5rem;opacity:.5">&#127747;</span>
+        <span style="position:absolute;bottom:8px;right:8px;background:rgba(0,0,0,.5);color:#fff;font-size:.7rem;padding:3px 8px;border-radius:8px">Foto laden</span>
+      </div>
+      <div style="padding:20px">
       <h3 style="color:var(--gold);font-size:1.2rem;margin-bottom:10px">&#127747; Mazzorbo</h3>
       <p style="opacity:.8;font-size:.9rem;line-height:1.7">Mazzorbo ist mit Burano durch eine Holzbruecke verbunden. Die ruhige Insel ist bekannt fuer ihren historischen Weinanbau - hier waechst der seltene <strong style="color:var(--gold)">Dorona-Wein</strong>, eine fast ausgestorbene venezianische Rebsorte. Mazzorbo war einst dichter besiedelt als heute und beherbergt die gotische Kirche Santa Caterina aus dem 14. Jahrhundert.</p>
+      </div>
     </div>
-    <div style="background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:18px;padding:24px">
+    <div style="background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:18px;overflow:hidden">
+      <div id="torc_photo" style="height:160px;background:linear-gradient(135deg,#2E7D32,#1B5E20);display:flex;align-items:center;justify-content:center;cursor:pointer;position:relative">
+        <span style="font-size:2.5rem;opacity:.5">&#127963;</span>
+        <span style="position:absolute;bottom:8px;right:8px;background:rgba(0,0,0,.5);color:#fff;font-size:.7rem;padding:3px 8px;border-radius:8px">Foto laden</span>
+      </div>
+      <div style="padding:20px">
       <h3 style="color:var(--gold);font-size:1.2rem;margin-bottom:10px">&#127963; Torcello</h3>
       <p style="opacity:.8;font-size:.9rem;line-height:1.7">Torcello war einst die <strong style="color:var(--gold)">mächtigste Stadt der Lagune</strong> mit über 20.000 Einwohnern. Heute leben dort nur noch etwa 20 Menschen. Der Dom Santa Maria Assunta aus dem Jahr 639 n.Chr. ist einer der aeltesten Sakralbauten Venedigs. Der geheimnisvolle <strong style="color:var(--gold)">"Thron des Attila"</strong> - ein steinerner Sessel auf dem Platz - zieht Besucher aus aller Welt an.</p>
+      </div>
     </div>
   </div>
 </div>
@@ -538,9 +589,53 @@ footer strong{color:var(--gold);}
           </select>
         </div>
       </div>
-      <canvas id="pc_admin_preview" width="700" height="490" style="width:100%;border-radius:10px;display:none;margin-bottom:8px"></canvas>
+      <canvas id="pc_admin_preview" width="600" height="800" style="width:100%;border-radius:10px;display:none;margin-bottom:8px"></canvas>
       <button class="abtn" onclick="savePcPhoto()" id="pc_save_btn" style="display:none">✅ Als Postkarten-Hintergrundbild speichern</button>
     </div>
+    <!-- VIDEO UPLOAD -->
+    <div class="asec">
+      <h4>Video-Clips verwalten</h4>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px">
+        <div style="background:rgba(255,255,255,.05);border-radius:12px;padding:14px">
+          <div style="font-weight:800;font-size:.9rem;margin-bottom:8px;color:var(--gold)">Standard 16s</div>
+          <div id="vid1_thumb" style="height:80px;background:#1A1A2E;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:1.5rem;margin-bottom:8px;cursor:pointer" onclick="document.getElementById('vid1_file').click()">&#127909;</div>
+          <input type="file" id="vid1_file" accept="video/*,image/*" style="display:none" onchange="loadVideoThumb(this,'vid1')">
+          <input type="number" class="ainput" id="vid1_price" placeholder="Preis EUR" value="3.99" step=".01" style="margin-bottom:0">
+        </div>
+        <div style="background:rgba(255,255,255,.05);border-radius:12px;padding:14px">
+          <div style="font-weight:800;font-size:.9rem;margin-bottom:8px;color:var(--gold)">Premium 20s</div>
+          <div id="vid2_thumb" style="height:80px;background:#1A1A2E;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:1.5rem;margin-bottom:8px;cursor:pointer" onclick="document.getElementById('vid2_file').click()">&#127909;</div>
+          <input type="file" id="vid2_file" accept="video/*,image/*" style="display:none" onchange="loadVideoThumb(this,'vid2')">
+          <input type="number" class="ainput" id="vid2_price" placeholder="Preis EUR" value="5.99" step=".01" style="margin-bottom:0">
+        </div>
+      </div>
+      <button class="abtn" onclick="saveVideos()">Videos speichern</button>
+    </div>
+
+    <!-- PARTNER FOTO + LOCATION -->
+    <div class="asec">
+      <h4>Partner-Fotos & Standort</h4>
+      <div id="admin_partner_ext" style="background:rgba(255,255,255,.04);border-radius:12px;padding:12px"></div>
+    </div>
+
+    <!-- MAZZORBO / TORCELLO FOTOS -->
+    <div class="asec">
+      <h4>Mazzorbo & Torcello Fotos</h4>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+        <div>
+          <div style="font-size:.8rem;opacity:.6;margin-bottom:6px">Mazzorbo</div>
+          <div id="mazz_prev" style="height:80px;background:#0D2B5E;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:1.5rem;cursor:pointer" onclick="document.getElementById('mazz_file').click()">&#127747;</div>
+          <input type="file" id="mazz_file" accept="image/*" style="display:none" onchange="loadIslandPhoto(this,'mazz')">
+        </div>
+        <div>
+          <div style="font-size:.8rem;opacity:.6;margin-bottom:6px">Torcello</div>
+          <div id="torc_prev" style="height:80px;background:#1B5E20;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:1.5rem;cursor:pointer" onclick="document.getElementById('torc_file').click()">&#127963;</div>
+          <input type="file" id="torc_file" accept="image/*" style="display:none" onchange="loadIslandPhoto(this,'torc')">
+        </div>
+      </div>
+      <button class="abtn" onclick="saveIslandPhotos()" style="margin-top:10px">Fotos speichern</button>
+    </div>
+
     <div style="margin-top:14px;text-align:right">
       <button class="abtn" onclick="lgout()" style="background:rgba(255,255,255,.1);color:#fff;max-width:120px">Abmelden</button>
     </div>
@@ -564,8 +659,12 @@ footer strong{color:var(--gold);}
     <button onclick="svKeyW()">OK</button>
   </div>
   <div class="aiinpr">
-    <input type="text" id="aiinp" placeholder="Frag mich etwas ueber Burano...">
+    <input type="text" id="aiinp" placeholder="Frag mich etwas ueber Burano..." onkeydown="if(event.key==='Enter')sendAI()">
+    <button id="mic_btn" onclick="toggleMic()" title="Mikrofon" style="background:rgba(255,255,255,.15);border:none;border-radius:10px;padding:9px 11px;color:#fff;cursor:pointer;font-size:1rem;transition:background .2s">&#127908;</button>
     <button class="aisend" onclick="sendAI()">&#10148;</button>
+  </div>
+  <div id="mic_status" style="display:none;padding:6px 14px;font-size:.75rem;color:var(--gold);text-align:center;border-top:1px solid rgba(255,255,255,.08)">
+    &#127908; Hoere zu...
   </div>
 </div>
 
@@ -1129,7 +1228,7 @@ function renderPC() {
       ctx.restore();
 
       // Leerzeile fuer Kundenname
-      var lineY = H * 0.91;
+      var lineY = H * 0.88;
       var lineColor = "rgba(255,255,255,0.55)";
       drawNameLine(ctx, W, H, lineY, lineColor);
 
@@ -1282,7 +1381,7 @@ function updatePcPreview() {
     ctx.textAlign = "center";
     ctx.fillText("Herzliche Grüße von der Insel Burano", W/2, H*yFactor + 8);
     // Namens-Linie
-    drawNameLine(ctx, W, H, H*0.91, "rgba(255,255,255,0.5)");
+    drawNameLine(ctx, W, H, H*0.88, "rgba(255,255,255,0.5)");
     ctx.font = "10px sans-serif";
     ctx.fillStyle = "rgba(255,255,255,.5)";
     ctx.fillText("my-burano.com - Terra Nova 112", W/2, H-6);
@@ -1294,7 +1393,7 @@ function savePcPhoto() {
   if(!pcAdminImg) return;
   // Bild komprimieren bevor speichern
   var cv = document.createElement("canvas");
-  cv.width = 700; cv.height = 490;
+  cv.width = 600; cv.height = 800;
   var ctx = cv.getContext("2d");
   var img = new Image();
   img.onload = function() {
@@ -1353,7 +1452,7 @@ function updatePcPreview() {
     else if(pos==="middle") { cy=H*0.35; cr=W*0.92; }
     else               { cy=H*0.68; cr=W*0.88; }
     drawCurvedText(ctx, "Herzliche Gruesse von der Insel Burano", W/2, cy+cr, cr, col, Math.round(W/28));
-    drawNameLine(ctx, W, H, H*0.91, "rgba(255,255,255,0.5)");
+    drawNameLine(ctx, W, H, H*0.88, "rgba(255,255,255,0.5)");
     ctx.font="10px sans-serif"; ctx.fillStyle="rgba(255,255,255,.5)"; ctx.textAlign="center";
     ctx.fillText("my-burano.com - Terra Nova 112", W/2, H-6);
   };
@@ -1362,7 +1461,7 @@ function updatePcPreview() {
 function savePcPhoto() {
   if(!pcAdminImg) return;
   var cv = document.createElement("canvas");
-  cv.width=700; cv.height=490;
+  cv.width=600; cv.height=800;
   var ctx = cv.getContext("2d");
   var img = new Image();
   img.onload = function() {
@@ -1641,6 +1740,60 @@ function addMsg(txt, who, autoSpeak) {
   c.scrollTop = c.scrollHeight;
   return d;
 }
+// == MIKROFON / SPEECH-TO-TEXT ==
+var micRecognition = null;
+var micActive = false;
+
+function toggleMic() {
+  if(micActive) { stopMic(); return; }
+  startMic();
+}
+
+function startMic() {
+  var SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if(!SR) {
+    addMsg("Mikrofon wird auf diesem Geraet nicht unterstuetzt. Bitte Text eingeben.", "bot", false);
+    return;
+  }
+  micRecognition = new SR();
+  micRecognition.lang = ({"de":"de-DE","en":"en-US","it":"it-IT","fr":"fr-FR","es":"es-ES","ja":"ja-JP","zh":"zh-CN","pl":"pl-PL"})[curLang] || "de-DE";
+  micRecognition.continuous = false;
+  micRecognition.interimResults = false;
+  micRecognition.onstart = function() {
+    micActive = true;
+    var btn = document.getElementById("mic_btn");
+    var st  = document.getElementById("mic_status");
+    if(btn) { btn.style.background="var(--red)"; btn.innerHTML="&#9209;"; }
+    if(st)  { st.style.display="block"; }
+    stopSpeak(); // Vorlesen stoppen waehrend Mikrofon aktiv
+  };
+  micRecognition.onresult = function(e) {
+    var transcript = e.results[0][0].transcript;
+    var inp = document.getElementById("aiinp");
+    if(inp) inp.value = transcript;
+    stopMic();
+    // Automatisch senden
+    setTimeout(sendAI, 300);
+  };
+  micRecognition.onerror = function(e) {
+    stopMic();
+    if(e.error === "not-allowed") {
+      addMsg("Mikrofon-Zugriff verweigert. Bitte in Browser-Einstellungen erlauben.", "bot", false);
+    }
+  };
+  micRecognition.onend = function() { stopMic(); };
+  try { micRecognition.start(); } catch(e) { stopMic(); }
+}
+
+function stopMic() {
+  micActive = false;
+  if(micRecognition) { try{ micRecognition.stop(); }catch(e){} micRecognition=null; }
+  var btn = document.getElementById("mic_btn");
+  var st  = document.getElementById("mic_status");
+  if(btn) { btn.style.background="rgba(255,255,255,.15)"; btn.innerHTML="&#127908;"; }
+  if(st)  { st.style.display="none"; }
+}
+
 function sendAI() {
   var inp=document.getElementById("aiinp"), msg=inp.value.trim();
   if(!msg) return; inp.value=""; addMsg(msg,"usr"); aiHist.push({role:"user",content:msg});
@@ -1715,6 +1868,7 @@ function loadAdm(){
   document.getElementById("ppem").value=ppe;
   document.getElementById("apiinp").value=apiKey?"(gespeichert)":"";
   rAdmPart();
+  renderAdminPartnerExt();
 }
 function rAdmPart(){
   document.getElementById("aplst").innerHTML=partners.map(function(p,i){
@@ -1759,6 +1913,221 @@ document.querySelectorAll(".rev").forEach(function(el){sio.observe(el);});
 document.getElementById("aiinp").addEventListener("keydown",function(e){if(e.key==="Enter")sendAI();});
 
 // INIT
+// ============================================================
+// MAP (Leaflet.js)
+// ============================================================
+var map = null;
+var userMarker = null;
+var userLatLng = null;
+
+// Burano Orte
+var LOCATIONS = {
+  terra_nova: {lat:45.4848, lng:12.4173, name:"Terra Nova 112 - Burano Shop"},
+  burano_center:{lat:45.4851, lng:12.4162, name:"Piazza Galuppi, Burano"},
+  mazzorbo:   {lat:45.4874, lng:12.4043, name:"Mazzorbo"},
+  torcello:   {lat:45.4969, lng:12.4167, name:"Torcello - Dom"}
+};
+
+function initMap() {
+  if(map || !document.getElementById("map")) return;
+  map = L.map("map").setView([45.4851, 12.4162], 14);
+  L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+    attribution: "OpenStreetMap",
+    maxZoom: 19
+  }).addTo(map);
+  // Burano Marker
+  var buranoIcon = L.divIcon({className:"", html:"<div style='background:#FFD23F;border:3px solid #0A1628;border-radius:50%;width:14px;height:14px'></div>", iconSize:[14,14]});
+  Object.values(LOCATIONS).forEach(function(loc) {
+    L.marker([loc.lat, loc.lng], {icon:buranoIcon})
+      .addTo(map)
+      .bindPopup("<b>" + loc.name + "</b>");
+  });
+}
+
+function locateUser() {
+  if(!navigator.geolocation) { alert("Standort nicht verfuegbar"); return; }
+  navigator.geolocation.getCurrentPosition(function(pos) {
+    userLatLng = {lat: pos.coords.latitude, lng: pos.coords.longitude};
+    if(!map) initMap();
+    if(userMarker) map.removeLayer(userMarker);
+    var userIcon = L.divIcon({className:"", html:"<div style='background:#2196F3;border:3px solid #fff;border-radius:50%;width:16px;height:16px;box-shadow:0 0 0 3px rgba(33,150,243,.3)'></div>", iconSize:[16,16]});
+    userMarker = L.marker([userLatLng.lat, userLatLng.lng], {icon:userIcon})
+      .addTo(map)
+      .bindPopup("Du bist hier").openPopup();
+    map.setView([userLatLng.lat, userLatLng.lng], 15);
+    document.getElementById("route_btn").style.display = "block";
+  }, function() { alert("Standort konnte nicht ermittelt werden. Bitte Standort-Zugriff erlauben."); });
+}
+
+function showRoute() {
+  if(!userLatLng) { locateUser(); return; }
+  var dest = LOCATIONS.terra_nova;
+  // Entfernung berechnen (Haversine)
+  var R = 6371000;
+  var dLat = (dest.lat - userLatLng.lat) * Math.PI/180;
+  var dLng = (dest.lng - userLatLng.lng) * Math.PI/180;
+  var a = Math.sin(dLat/2)*Math.sin(dLat/2) + Math.cos(userLatLng.lat*Math.PI/180)*Math.cos(dest.lat*Math.PI/180)*Math.sin(dLng/2)*Math.sin(dLng/2);
+  var dist = Math.round(R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)));
+  var distStr = dist < 1000 ? dist + " m" : (dist/1000).toFixed(1) + " km";
+  document.getElementById("route_info").style.display = "block";
+  document.getElementById("route_info").innerHTML = "<b>Terra Nova 112, Burano</b><br>Entfernung: <b>" + distStr + "</b><br><small style='opacity:.6'>Tipp: Vaporetto-Linie 12 ab Fondamente Nove</small><br><a href='https://www.google.com/maps/dir/"+userLatLng.lat+","+userLatLng.lng+"/"+dest.lat+","+dest.lng+"' target='_blank' style='color:var(--teal)'>In Google Maps oeffnen</a>";
+  // Linie auf Map
+  if(map) {
+    L.polyline([[userLatLng.lat,userLatLng.lng],[dest.lat,dest.lng]], {color:"#FFD23F",weight:3,dashArray:"8,6"}).addTo(map);
+    map.fitBounds([[userLatLng.lat,userLatLng.lng],[dest.lat,dest.lng]], {padding:[30,30]});
+  }
+}
+
+function showPartnerRoute(lat, lng, name) {
+  if(!map) initMap();
+  document.getElementById("map_section").scrollIntoView({behavior:"smooth"});
+  setTimeout(function(){
+    if(!map) return;
+    if(userLatLng) {
+      L.polyline([[userLatLng.lat,userLatLng.lng],[lat,lng]], {color:"var(--teal)",weight:3,dashArray:"6,5"}).addTo(map);
+      map.fitBounds([[userLatLng.lat,userLatLng.lng],[lat,lng]], {padding:[30,30]});
+    } else {
+      map.setView([lat,lng], 16);
+    }
+    var icon = L.divIcon({className:"", html:"<div style='background:var(--org);border:3px solid #fff;border-radius:50%;width:16px;height:16px'></div>", iconSize:[16,16]});
+    L.marker([lat,lng],{icon:icon}).addTo(map).bindPopup("<b>"+name+"</b>").openPopup();
+  }, 600);
+}
+
+// ============================================================
+// WETTER (open-meteo.com - kostenlos, kein Key)
+// ============================================================
+function loadWeather() {
+  var lat = 45.4851, lng = 12.4162; // Burano
+  fetch("https://api.open-meteo.com/v1/forecast?latitude="+lat+"&longitude="+lng+"&current=temperature_2m,weathercode,windspeed_10m,relativehumidity_2m&timezone=Europe/Rome")
+  .then(function(r){ return r.json(); })
+  .then(function(d) {
+    var c = d.current;
+    var WX = {0:"Klar",1:"Ueberwiegend klar",2:"Teils bewoelkt",3:"Bewoelkt",45:"Nebel",48:"Nebel",51:"Leichter Niesel",53:"Niesel",61:"Leichter Regen",63:"Regen",71:"Leichter Schnee",73:"Schnee",80:"Regenschauer",81:"Regenschauer",95:"Gewitter",96:"Gewitter"};
+    var ICONS_WX = {0:"&#9728;&#65039;",1:"&#127780;&#65039;",2:"&#9925;",3:"&#9729;",45:"&#127787;&#65039;",48:"&#127787;&#65039;",51:"&#127746;",53:"&#127746;",61:"&#127783;&#65039;",63:"&#127783;&#65039;",71:"&#127784;&#65039;",73:"&#127784;&#65039;",80:"&#127783;&#65039;",81:"&#127783;&#65039;",95:"&#9928;&#65039;",96:"&#9928;&#65039;"};
+    var code = c.weathercode;
+    document.getElementById("wx_icon").innerHTML = ICONS_WX[code] || "&#127780;";
+    document.getElementById("wx_temp").textContent = Math.round(c.temperature_2m) + " C - Burano, Venezia";
+    document.getElementById("wx_desc").textContent = WX[code] || "Aktuelles Wetter";
+    document.getElementById("wx_extra").textContent = "Wind: " + Math.round(c.windspeed_10m) + " km/h  |  Feuchte: " + c.relativehumidity_2m + "%";
+    document.getElementById("wx_time").textContent = "Aktualisiert: " + new Date().toLocaleTimeString();
+  }).catch(function() {
+    document.getElementById("wx_temp").textContent = "Wetter nicht verfuegbar";
+  });
+}
+
+// ============================================================
+// VIDEO ADMIN
+// ============================================================
+function loadVideoThumb(input, vidId) {
+  if(!input.files || !input.files[0]) return;
+  var file = input.files[0];
+  var reader = new FileReader();
+  reader.onload = function(e) {
+    var data = e.target.result;
+    var thumb = document.getElementById(vidId + "_thumb");
+    if(file.type.startsWith("image/")) {
+      thumb.innerHTML = "<img src='"+data+"' style='width:100%;height:100%;object-fit:cover;border-radius:8px'>";
+      localStorage.setItem("bl_"+vidId+"_thumb", data);
+    } else {
+      thumb.innerHTML = "&#127909; Video gewaehlt";
+      localStorage.setItem("bl_"+vidId+"_file", data);
+    }
+  };
+  reader.readAsDataURL(file);
+}
+
+function saveVideos() {
+  var p1 = document.getElementById("vid1_price");
+  var p2 = document.getElementById("vid2_price");
+  if(p1) localStorage.setItem("bl_vid1_price", p1.value);
+  if(p2) localStorage.setItem("bl_vid2_price", p2.value);
+  // Video-Vorschaubilder in Shop-Sektion anzeigen
+  updateVideoThumbs();
+  alert("Videos gespeichert!");
+}
+
+function updateVideoThumbs() {
+  var t1 = localStorage.getItem("bl_vid1_thumb");
+  var t2 = localStorage.getItem("bl_vid2_thumb");
+  var v1El = document.getElementById("vico1_img");
+  var v2El = document.getElementById("vico2_img");
+  if(t1 && v1El) v1El.innerHTML = "<img src='"+t1+"' style='width:100%;max-height:120px;object-fit:cover;border-radius:10px;margin-bottom:8px'>";
+  if(t2 && v2El) v2El.innerHTML = "<img src='"+t2+"' style='width:100%;max-height:120px;object-fit:cover;border-radius:10px;margin-bottom:8px'>";
+}
+
+// ============================================================
+// INSEL FOTOS (Mazzorbo / Torcello)
+// ============================================================
+var islandPhotos = {mazz:null, torc:null};
+
+function loadIslandPhoto(input, island) {
+  if(!input.files || !input.files[0]) return;
+  var reader = new FileReader();
+  reader.onload = function(e) {
+    islandPhotos[island] = e.target.result;
+    document.getElementById(island+"_prev").innerHTML = "<img src='"+e.target.result+"' style='width:100%;height:100%;object-fit:cover;border-radius:8px'>";
+  };
+  reader.readAsDataURL(input.files[0]);
+}
+
+function saveIslandPhotos() {
+  if(islandPhotos.mazz) {
+    localStorage.setItem("bl_mazz_photo", islandPhotos.mazz);
+    var el = document.getElementById("mazz_photo");
+    if(el) el.innerHTML = "<img src='"+islandPhotos.mazz+"' style='width:100%;height:160px;object-fit:cover'>";
+  }
+  if(islandPhotos.torc) {
+    localStorage.setItem("bl_torc_photo", islandPhotos.torc);
+    var el2 = document.getElementById("torc_photo");
+    if(el2) el2.innerHTML = "<img src='"+islandPhotos.torc+"' style='width:100%;height:160px;object-fit:cover'>";
+  }
+  alert("Insel-Fotos gespeichert!");
+}
+
+// ============================================================
+// PARTNER ADMIN (Erweiterung: Foto + Location)
+// ============================================================
+function renderAdminPartnerExt() {
+  var el = document.getElementById("admin_partner_ext");
+  if(!el) return;
+  if(!partners.length) { el.innerHTML = "<p style='opacity:.4;font-size:.82rem'>Noch keine Partner.</p>"; return; }
+  el.innerHTML = partners.map(function(p,i) {
+    return "<div style='border-bottom:1px solid rgba(255,255,255,.08);padding:10px 0'>" +
+      "<div style='font-weight:700;margin-bottom:6px'>" + p.name + "</div>" +
+      "<div style='display:flex;gap:8px;flex-wrap:wrap'>" +
+      "<label style='cursor:pointer;background:rgba(255,255,255,.1);border-radius:8px;padding:5px 10px;font-size:.75rem'>Foto <input type='file' accept='image/*' style='display:none' onchange='loadPartnerPhoto(this,"+i+")'></label>" +
+      "<input type='number' placeholder='Lat' step='0.0001' value='"+(p.lat||"")+"' id='p_lat_"+i+"' style='width:90px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.15);border-radius:8px;padding:5px 8px;color:#fff;font-size:.75rem;outline:none'>" +
+      "<input type='number' placeholder='Lng' step='0.0001' value='"+(p.lng||"")+"' id='p_lng_"+i+"' style='width:90px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.15);border-radius:8px;padding:5px 8px;color:#fff;font-size:.75rem;outline:none'>" +
+      "<button onclick='savePartnerLocation("+i+")' style='background:var(--teal);border:none;border-radius:8px;padding:5px 10px;color:#fff;font-size:.75rem;cursor:pointer;font-family:Nunito,sans-serif'>Speichern</button>" +
+      "</div></div>";
+  }).join("");
+}
+
+function loadPartnerPhoto(input, idx) {
+  if(!input.files || !input.files[0]) return;
+  var reader = new FileReader();
+  reader.onload = function(e) {
+    partners[idx].photo = e.target.result;
+    localStorage.setItem("bl_partners", JSON.stringify(partners));
+    renderPart();
+    renderAdminPartnerExt();
+  };
+  reader.readAsDataURL(input.files[0]);
+}
+
+function savePartnerLocation(idx) {
+  var lat = parseFloat(document.getElementById("p_lat_"+idx).value);
+  var lng = parseFloat(document.getElementById("p_lng_"+idx).value);
+  if(!isNaN(lat) && !isNaN(lng)) {
+    partners[idx].lat = lat;
+    partners[idx].lng = lng;
+    localStorage.setItem("bl_partners", JSON.stringify(partners));
+    renderPart();
+    alert("Standort fuer " + partners[idx].name + " gespeichert!");
+  }
+}
+
 window.addEventListener("load", function() {
   // Aktiven Sprachbutton setzen
   var activeLb = document.getElementById("lb_" + curLang);
@@ -1788,6 +2157,17 @@ window.addEventListener("load", function() {
   applyTxt();
   updateGreetingSelect();
   initHero();
+  // Map + Wetter
+  setTimeout(initMap, 500);
+  loadWeather();
+  setInterval(loadWeather, 600000); // alle 10 Min
+  // Video-Thumbnails laden
+  updateVideoThumbs();
+  // Insel-Fotos laden
+  var mazzPhoto = localStorage.getItem("bl_mazz_photo");
+  var torcPhoto = localStorage.getItem("bl_torc_photo");
+  if(mazzPhoto) { var el=document.getElementById("mazz_photo"); if(el) el.innerHTML="<img src='"+mazzPhoto+"' style='width:100%;height:160px;object-fit:cover'>"; }
+  if(torcPhoto) { var el2=document.getElementById("torc_photo"); if(el2) el2.innerHTML="<img src='"+torcPhoto+"' style='width:100%;height:160px;object-fit:cover'>"; }
   renderGallery();
   renderPart();
   setRental();
