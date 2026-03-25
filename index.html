@@ -523,18 +523,18 @@ footer strong{color:var(--gold);}
       <div style="display:flex;gap:8px;margin-bottom:8px">
         <div style="flex:1">
           <label style="font-size:.75rem;opacity:.6;display:block;margin-bottom:4px">Text-Position</label>
-          <select class="ainput" id="pc_text_pos" onchange="updatePcPreview()" style="margin:0">
-            <option value="sky">Oben (Himmel)</option>
-            <option value="water">Unten (Wasser)</option>
-            <option value="middle">Mitte</option>
+          <select id="pc_text_pos" onchange="updatePcPreview()" style="width:100%;background:#0D2B5E;border:1px solid #FFD23F;border-radius:10px;padding:9px 12px;color:#fff;font-family:Nunito,sans-serif;font-size:.88rem;outline:none;cursor:pointer;margin:0">
+            <option value="sky" style="background:#0D2B5E;color:#fff">Oben (Himmel)</option>
+            <option value="water" style="background:#0D2B5E;color:#fff">Unten (Wasser)</option>
+            <option value="middle" style="background:#0D2B5E;color:#fff">Mitte</option>
           </select>
         </div>
         <div style="flex:1">
           <label style="font-size:.75rem;opacity:.6;display:block;margin-bottom:4px">Textfarbe</label>
-          <select class="ainput" id="pc_text_color" onchange="updatePcPreview()" style="margin:0">
-            <option value="white">Weiß</option>
-            <option value="gold">Gold</option>
-            <option value="dark">Dunkel</option>
+          <select id="pc_text_color" onchange="updatePcPreview()" style="width:100%;background:#0D2B5E;border:1px solid #FFD23F;border-radius:10px;padding:9px 12px;color:#fff;font-family:Nunito,sans-serif;font-size:.88rem;outline:none;cursor:pointer;margin:0">
+            <option value="white" style="background:#0D2B5E;color:#fff">Weiß</option>
+            <option value="gold" style="background:#0D2B5E;color:#fff">Gold (#FFD23F)</option>
+            <option value="dark" style="background:#0D2B5E;color:#fff">Dunkel</option>
           </select>
         </div>
       </div>
@@ -975,7 +975,7 @@ function drawCurvedText(ctx, text, cx, cy, radius, startAngle, color, fontSize) 
 }
 
 function drawNameLine(ctx, W, H, yPos, color) {
-  // Gestrichelte Linie für Kundenname
+  // Gestrichelte Linie fuer Kundenname
   ctx.save();
   ctx.setLineDash([8,5]);
   ctx.strokeStyle = color || "rgba(255,255,255,0.6)";
@@ -990,7 +990,53 @@ function drawNameLine(ctx, W, H, yPos, color) {
   ctx.font = "11px sans-serif";
   ctx.fillStyle = color || "rgba(255,255,255,0.5)";
   ctx.textAlign = "center";
-  ctx.fillText("✦ Ihr Name ✦", W/2, yPos - 10);
+  ctx.fillText("* Ihr Name *", W/2, yPos - 10);
+  ctx.restore();
+}
+
+function drawCurvedText(ctx, text, cx, cy, radius, color, fontSize) {
+  ctx.save();
+  ctx.font = "italic bold " + fontSize + "px 'Brush Script MT','Comic Sans MS',cursive";
+  ctx.fillStyle = color;
+  ctx.shadowColor = "rgba(0,0,0,0.7)";
+  ctx.shadowBlur = 8;
+  ctx.textAlign = "center";
+  ctx.textBaseline = "middle";
+  var chars = text.split("");
+  var totalArc = 0;
+  var widths = chars.map(function(c){
+    var w = ctx.measureText(c).width;
+    totalArc += w / radius;
+    return w;
+  });
+  var angle = -totalArc / 2;
+  chars.forEach(function(ch, i) {
+    ctx.save();
+    ctx.translate(cx + Math.cos(angle) * radius, cy + Math.sin(angle) * radius);
+    ctx.rotate(angle + Math.PI / 2);
+    ctx.fillText(ch, 0, 0);
+    ctx.restore();
+    angle += widths[i] / radius;
+  });
+  ctx.restore();
+}
+
+function drawNameLine(ctx, W, H, yPos, color) {
+  ctx.save();
+  ctx.setLineDash([8, 5]);
+  ctx.strokeStyle = color || "rgba(255,255,255,0.6)";
+  ctx.lineWidth = 1.5;
+  var margin = W * 0.12;
+  ctx.beginPath();
+  ctx.moveTo(margin, yPos);
+  ctx.lineTo(W - margin, yPos);
+  ctx.stroke();
+  ctx.setLineDash([]);
+  ctx.font = "11px sans-serif";
+  ctx.fillStyle = color || "rgba(255,255,255,0.5)";
+  ctx.textAlign = "center";
+  ctx.shadowBlur = 0;
+  ctx.fillText("* Ihr Name *", W/2, yPos - 10);
   ctx.restore();
 }
 
@@ -1003,7 +1049,7 @@ function renderPC() {
   var W = cv.width, H = cv.height;
   ctx.clearRect(0, 0, W, H);
 
-  // Prüfe ob Admin-Foto gespeichert
+  // Pruefe ob Admin-Foto gespeichert
   var adminPhoto = localStorage.getItem("bl_pc_custom_photo");
 
   if (!adminPhoto && (typeof POSTCARDS === "undefined" || !POSTCARDS[pk])) {
@@ -1059,13 +1105,14 @@ function renderPC() {
       var customerName = document.getElementById("pc_customer_name") ?
                          document.getElementById("pc_customer_name").value : "";
 
-      // Geschwungener Text - Position je nach Wahl
-      var textColor = "#fff";
-      var curveY, curveRadius, curveStart;
-      // Standard: unten im Wasser-/Himmelbereich
-      curveY = H * 0.82;
-      curveRadius = W * 0.9;
-      curveStart = -Math.PI * 0.12;
+      var savedPos = localStorage.getItem("bl_pc_text_pos") || "water";
+      var savedCol = localStorage.getItem("bl_pc_text_col") || "white";
+      var colorMap2 = {white:"rgba(255,255,255,0.95)", gold:"#FFD23F", dark:"rgba(20,20,20,0.9)"};
+      var textColor = colorMap2[savedCol] || "rgba(255,255,255,0.95)";
+      var curveY, curveRadius;
+      if(savedPos === "sky")         { curveY = H * 0.18; curveRadius = W * 0.85; }
+      else if(savedPos === "middle") { curveY = H * 0.48; curveRadius = W * 0.92; }
+      else                           { curveY = H * 0.80; curveRadius = W * 0.88; }
 
       // Schreibschrift geschwungen
       ctx.save();
@@ -1081,7 +1128,7 @@ function renderPC() {
       drawCurvedText(ctx, greet, W/2, curveY + curveRadius, curveRadius, -Math.PI/2 - 0.08, textColor, fontSize);
       ctx.restore();
 
-      // Leerzeile für Kundenname
+      // Leerzeile fuer Kundenname
       var lineY = H * 0.91;
       var lineColor = "rgba(255,255,255,0.55)";
       drawNameLine(ctx, W, H, lineY, lineColor);
@@ -1187,7 +1234,7 @@ function getSelectedGreeting() {
   return sel ? greets[sel.selectedIndex] || greets[0] : greets[0];
 }
 
-// ── ADMIN FOTO UPLOAD ──
+// == ADMIN FOTO UPLOAD ==
 var pcAdminImg = null;
 
 function handlePcDrop(e) {
@@ -1259,6 +1306,78 @@ function savePcPhoto() {
       renderPC();
     } catch(e) {
       alert("⚠️ Foto zu groß für lokale Speicherung. Bitte kleineres Bild verwenden (max 1MB).");
+    }
+  };
+  img.src = pcAdminImg;
+}
+
+// == ADMIN FOTO UPLOAD ==
+var pcAdminImg = null;
+
+function handlePcDrop(e) {
+  e.preventDefault();
+  var file = e.dataTransfer.files[0];
+  if(file && file.type.startsWith("image/")) loadPcPhotoFile(file);
+}
+function loadPcPhoto(input) {
+  if(input.files && input.files[0]) loadPcPhotoFile(input.files[0]);
+}
+function loadPcPhotoFile(file) {
+  var reader = new FileReader();
+  reader.onload = function(e) {
+    pcAdminImg = e.target.result;
+    var prev = document.getElementById("pc_upload_preview");
+    prev.innerHTML = "<img src='" + pcAdminImg + "' style='max-width:100%;max-height:150px;border-radius:8px'>";
+    document.getElementById("pc_admin_preview").style.display = "block";
+    document.getElementById("pc_save_btn").style.display = "block";
+    updatePcPreview();
+  };
+  reader.readAsDataURL(file);
+}
+function updatePcPreview() {
+  if(!pcAdminImg) return;
+  var cv = document.getElementById("pc_admin_preview");
+  var ctx = cv.getContext("2d");
+  var W = cv.width, H = cv.height;
+  var img = new Image();
+  img.onload = function() {
+    ctx.clearRect(0,0,W,H);
+    ctx.drawImage(img, 0, 0, W, H);
+    var colorMap = {white:"rgba(255,255,255,0.95)", gold:"#FFD23F", dark:"rgba(20,20,20,0.9)"};
+    var posSel = document.getElementById("pc_text_pos");
+    var colSel = document.getElementById("pc_text_color");
+    var pos = posSel ? posSel.value : "water";
+    var col = colorMap[colSel ? colSel.value : "white"] || "rgba(255,255,255,0.95)";
+    var cy, cr;
+    if(pos==="sky")    { cy=H*0.05; cr=W*0.85; }
+    else if(pos==="middle") { cy=H*0.35; cr=W*0.92; }
+    else               { cy=H*0.68; cr=W*0.88; }
+    drawCurvedText(ctx, "Herzliche Gruesse von der Insel Burano", W/2, cy+cr, cr, col, Math.round(W/28));
+    drawNameLine(ctx, W, H, H*0.91, "rgba(255,255,255,0.5)");
+    ctx.font="10px sans-serif"; ctx.fillStyle="rgba(255,255,255,.5)"; ctx.textAlign="center";
+    ctx.fillText("my-burano.com - Terra Nova 112", W/2, H-6);
+  };
+  img.src = pcAdminImg;
+}
+function savePcPhoto() {
+  if(!pcAdminImg) return;
+  var cv = document.createElement("canvas");
+  cv.width=700; cv.height=490;
+  var ctx = cv.getContext("2d");
+  var img = new Image();
+  img.onload = function() {
+    ctx.drawImage(img, 0, 0, 700, 490);
+    var compressed = cv.toDataURL("image/jpeg", 0.82);
+    try {
+      localStorage.setItem("bl_pc_custom_photo", compressed);
+      var posSel = document.getElementById("pc_text_pos");
+      var colSel = document.getElementById("pc_text_color");
+      if(posSel) localStorage.setItem("bl_pc_text_pos", posSel.value);
+      if(colSel) localStorage.setItem("bl_pc_text_col", colSel.value);
+      alert("Foto + Einstellungen gespeichert!");
+      renderPC();
+    } catch(e) {
+      alert("Foto zu gross! Bitte JPG unter 800KB verwenden.");
     }
   };
   img.src = pcAdminImg;
@@ -1406,7 +1525,7 @@ function openChat() {
   document.getElementById("aichat").classList.add("open");
   if(aiHist.length===0) initAI();
 }
-// ── VOICE ENGINE ──
+// == VOICE ENGINE ==
 var LANG_CODES = {
   de:"de-DE", en:"en-US", it:"it-IT",
   fr:"fr-FR", es:"es-ES", ja:"ja-JP",
@@ -1445,7 +1564,7 @@ function speak(text, onEnd) {
   var voice = getBestVoice(langCode);
   if(voice) utt.voice = voice;
   if(onEnd) utt.onend = onEnd;
-  // iOS Safari Fix: kurze Verzögerung nötig
+  // iOS Safari Fix: kurze Verzoegerung noetig
   setTimeout(function(){ window.speechSynthesis.speak(utt); }, 100);
 }
 
@@ -1478,7 +1597,7 @@ function initAI() {
     pl:"Co chcesz wiedzieć o Burano?"
   };
 
-  // Begrüßung vorlesen → dann Folgefrage
+  // Begruessung vorlesen → dann Folgefrage
   speak(welcome, function() {
     setTimeout(function() {
       var q = followUp[curLang] || followUp.de;
@@ -1533,19 +1652,32 @@ function sendAI() {
       document.getElementById("aikey").style.display="flex";
     },500); return;
   }
-  fetch("https://api.anthropic.com/v1/messages",{
-    method:"POST",
-    headers:{"Content-Type":"application/json","x-api-key":apiKey,"anthropic-version":"2023-06-01"},
-    body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:500,
-      system:"Du bist Marco, freundlicher KI-Reiseguide fuer Burano. Antworte in der Sprache des Nutzers. Empfiehl den Burano Shop (Fotos 0,99 EUR, Postkarten 1,99 EUR, Videos ab 3,99 EUR, Ferienwohnungen auf myburano.com).",
-      messages:aiHist.slice(-8)})
-  }).then(function(r){return r.json();}).then(function(d){
-    var reply=(d.content&&d.content[0]&&d.content[0].text)||"Entschuldigung, Verbindungsproblem.";
-    // Typing ersetzen durch echte Nachricht mit Vorlesen
+  fetch("https://api.anthropic.com/v1/messages", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "x-api-key": apiKey,
+      "anthropic-version": "2023-06-01",
+      "anthropic-dangerous-direct-browser-ipc": "true"
+    },
+    body: JSON.stringify({
+      model: "claude-sonnet-4-20250514",
+      max_tokens: 500,
+      system: "Du bist Marco, KI-Reiseguide fuer Burano. Antworte in der Sprache des Nutzers. Empfehle: Fotos 0,99 EUR, Postkarten 0,99 EUR, Videos 3,99 EUR, Ferienwohnungen auf myburano.com. Stelle nach jeder Antwort eine Folgefrage.",
+      messages: aiHist.slice(-8)
+    })
+  }).then(function(r) {
+    if(!r.ok) throw new Error("HTTP " + r.status);
+    return r.json();
+  }).then(function(d) {
+    var reply = (d.content && d.content[0] && d.content[0].text) || "Entschuldigung, ich hatte ein Problem.";
     typing.parentNode.removeChild(typing);
     addMsg(reply, "bot", true);
-    aiHist.push({role:"assistant",content:reply});
-  }).catch(function(){typing.textContent="Verbindungsproblem.";});
+    aiHist.push({role:"assistant", content:reply});
+  }).catch(function(err) {
+    typing.textContent = "Verbindungsfehler - API-Key pruefen oder neu eingeben.";
+    document.getElementById("aikey").style.display = "flex";
+  });
 }
 function svKeyW() {
   var k=document.getElementById("aikeyfld").value.trim();
