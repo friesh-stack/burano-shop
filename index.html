@@ -223,7 +223,10 @@ footer strong{color:var(--gold);}
   <p class="ssub">La Perla della Laguna Veneta</p>
   <div class="hcard">
     <p id="t_hist_body">Burano ist eine malerische Insel in der Lagune von Venedig, etwa 7 km noerdlich der Stadt. Die Insel ist beruehmt fuer ihre leuchtend bunten Haeuser - eine jahrhundertealte Tradition. Fischer haben ihre Haeuser bunt bemalt, damit die Familie das Boot auch im dichten Nebel der Lagune erkennen konnte. Seit dem 16. Jahrhundert ist Burano das Zentrum der venezianischen Spitzenkunst. Die Insel empfaengt taeglich bis zu 2.000 Besucher. An der Terra Nova 112 fliessen taeglich Hunderte vorbei.</p>
-    <br><button class="btnH" onclick="openChat()" style="margin-top:14px" id="t_btn_listen">&#127897; KI-Reiseleiter befragen</button>
+    <br><div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:14px">
+    <button class="btnH" onclick="openChat()" id="t_btn_listen">&#129302; KI-Reiseleiter</button>
+    <button class="btnH out" onclick="speakHistory()" id="hist_speak_btn">&#9654; Geschichte vorlesen</button>
+  </div>
   </div>
 </div></div>
 
@@ -1067,6 +1070,25 @@ function getSelectedGreeting() {
   return sel ? greets[sel.selectedIndex] || greets[0] : greets[0];
 }
 
+function speakHistory() {
+  var btn = document.getElementById("hist_speak_btn");
+  if(window.speechSynthesis && window.speechSynthesis.speaking) {
+    stopSpeak();
+    if(btn) btn.innerHTML = "&#9654; Geschichte vorlesen";
+    return;
+  }
+  var histEl = document.getElementById("t_hist_body");
+  var text = histEl ? histEl.textContent : "";
+  if(btn) btn.innerHTML = "&#9209; Stopp";
+  speak(text, function(){
+    if(btn) btn.innerHTML = "&#9654; Geschichte vorlesen";
+    // Danach Chat öffnen und Frage stellen
+    setTimeout(function(){
+      openChat();
+    }, 800);
+  });
+}
+
 function buyPostcard(count) {
   var testmode = localStorage.getItem("bl_testmode")==="1";
   if(count===1){ if(!testmode) ppGo("1 Burano Postkarte", 0.99); }
@@ -1077,12 +1099,19 @@ function buyPostcard(count) {
 function previewAndDownload() {
   var testmode = localStorage.getItem("bl_testmode")==="1";
   if(!testmode) ppGo("1 Burano Postkarte", 0.99);
-  else alert("TEST-MODUS: Postkarte wird heruntergeladen ohne Bezahlung.");
-  var cv=document.getElementById("pcanv");
-  var a=document.createElement("a");
-  a.href=cv.toDataURL("image/jpeg",.92);
-  a.download="burano-postkarte-"+Date.now()+".jpg";
-  a.click();
+  else alert("TEST-MODUS aktiv - Download ohne Bezahlung.");
+  var cv = document.getElementById("pcanv");
+  // Blob-Methode: echte JPG-Datei, kein data-URI
+  cv.toBlob(function(blob) {
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement("a");
+    a.href = url;
+    a.download = "Burano-Postkarte-" + new Date().toISOString().slice(0,10) + ".jpg";
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    setTimeout(function(){ URL.revokeObjectURL(url); }, 3000);
+  }, "image/jpeg", 0.92);
 }
 
 function dlPC() {
@@ -1183,42 +1212,121 @@ function openChat() {
   document.getElementById("aichat").classList.add("open");
   if(aiHist.length===0) initAI();
 }
-function speak(text) {
+// ── VOICE ENGINE ──
+var LANG_CODES = {
+  de:"de-DE", en:"en-US", it:"it-IT",
+  fr:"fr-FR", es:"es-ES", ja:"ja-JP",
+  zh:"zh-CN", pl:"pl-PL"
+};
+var voiceReady = false;
+var pendingSpeak = null;
+
+// Stimmen laden (iOS braucht onvoiceschanged)
+function initVoices() {
   if(!window.speechSynthesis) return;
+  var voices = window.speechSynthesis.getVoices();
+  if(voices.length > 0) { voiceReady = true; if(pendingSpeak) { speak(pendingSpeak); pendingSpeak=null; } }
+  else { window.speechSynthesis.onvoiceschanged = function(){ voiceReady=true; if(pendingSpeak){speak(pendingSpeak);pendingSpeak=null;} }; }
+}
+
+function getBestVoice(langCode) {
+  var voices = window.speechSynthesis.getVoices();
+  // Exakter Match
+  for(var i=0;i<voices.length;i++) if(voices[i].lang===langCode) return voices[i];
+  // Prefix Match (z.B. "de" in "de-AT")
+  var prefix = langCode.split("-")[0];
+  for(var i=0;i<voices.length;i++) if(voices[i].lang.startsWith(prefix)) return voices[i];
+  return null;
+}
+
+function speak(text, onEnd) {
+  if(!window.speechSynthesis) { if(onEnd) onEnd(); return; }
+  if(!voiceReady) { pendingSpeak = text; if(onEnd) setTimeout(onEnd, 2000); return; }
   window.speechSynthesis.cancel();
   var utt = new SpeechSynthesisUtterance(text);
-  utt.lang = curLang === 'de' ? 'de-DE' : curLang === 'it' ? 'it-IT' : curLang === 'fr' ? 'fr-FR' : curLang === 'es' ? 'es-ES' : curLang === 'ja' ? 'ja-JP' : curLang === 'zh' ? 'zh-CN' : curLang === 'pl' ? 'pl-PL' : 'en-US';
-  utt.rate = 0.9;
-  window.speechSynthesis.speak(utt);
+  var langCode = LANG_CODES[curLang] || "de-DE";
+  utt.lang = langCode;
+  utt.rate = curLang==="zh"||curLang==="ja" ? 0.8 : 0.92;
+  utt.pitch = 1.0;
+  var voice = getBestVoice(langCode);
+  if(voice) utt.voice = voice;
+  if(onEnd) utt.onend = onEnd;
+  // iOS Safari Fix: kurze Verzögerung nötig
+  setTimeout(function(){ window.speechSynthesis.speak(utt); }, 100);
 }
-function stopSpeak() { if(window.speechSynthesis) window.speechSynthesis.cancel(); }
+
+function stopSpeak() {
+  if(window.speechSynthesis) window.speechSynthesis.cancel();
+}
+
+// Vorlesen-Button Zustand
+var isSpeaking = false;
+function toggleSpeak(text, btn) {
+  if(window.speechSynthesis && window.speechSynthesis.speaking) {
+    stopSpeak(); if(btn) btn.textContent="▶"; return;
+  }
+  speak(text, function(){ if(btn) btn.textContent="▶"; });
+  if(btn) btn.textContent="⏹";
+}
 
 function initAI() {
   var welcome = tx("ai_welcome");
-  addMsg(welcome,"bot");
-  setTimeout(function(){ speak(welcome); }, 500);
+  addMsg(welcome, "bot", false); // false = nicht automatisch sprechen, wir steuern selbst
+
+  var followUp = {
+    de:"Was möchtest du über Burano wissen?",
+    en:"What would you like to know about Burano?",
+    it:"Cosa vuoi sapere su Burano?",
+    fr:"Que souhaitez-vous savoir sur Burano?",
+    es:"¿Qué quieres saber sobre Burano?",
+    ja:"ブラーノについて何を知りたいですか？",
+    zh:"您想了解布拉诺的什么？",
+    pl:"Co chcesz wiedzieć o Burano?"
+  };
+
+  // Begrüßung vorlesen → dann Folgefrage
+  speak(welcome, function() {
+    setTimeout(function() {
+      var q = followUp[curLang] || followUp.de;
+      addMsg(q, "bot", false);
+      speak(q);
+    }, 600);
+  });
+
   if(!apiKey){
     setTimeout(function(){
-      addMsg("Tipp: API-Key im Admin-Bereich eintragen fuer smarte Antworten.","bot");
+      addMsg("💡 API-Key im Admin eintragen für smarte Antworten.", "bot", false);
       document.getElementById("aikey").style.display="flex";
-    },800);
+    }, 5000);
   }
-  aiHist=[{role:"user",content:"Tell me about Burano."},{role:"assistant",content:tx("ai_welcome")}];
+  aiHist=[{role:"user",content:"Greet me and tell me about Burano briefly."},{role:"assistant",content:welcome}];
 }
-function addMsg(txt, who) {
-  var d=document.createElement("div"); d.className="msg "+who;
-  if(who==="bot"){
-    d.textContent=txt;
-    var sp=document.createElement("button");
-    sp.textContent="&#128266;";
-    sp.title="Vorlesen";
-    sp.style.cssText="background:none;border:none;cursor:pointer;font-size:.9rem;margin-left:6px;opacity:.6;";
-    sp.onclick=function(){speak(txt);};
-    d.appendChild(sp);
-  } else {
-    d.textContent=txt;
+function addMsg(txt, who, autoSpeak) {
+  var d = document.createElement("div");
+  d.className = "msg " + who;
+  var span = document.createElement("span");
+  span.textContent = txt;
+  d.appendChild(span);
+
+  if(who === "bot") {
+    // Vorlesen-Button
+    var btn = document.createElement("button");
+    btn.textContent = "▶";
+    btn.title = "Vorlesen";
+    btn.style.cssText = "background:rgba(255,255,255,.15);border:none;border-radius:50%;width:24px;height:24px;cursor:pointer;font-size:.7rem;margin-left:8px;vertical-align:middle;flex-shrink:0;";
+    btn.onclick = function(e) { e.stopPropagation(); toggleSpeak(txt, btn); };
+    d.appendChild(btn);
+
+    // Automatisch vorlesen wenn autoSpeak nicht false
+    if(autoSpeak !== false) {
+      speak(txt);
+    }
   }
-  var c=document.getElementById("aimsgs"); c.appendChild(d); c.scrollTop=c.scrollHeight; return d;
+
+  var c = document.getElementById("aimsgs");
+  c.appendChild(d);
+  c.scrollTop = c.scrollHeight;
+  return d;
 }
 function sendAI() {
   var inp=document.getElementById("aiinp"), msg=inp.value.trim();
@@ -1235,7 +1343,10 @@ function sendAI() {
       messages:aiHist.slice(-8)})
   }).then(function(r){return r.json();}).then(function(d){
     var reply=(d.content&&d.content[0]&&d.content[0].text)||"Entschuldigung, Verbindungsproblem.";
-    typing.textContent=reply; aiHist.push({role:"assistant",content:reply});
+    // Typing ersetzen durch echte Nachricht mit Vorlesen
+    typing.parentNode.removeChild(typing);
+    addMsg(reply, "bot", true);
+    aiHist.push({role:"assistant",content:reply});
   }).catch(function(){typing.textContent="Verbindungsproblem.";});
 }
 function svKeyW() {
@@ -1338,6 +1449,7 @@ window.addEventListener("load", function() {
       if(slider) slider.style.background = on?"#4CAF50":"rgba(255,255,255,.2)";
     };
   }
+  initVoices();
   applyTxt();
   updateGreetingSelect();
   initHero();
