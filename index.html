@@ -4,6 +4,15 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>my-burano.com - Terra Nova 112</title>
+<!-- PWA -->
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#0A1628">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Burano Shop">
+<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="apple-touch-icon" sizes="512x512" href="icon-512.png">
+<!-- Fonts -->
 <link href="https://fonts.googleapis.com/css2?family=Pacifico&family=Nunito:wght@400;700;800;900&display=swap" rel="stylesheet">
 <script src="photos.js"></script>
 <style>
@@ -428,6 +437,30 @@ footer strong{color:var(--gold);}
   </div>
   <div id="acnt" style="display:none">
     <div class="atmx">Admin - Terra Nova 112</div>
+
+    <!-- TEST-MODUS -->
+    <div style="background:rgba(255,210,63,.15);border:2px solid var(--gold);border-radius:14px;padding:16px;margin-bottom:18px">
+      <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px">
+        <div>
+          <div style="font-weight:900;font-size:1.1rem;color:var(--gold)">&#127381; Test-Modus</div>
+          <div style="font-size:.82rem;opacity:.7;margin-top:3px">EIN = Download ohne PayPal (nur zum Testen)</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px">
+          <span id="tm_lbl" style="font-weight:900;font-size:1rem">AUS</span>
+          <label style="position:relative;display:inline-block;width:52px;height:28px">
+            <input type="checkbox" id="testmode" style="opacity:0;width:0;height:0" onchange="
+              var on=this.checked;
+              localStorage.setItem('bl_testmode',on?'1':'0');
+              document.getElementById('tm_lbl').textContent=on?'EIN':'AUS';
+              document.getElementById('tm_lbl').style.color=on?'#4CAF50':'rgba(255,255,255,.7)';
+            ">
+            <span style="position:absolute;cursor:pointer;top:0;left:0;right:0;bottom:0;background:rgba(255,255,255,.2);border-radius:28px;transition:.3s" id="tm_slider"></span>
+            <span id="tm_knob" style="position:absolute;content:'';height:20px;width:20px;left:4px;bottom:4px;background:white;border-radius:50%;transition:.3s"></span>
+          </label>
+        </div>
+      </div>
+    </div>
+
     <div class="agrid">
       <div class="astat"><div class="n" id="ss">0</div><div class="l">Verkaeufe</div></div>
       <div class="astat"><div class="n" id="sr">0</div><div class="l">Umsatz EUR</div></div>
@@ -530,6 +563,15 @@ footer strong{color:var(--gold);}
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script>
+if("serviceWorker" in navigator){
+  window.addEventListener("load", function(){
+    navigator.serviceWorker.register("sw.js").then(function(){
+      console.log("SW registered");
+    }).catch(function(e){ console.log("SW error:", e); });
+  });
+}
+</script>
 <script>
 // Translations - nur ASCII, keine Sonderzeichen im JS
 var TXT = {
@@ -1282,10 +1324,18 @@ window.addEventListener("load", function() {
   if(tm){
     var isTest = localStorage.getItem("bl_testmode")==="1";
     tm.checked = isTest;
-    document.getElementById("testmode_lbl").textContent = isTest?"EIN":"AUS";
+    var lbl = document.getElementById("tm_lbl");
+    var knob = document.getElementById("tm_knob");
+    var slider = document.getElementById("tm_slider");
+    if(lbl){ lbl.textContent=isTest?"EIN":"AUS"; lbl.style.color=isTest?"#4CAF50":"rgba(255,255,255,.7)"; }
+    if(knob) knob.style.transform = isTest?"translateX(24px)":"";
+    if(slider) slider.style.background = isTest?"#4CAF50":"rgba(255,255,255,.2)";
     tm.onchange = function(){
-      localStorage.setItem("bl_testmode",this.checked?"1":"0");
-      document.getElementById("testmode_lbl").textContent = this.checked?"EIN":"AUS";
+      var on=this.checked;
+      localStorage.setItem("bl_testmode",on?"1":"0");
+      if(lbl){ lbl.textContent=on?"EIN":"AUS"; lbl.style.color=on?"#4CAF50":"rgba(255,255,255,.7)"; }
+      if(knob) knob.style.transform = on?"translateX(24px)":"";
+      if(slider) slider.style.background = on?"#4CAF50":"rgba(255,255,255,.2)";
     };
   }
   applyTxt();
