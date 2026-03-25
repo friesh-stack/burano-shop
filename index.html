@@ -170,6 +170,11 @@ footer strong{color:var(--gold);}
 /* REVEAL */
 .rev{opacity:0;transform:translateY(20px);transition:opacity .5s,transform .5s;}
 .rev.vis{opacity:1;transform:none;}
+/* TYPING ANIMATION */
+.typing-dots span{animation:typingBlink 1.2s infinite;display:inline-block;font-size:1.4rem;line-height:1;}
+.typing-dots span:nth-child(2){animation-delay:.2s;}
+.typing-dots span:nth-child(3){animation-delay:.4s;}
+@keyframes typingBlink{0%,80%,100%{opacity:.2}40%{opacity:1}}
 @media(max-width:540px){.sec{padding:36px 14px;}.pack{flex-direction:column;}.vcard{flex-direction:column;}}
 </style>
 </head>
@@ -1795,41 +1800,79 @@ function stopMic() {
 }
 
 function sendAI() {
-  var inp=document.getElementById("aiinp"), msg=inp.value.trim();
-  if(!msg) return; inp.value=""; addMsg(msg,"usr"); aiHist.push({role:"user",content:msg});
-  var typing=addMsg("...","bot");
-  apiKey = getApiKey(); // immer frisch aus localStorage
-  if(!apiKey){
-    setTimeout(function(){
-      typing.textContent="Bitte API-Key im Admin-Bereich (ganz unten) eintragen.";
-      document.getElementById("aikey").style.display="flex";
-    },500); return;
-  }
-  fetch("https://api.anthropic.com/v1/messages", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "x-api-key": apiKey,
-      "anthropic-version": "2023-06-01",
-      "anthropic-dangerous-direct-browser-ipc": "true"
-    },
-    body: JSON.stringify({
-      model: "claude-sonnet-4-20250514",
-      max_tokens: 500,
-      system: "Du bist Marco, KI-Reiseguide fuer Burano. Antworte in der Sprache des Nutzers. Empfehle: Fotos 0,99 EUR, Postkarten 0,99 EUR, Videos 3,99 EUR, Ferienwohnungen auf myburano.com. Stelle nach jeder Antwort eine Folgefrage.",
-      messages: aiHist.slice(-8)
-    })
-  }).then(function(r) {
-    if(!r.ok) throw new Error("HTTP " + r.status);
-    return r.json();
-  }).then(function(d) {
-    var reply = (d.content && d.content[0] && d.content[0].text) || "Entschuldigung, ich hatte ein Problem.";
-    typing.parentNode.removeChild(typing);
-    addMsg(reply, "bot", true);
-    aiHist.push({role:"assistant", content:reply});
-  }).catch(function(err) {
-    typing.textContent = "Verbindungsfehler - API-Key pruefen oder neu eingeben.";
+  var inp = document.getElementById("aiinp");
+  var msg = inp ? inp.value.trim() : "";
+  if(!msg) return;
+  if(inp) inp.value = "";
+  addMsg(msg, "usr", false);
+  aiHist.push({role:"user", content:msg});
+
+  // Typing-Indikator (animiert)
+  var typingEl = document.createElement("div");
+  typingEl.className = "msg bot";
+  typingEl.innerHTML = "<span class='typing-dots'><span>.</span><span>.</span><span>.</span></span>";
+  var msgs = document.getElementById("aimsgs");
+  msgs.appendChild(typingEl);
+  msgs.scrollTop = msgs.scrollHeight;
+
+  apiKey = getApiKey();
+  if(!apiKey) {
+    typingEl.innerHTML = "Bitte API-Key im Admin-Bereich eintragen (ganz unten auf der Seite).";
     document.getElementById("aikey").style.display = "flex";
+    return;
+  }
+
+  // Timeout nach 20 Sekunden
+  var timedOut = false;
+  var timer = setTimeout(function() {
+    timedOut = true;
+    typingEl.innerHTML = "Zeituberschreitung - bitte nochmal versuchen.";
+  }, 20000);
+
+  var reqBody = JSON.stringify({
+    model: "claude-haiku-4-5-20251001",
+    max_tokens: 400,
+    system: "Du bist Marco, freundlicher Reiseguide fuer Burano (Lagune Venedig). Antworte KURZ in der Sprache des Nutzers. Max 3 Saetze. Stelle danach eine kurze Folgefrage. Empfiehl den Burano Shop: Fotos 0,99 EUR, Postkarten 0,99 EUR, Videos ab 3,99 EUR, Ferienwohnungen myburano.com.",
+    messages: aiHist.slice(-6)
+  });
+
+  // Versuche direkte Anthropic API (funktioniert wenn CORS erlaubt)
+  // Proxy-URL (Cloudflare Worker) oder direkt
+  // Proxy fest eingebaut (Cloudflare Worker - CORS Fix)
+  var apiUrl = "https://blue-lagune-proxy.friesh.workers.dev";
+  var headers = {
+    "Content-Type": "application/json",
+    "anthropic-version": "2023-06-01",
+    "x-api-key": apiKey
+  };
+
+  fetch(apiUrl, {method:"POST", headers:headers, body:reqBody})
+  .then(function(r) {
+    clearTimeout(timer);
+    if(timedOut) return;
+    return r.json().then(function(d) {
+      if(d.error) throw new Error(d.error.message || "API Fehler");
+      var reply = (d.content && d.content[0] && d.content[0].text) || "";
+      if(!reply) throw new Error("Leere Antwort");
+      if(typingEl.parentNode) typingEl.parentNode.removeChild(typingEl);
+      addMsg(reply, "bot", true);
+      aiHist.push({role:"assistant", content:reply});
+    });
+  })
+  .catch(function(err) {
+    clearTimeout(timer);
+    if(timedOut) return;
+    console.error("API Fehler:", err.message);
+    // CORS-Fehler? Zeige hilfreiche Meldung
+    var errMsg = err.message || "";
+    if(errMsg.indexOf("Failed to fetch") > -1 || errMsg.indexOf("NetworkError") > -1 || errMsg.indexOf("CORS") > -1) {
+      typingEl.innerHTML = "CORS-Fehler: Der Browser blockiert den API-Aufruf.<br><small>Loesung: Cloudflare Worker einrichten (siehe unten)</small>";
+    } else if(errMsg.indexOf("401") > -1 || errMsg.indexOf("authentication") > -1) {
+      typingEl.innerHTML = "API-Key ungueltig. Bitte neuen Key eingeben:";
+      document.getElementById("aikey").style.display = "flex";
+    } else {
+      typingEl.innerHTML = "Fehler: " + errMsg + ". Bitte nochmal versuchen.";
+    }
   });
 }
 function svKeyW() {
@@ -2135,6 +2178,7 @@ window.addEventListener("load", function() {
   else document.getElementById("lb_de").classList.add("on");
 
   // Test-Modus Status wiederherstellen
+
   var tm = document.getElementById("testmode");
   if(tm){
     var isTest = localStorage.getItem("bl_testmode")==="1";
