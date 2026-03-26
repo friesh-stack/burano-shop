@@ -344,9 +344,14 @@ function getSelectedGreeting(){
 function buildIslandStrip(stripId,storageKey){
   var strip=document.getElementById(stripId);if(!strip)return;
   var photos=[];
+  // Array-Version (neu)
   try{photos=JSON.parse(localStorage.getItem(storageKey)||"[]");}catch(e){}
-  var single=localStorage.getItem(storageKey+"_photo");
+  // Einzel-Foto-Version (alt, Kompatibilität)
+  var single=localStorage.getItem(storageKey.replace("_photos","_photo"));
   if(single&&photos.indexOf(single)<0)photos.unshift(single);
+  // Auch direkte Key-Variante
+  var direct=localStorage.getItem(storageKey);
+  if(direct&&direct[0]!=="["){photos.unshift(direct);}
   if(!photos.length){strip.innerHTML="<span style='opacity:.4;font-size:.78rem'>Im Admin Fotos hochladen.</span>";return;}
   strip.innerHTML="";
   photos.forEach(function(src){
@@ -392,9 +397,20 @@ function initPosButtons(){
 }
 
 // ════════════════════════════════════════
+// INSEL-FOTO ADMIN HELPER
+// ════════════════════════════════════════
+function saveIslandPhotoToStrip(storageKey, dataUrl) {
+  var arr = [];
+  try { arr = JSON.parse(localStorage.getItem(storageKey) || "[]"); } catch(e) {}
+  arr.push(dataUrl);
+  try { localStorage.setItem(storageKey, JSON.stringify(arr)); return true; }
+  catch(e) { return false; }
+}
+
+// ════════════════════════════════════════
 // INIT
 // ════════════════════════════════════════
-window.addEventListener("load",function(){
+window.addEventListener("DOMContentLoaded",function(){
   setTimeout(function(){
     ensureHeroSlides();
     initPosButtons();
