@@ -274,22 +274,23 @@ footer strong{color:var(--gold);}
 <div class="sec rev">
   <h2 class="stit">&#127752; <span id="t_gal_title">Unsere Burano-Aufnahmen</span></h2>
   <p class="ssub" id="t_gal_sub">Aufgenommen direkt vor Ort - Terra Nova 112</p>
-  <!-- 4:3 Querformat -->
-  <div id="sec_43" style="margin-bottom:32px">
-    <h3 style="font-family:Pacifico,cursive;font-size:1.2rem;color:var(--teal);margin-bottom:6px">&#127774; Querformat 4:3</h3>
-    <div class="ggrid" id="ggrid_43"></div>
+  <div id="sec_f1" style="margin-bottom:28px">
+    <h3 style="font-family:Pacifico,cursive;font-size:1.1rem;color:var(--teal);margin-bottom:8px">Format 1 &mdash; 4:3</h3>
+    <div class="ggrid" id="ggrid_f1"></div>
   </div>
-  <!-- 3:4 Hochformat -->
-  <div id="sec_34" style="margin-bottom:32px">
-    <h3 style="font-family:Pacifico,cursive;font-size:1.2rem;color:var(--gold);margin-bottom:6px">&#128247; Hochformat 3:4</h3>
-    <div class="ggrid" id="ggrid_34"></div>
+  <div id="sec_f2" style="margin-bottom:28px;display:none">
+    <h3 style="font-family:Pacifico,cursive;font-size:1.1rem;color:var(--gold);margin-bottom:8px">Format 2 &mdash; 16:9</h3>
+    <div class="ggrid" id="ggrid_f2"></div>
   </div>
-  <!-- 9:16 Stories/Video -->
-  <div id="sec_916">
-    <h3 style="font-family:Pacifico,cursive;font-size:1.2rem;color:var(--pink);margin-bottom:6px">&#127909; Stories &amp; Videos 9:16</h3>
-    <div class="ggrid" id="ggrid_916"></div>
+  <div id="sec_f3" style="margin-bottom:28px;display:none">
+    <h3 style="font-family:Pacifico,cursive;font-size:1.1rem;color:var(--pink);margin-bottom:8px">Format 3 &mdash; 3:4</h3>
+    <div class="ggrid" id="ggrid_f3"></div>
   </div>
-</div></div>
+  <div id="sec_f4" style="display:none">
+    <h3 style="font-family:Pacifico,cursive;font-size:1.1rem;color:var(--org);margin-bottom:8px">Format 4 &mdash; 9:16</h3>
+    <div class="ggrid" id="ggrid_f4"></div>
+  </div>
+
 
 <!-- POSTCARD GENERATOR -->
 <div class="b2" id="postcard">
@@ -584,9 +585,20 @@ footer strong{color:var(--gold);}
     </div>
 
     <div class="asec">
+      <h4>Format waehlen</h4>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px">
+        <button onclick="selectFmt('4:3')"  id="fbtn_43"  style="padding:10px;border:2px solid var(--gold);background:var(--gold);color:#0A1628;border-radius:10px;font-size:.82rem;font-weight:900;cursor:pointer;font-family:Nunito,sans-serif">Format 1<br><span style="font-size:.68rem;font-weight:400">4:3 Querformat</span></button>
+        <button onclick="selectFmt('16:9')" id="fbtn_169" style="padding:10px;border:2px solid rgba(255,255,255,.2);background:rgba(255,255,255,.06);color:#fff;border-radius:10px;font-size:.82rem;font-weight:900;cursor:pointer;font-family:Nunito,sans-serif">Format 2<br><span style="font-size:.68rem;font-weight:400">16:9 Breitbild</span></button>
+        <button onclick="selectFmt('3:4')"  id="fbtn_34"  style="padding:10px;border:2px solid rgba(255,255,255,.2);background:rgba(255,255,255,.06);color:#fff;border-radius:10px;font-size:.82rem;font-weight:900;cursor:pointer;font-family:Nunito,sans-serif">Format 3<br><span style="font-size:.68rem;font-weight:400">3:4 Hochformat</span></button>
+        <button onclick="selectFmt('9:16')" id="fbtn_916" style="padding:10px;border:2px solid rgba(255,255,255,.2);background:rgba(255,255,255,.06);color:#fff;border-radius:10px;font-size:.82rem;font-weight:900;cursor:pointer;font-family:Nunito,sans-serif">Format 4<br><span style="font-size:.68rem;font-weight:400">9:16 Stories</span></button>
+      </div>
+      <div id="fmt_info" style="font-size:.78rem;color:var(--gold);font-weight:700;text-align:center;margin-bottom:4px">Aktiv: Format 1 (4:3)</div>
+    </div>
+
+    <div class="asec">
       <h4>📮 Postkarten-Foto hochladen</h4>
       <p style="font-size:.8rem;opacity:.65;margin-bottom:12px">Lade dein fertiges Foto (bereits mit Briefmarke) hoch. Der Kunde wählt nur noch den Grußtext und seinen Namen.</p>
-      <div id="pc_upload_area" style="border:2px dashed rgba(255,210,63,.4);border-radius:12px;padding:20px;text-align:center;cursor:pointer;margin-bottom:10px;transition:border-color .2s" onclick="document.getElementById('pc_file_input').click()" ondragover="event.preventDefault();event.stopPropagation();this.style.borderColor='var(--gold)';" ondragleave="this.style.borderColor='rgba(255,210,63,.4)';" ondrop="event.preventDefault();event.stopPropagation();handlePcDrop(event);this.style.borderColor='rgba(255,210,63,.4)';">
+      <div id="pc_upload_area" style="border:2px dashed rgba(255,210,63,.4);border-radius:12px;padding:20px;text-align:center;cursor:pointer;margin-bottom:10px;transition:border-color .2s" onclick="document.getElementById('pc_file_input').click()" ondragover="event.preventDefault();this.style.borderColor='var(--gold)'" ondrop="handlePcDrop(event)">
         <div id="pc_upload_preview" style="margin-bottom:8px">
           <div style="font-size:2rem">🖼️</div>
           <div style="font-size:.85rem;opacity:.6">Foto hier reinziehen oder klicken</div>
@@ -1069,59 +1081,16 @@ var GDEFS = [
 ];
 
 function renderGallery() {
-  var configs = [
-    {fmt:"4:3",  key:"43",  useStd:true},
-    {fmt:"3:4",  key:"34",  useStd:false},
-    {fmt:"9:16", key:"916", useStd:false}
-  ];
-  configs.forEach(function(cfg) {
-    var grid = document.getElementById("ggrid_" + cfg.key);
-    var sec  = document.getElementById("sec_"  + cfg.key);
-    if(!grid) return;
-    var custom = getFormatPhotos(cfg.fmt);
-    var items = [];
-    if(cfg.useStd && typeof PHOTOS !== "undefined") {
-      GDEFS.forEach(function(d) {
-        items.push({src:PHOTOS[d.k]||"", lbl:d.l, isCustom:false});
-      });
-    }
-    custom.forEach(function(src, i) {
-      items.push({src:src, lbl:"Foto "+(items.length+1), custIdx:i, isCustom:true});
-    });
-    if(sec) sec.style.display = items.length ? "block" : "none";
-    if(!items.length) { grid.innerHTML = ""; return; }
-    var ar = cfg.fmt==="4:3" ? "4/3" : cfg.fmt==="3:4" ? "3/4" : "9/16";
-    var fmt = cfg.fmt;
-    grid.innerHTML = items.map(function(item, i) {
-      var div = document.createElement("div");
-      div.className = "gi";
-      div.style.cssText = "aspect-ratio:"+ar+";position:relative;overflow:hidden";
-      var img = document.createElement("img");
-      img.src = item.src;
-      img.loading = "lazy";
-      img.style.cssText = "width:100%;height:100%;object-fit:cover;display:block";
-      div.appendChild(img);
-      var lbl = document.createElement("div");
-      lbl.className = "lbl";
-      lbl.textContent = item.lbl;
-      div.appendChild(lbl);
-      div.onclick = (function(l){ return function(){ openMdl(l, 0.99); }; })(item.lbl);
-      if(item.isCustom) {
-        div.draggable = true;
-        div.setAttribute("data-fmt", fmt);
-        div.setAttribute("data-idx", String(i));
-        div.ondragstart = dragStart;
-        div.ondragover  = dragOver;
-        div.ondrop      = dropPhoto;
-        div.ondragend   = dragEnd;
-        var arrow = document.createElement("div");
-        arrow.style.cssText = "position:absolute;top:5px;left:5px;background:rgba(0,0,0,.55);color:rgba(255,255,255,.8);font-size:.65rem;padding:2px 7px;border-radius:6px;cursor:grab";
-        arrow.textContent = "\u2195";
-        div.appendChild(arrow);
-      }
-      return div.outerHTML;
-    }).join("");
-  });
+  var grid = document.getElementById("ggrid");
+  if (typeof PHOTOS === "undefined") {
+    grid.innerHTML = "<p style='opacity:.4;padding:20px'>Fotos nicht geladen - photos.js fehlt?</p>";
+    return;
+  }
+  grid.innerHTML = GDEFS.map(function(d) {
+    return "<div class='gi' onclick=\"openMdl('" + d.l + "',0.99)\">" +
+      "<img src='" + (PHOTOS[d.k] || "") + "' alt='" + d.l + "' loading='lazy'>" +
+      "<div class='lbl'>" + d.l + "</div></div>";
+  }).join("");
 }
 
 // POSTCARD CANVAS
@@ -1443,19 +1412,6 @@ function getSelectedGreeting() {
   return sel ? greets[sel.selectedIndex] || greets[0] : greets[0];
 }
 
-// == FORMAT FOTO-SPEICHER ==
-function getFormatPhotos(fmt) {
-  try {
-    return JSON.parse(localStorage.getItem("bl_photos_" + fmt.replace(":","")) || "[]");
-  } catch(e) { return []; }
-}
-function saveFormatPhotos(fmt, arr) {
-  try {
-    localStorage.setItem("bl_photos_" + fmt.replace(":",""), JSON.stringify(arr));
-    return true;
-  } catch(e) { return false; }
-}
-
 // == FOTO FORMAT ==
 var currentFormat = "3:4";
 var formatRatios = {"3:4":{w:3,h:4}, "9:16":{w:9,h:16}};
@@ -1540,15 +1496,8 @@ var pcAdminImg = null;
 
 function handlePcDrop(e) {
   e.preventDefault();
-  e.stopPropagation();
-  var files = e.dataTransfer ? e.dataTransfer.files : null;
-  if(!files || !files.length) return;
-  var file = files[0];
-  if(file.type.startsWith("image/") || file.type.startsWith("video/")) {
-    loadPcPhotoFile(file);
-  } else {
-    alert("Bitte ein Bild (JPG, PNG) hochladen.");
-  }
+  var file = e.dataTransfer.files[0];
+  if(file && file.type.startsWith("image/")) loadPcPhotoFile(file);
 }
 
 function loadPcPhoto(input) {
@@ -1619,19 +1568,6 @@ function savePcPhoto() {
   img.src = pcAdminImg;
 }
 
-// == FORMAT FOTO-SPEICHER ==
-function getFormatPhotos(fmt) {
-  try {
-    return JSON.parse(localStorage.getItem("bl_photos_" + fmt.replace(":","")) || "[]");
-  } catch(e) { return []; }
-}
-function saveFormatPhotos(fmt, arr) {
-  try {
-    localStorage.setItem("bl_photos_" + fmt.replace(":",""), JSON.stringify(arr));
-    return true;
-  } catch(e) { return false; }
-}
-
 // == FOTO FORMAT ==
 var currentFormat = "3:4";
 var formatRatios = {"3:4":{w:3,h:4}, "9:16":{w:9,h:16}};
@@ -1716,15 +1652,8 @@ var pcAdminImg = null;
 
 function handlePcDrop(e) {
   e.preventDefault();
-  e.stopPropagation();
-  var files = e.dataTransfer ? e.dataTransfer.files : null;
-  if(!files || !files.length) return;
-  var file = files[0];
-  if(file.type.startsWith("image/") || file.type.startsWith("video/")) {
-    loadPcPhotoFile(file);
-  } else {
-    alert("Bitte ein Bild (JPG, PNG) hochladen.");
-  }
+  var file = e.dataTransfer.files[0];
+  if(file && file.type.startsWith("image/")) loadPcPhotoFile(file);
 }
 function loadPcPhoto(input) {
   if(input.files && input.files[0]) loadPcPhotoFile(input.files[0]);
@@ -2613,4 +2542,5 @@ window.addEventListener("load", function() {
 
 </script>
 </body>
+<script src="format.js"></script>
 </html>
