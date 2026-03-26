@@ -296,57 +296,65 @@ footer strong{color:var(--gold);}
 <div class="b2" id="postcard">
 <div class="sec rev">
   <h2 class="stit">&#128206; <span id="t_pc_title">Postkarten-Generator</span></h2>
-  <p class="ssub" id="t_pc_sub">Foto auswaehlen &rarr; Vorschau &rarr; Teilen oder kaufen</p>
-
-  <!-- Foto-Auswahl -->
-  <div id="pc_select_area" style="margin-bottom:20px">
-    <p style="font-size:.85rem;opacity:.7;margin-bottom:10px">Foto aus der Galerie auswaehlen:</p>
-    <div id="pc_thumb_row" style="display:flex;gap:10px;flex-wrap:wrap"></div>
+  <div style="background:rgba(255,210,63,.1);border:1px solid rgba(255,210,63,.3);border-radius:12px;padding:12px 16px;margin-bottom:16px;font-size:.88rem;text-align:center;line-height:1.7">
+    &#127881; Sie koennen die Postkarte <b style="color:var(--gold)">mit Wasserzeichen gratis versenden</b>
+    oder <b style="color:var(--teal)">ohne Wasserzeichen fuer 0,99 EUR kaufen</b>
   </div>
-
-  <!-- Vorschau mit Wasserzeichen -->
-  <div style="display:flex;justify-content:center;margin-bottom:16px;position:relative">
-    <canvas id="pcanv" width="600" height="800" style="border-radius:12px;box-shadow:0 10px 36px rgba(0,0,0,.5);max-width:100%"></canvas>
+  <!-- Foto-Laufband -->
+  <p style="font-size:.8rem;opacity:.65;margin-bottom:8px">&#128247; Foto auswaehlen:</p>
+  <div style="overflow-x:auto;white-space:nowrap;padding-bottom:8px;-webkit-overflow-scrolling:touch;margin-bottom:14px">
+    <div id="pc_thumb_row" style="display:inline-flex;gap:8px;padding:2px 0"></div>
   </div>
-
-  <!-- Steuerung -->
-  <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px">
-    <select class="pcsel" id="pclang" onchange="renderPC()" style="grid-column:1/-1">
-      <option value="de">Grusstext: Deutsch</option>
-      <option value="en">Greeting: English</option>
-      <option value="it">Saluto: Italiano</option>
-      <option value="fr">Message: Francais</option>
-      <option value="es">Saludo: Espanol</option>
-      <option value="ja">&#12464;&#12522;&#12540;&#12486;&#12451;&#12531;&#12464;: &#26085;&#26412;&#35486;</option>
-      <option value="zh">&#31290;&#35797;: &#20013;&#25991;</option>
-      <option value="pl">Pozdrowienie: Polski</option>
+  <!-- Canvas -->
+  <div style="display:flex;justify-content:center;margin-bottom:14px">
+    <canvas id="pcanv" width="600" height="800"
+      style="border-radius:12px;box-shadow:0 10px 36px rgba(0,0,0,.5);max-width:100%;max-height:70vh"></canvas>
+  </div>
+  <!-- Text-Position -->
+  <div style="display:flex;gap:8px;margin-bottom:10px">
+    <button onclick="setPcPos('sky')"    id="pcpos_sky"
+      style="flex:1;padding:9px;border:2px solid rgba(255,255,255,.2);background:rgba(255,255,255,.06);color:#fff;border-radius:10px;font-size:.8rem;font-weight:900;cursor:pointer;font-family:Nunito,sans-serif">
+      &#9728; Himmel</button>
+    <button onclick="setPcPos('middle')" id="pcpos_middle"
+      style="flex:1;padding:9px;border:2px solid rgba(255,255,255,.2);background:rgba(255,255,255,.06);color:#fff;border-radius:10px;font-size:.8rem;font-weight:900;cursor:pointer;font-family:Nunito,sans-serif">
+      &#11835; Mitte</button>
+    <button onclick="setPcPos('water')"  id="pcpos_water"
+      style="flex:1;padding:9px;border:2px solid var(--gold);background:var(--gold);color:#0A1628;border-radius:10px;font-size:.8rem;font-weight:900;cursor:pointer;font-family:Nunito,sans-serif">
+      &#127754; Wasser</button>
+  </div>
+  <!-- Gruss + Sprache + Name -->
+  <div style="display:grid;gap:8px;margin-bottom:12px">
+    <select class="pcsel" id="pclang" onchange="updateGreetingSelect();renderPC(true)">
+      <option value="de">&#127465;&#127466; Deutsch</option>
+      <option value="en">&#127468;&#127463; English</option>
+      <option value="it">&#127470;&#127481; Italiano</option>
+      <option value="fr">&#127467;&#127479; Francais</option>
+      <option value="es">&#127466;&#127480; Espanol</option>
+      <option value="ja">&#127471;&#127477; Japanese</option>
+      <option value="zh">&#127464;&#127475; Chinese</option>
+      <option value="pl">&#127477;&#127473; Polski</option>
     </select>
-    <select class="pcsel" id="pcgreeting" onchange="renderPC()">
+    <select class="pcsel" id="pcgreeting" onchange="renderPC(true)">
       <option value="0">Herzliche Gruesse von der Insel Burano</option>
-      <option value="1">Die Farben Buranos bleiben unvergesslich</option>
-      <option value="2">Die schoenste Insel der Welt gruest Dich</option>
-      <option value="3">Erinnerungen an Burano - fuer immer</option>
-      <option value="4">Buono viaggio! Bis bald in Burano</option>
     </select>
     <input class="pcinp" id="pc_customer_name" type="text"
-      placeholder="Ihr Name (erscheint auf der Linie)..." oninput="renderPC()">
+      placeholder="Ihr Name fuer die gestrichelte Linie..." oninput="renderPC(true)">
   </div>
-
-  <!-- Buttons: Teilen (MIT Wasserzeichen) + Kaufen (OHNE) -->
-  <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:8px">
+  <!-- Share-Buttons -->
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px">
     <button onclick="shareWhatsApp()" class="btnH out"
-      style="display:flex;align-items:center;justify-content:center;gap:6px;padding:12px">
-      &#128172; WhatsApp<br><small style="opacity:.7;font-size:.68rem">mit Wasserzeichen</small>
+      style="padding:11px 6px;font-size:.8rem;display:flex;flex-direction:column;align-items:center;gap:2px">
+      &#128172; WhatsApp<small style="font-size:.66rem;opacity:.75;font-weight:400">mit Wasserzeichen - gratis</small>
     </button>
     <button onclick="shareEmail()" class="btnH out"
-      style="display:flex;align-items:center;justify-content:center;gap:6px;padding:12px">
-      &#9993; E-Mail<br><small style="opacity:.7;font-size:.68rem">mit Wasserzeichen</small>
+      style="padding:11px 6px;font-size:.8rem;display:flex;flex-direction:column;align-items:center;gap:2px">
+      &#9993; E-Mail<small style="font-size:.66rem;opacity:.75;font-weight:400">mit Wasserzeichen - gratis</small>
     </button>
   </div>
-  <button onclick="buyAndDownload()" class="btnDL" id="t_pc_buy">
-    &#128153; 0,99 EUR kaufen &amp; ohne Wasserzeichen downloaden
+  <button onclick="buyAndDownload()" class="btnDL">
+    &#128153; 0,99 EUR &mdash; OHNE Wasserzeichen downloaden
   </button>
-  <p style="text-align:center;font-size:.72rem;opacity:.45;margin-top:6px">
+  <p style="text-align:center;font-size:.72rem;opacity:.4;margin-top:6px">
     10 Postkarten 4,99 EUR &nbsp;|&nbsp; Jede weitere 0,45 EUR
   </p>
 </div>
@@ -439,6 +447,7 @@ footer strong{color:var(--gold);}
       </div>
       <div style="padding:20px">
       <h3 style="color:var(--gold);font-size:1.2rem;margin-bottom:10px">&#127747; Mazzorbo</h3>
+        <div style="overflow-x:auto;white-space:nowrap;padding:8px 0 4px;-webkit-overflow-scrolling:touch"><div id="mazz_strip" style="display:inline-flex;gap:8px"></div></div>
       <p style="opacity:.8;font-size:.9rem;line-height:1.7">Mazzorbo ist mit Burano durch eine Holzbruecke verbunden. Die ruhige Insel ist bekannt fuer ihren historischen Weinanbau - hier waechst der seltene <strong style="color:var(--gold)">Dorona-Wein</strong>, eine fast ausgestorbene venezianische Rebsorte. Mazzorbo war einst dichter besiedelt als heute und beherbergt die gotische Kirche Santa Caterina aus dem 14. Jahrhundert.</p>
       </div>
     </div>
@@ -449,6 +458,7 @@ footer strong{color:var(--gold);}
       </div>
       <div style="padding:20px">
       <h3 style="color:var(--gold);font-size:1.2rem;margin-bottom:10px">&#127963; Torcello</h3>
+        <div style="overflow-x:auto;white-space:nowrap;padding:8px 0 4px;-webkit-overflow-scrolling:touch"><div id="torc_strip" style="display:inline-flex;gap:8px"></div></div>
       <p style="opacity:.8;font-size:.9rem;line-height:1.7">Torcello war einst die <strong style="color:var(--gold)">mächtigste Stadt der Lagune</strong> mit über 20.000 Einwohnern. Heute leben dort nur noch etwa 20 Menschen. Der Dom Santa Maria Assunta aus dem Jahr 639 n.Chr. ist einer der aeltesten Sakralbauten Venedigs. Der geheimnisvolle <strong style="color:var(--gold)">"Thron des Attila"</strong> - ein steinerner Sessel auf dem Platz - zieht Besucher aus aller Welt an.</p>
       </div>
     </div>
