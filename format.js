@@ -278,22 +278,31 @@ function drawPostmark(ctx,W,H){
 
 function drawCurvedGreeting(ctx,text,W,H,centerY){
   ctx.save();
-  var fs=Math.max(16,Math.round(W/24));
-  ctx.font="italic bold "+fs+"px 'Brush Script MT',Georgia,serif";
-  ctx.fillStyle="rgba(255,255,255,0.97)";
-  ctx.shadowColor="rgba(0,0,0,0.9)";ctx.shadowBlur=12;
-  ctx.textAlign="center";ctx.textBaseline="middle";
-  var radius=W*1.3;
+  // Schreibschrift-Font mit Fallbacks
+  var fs=Math.max(18,Math.round(W/22));
+  ctx.font="italic bold "+fs+"px 'Brush Script MT','Dancing Script','Segoe Script',cursive";
+  ctx.fillStyle="rgba(255,255,255,0.98)";
+  ctx.shadowColor="rgba(0,0,0,0.95)";
+  ctx.shadowBlur=14;
+  ctx.shadowOffsetX=1;ctx.shadowOffsetY=2;
+  ctx.textAlign="center";
+  ctx.textBaseline="alphabetic";
+  // Bogen-Radius: kleiner = staerker gebogen
+  var radius=W*0.95;
+  // Zeichenmasse ermitteln
   var chars=text.split("");
-  var totalW=0;chars.forEach(function(c){totalW+=ctx.measureText(c).width;});
-  var arcLen=totalW/radius;
-  var angle=-arcLen/2-Math.PI/2;
-  var x0=W/2,y0=centerY+radius;
-  chars.forEach(function(ch){
-    var cw=ctx.measureText(ch).width;
+  var widths=chars.map(function(c){return ctx.measureText(c).width;});
+  var totalW=widths.reduce(function(a,b){return a+b;},0);
+  // Startwinkel so dass Text mittig sitzt
+  var totalArc=totalW/radius;
+  var angle=-Math.PI/2-totalArc/2;
+  // Bogenmittelpunkt unter dem centerY
+  var x0=W/2, y0=centerY+radius;
+  chars.forEach(function(ch,i){
+    var cw=widths[i];
     var a=angle+cw/(2*radius);
     ctx.save();
-    ctx.translate(x0+Math.cos(a)*radius,y0+Math.sin(a)*radius);
+    ctx.translate(x0+Math.cos(a)*radius, y0+Math.sin(a)*radius);
     ctx.rotate(a+Math.PI/2);
     ctx.fillText(ch,0,0);
     ctx.restore();
