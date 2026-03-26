@@ -296,75 +296,61 @@ footer strong{color:var(--gold);}
 <div class="b2" id="postcard">
 <div class="sec rev">
   <h2 class="stit">&#128206; <span id="t_pc_title">Postkarten-Generator</span></h2>
-  <p class="ssub" id="t_pc_sub">Mit Briefmarke, Stempel und persoenlichem Gruss</p>
-  <div class="pcc">
-    <div class="pcprev"><canvas id="pcanv" width="600" height="800"></canvas></div>
-    <div class="pcctrl">
-      <select class="pcsel" id="pc_fmt_sel" onchange="switchPcFormat(this.value)" style="margin-bottom:8px">
-        <option value="4:3">4:3 Querformat</option>
-        <option value="3:4" selected>3:4 Hochformat</option>
-        <option value="9:16">9:16 Stories</option>
-      </select>
-      <select class="pcsel" id="pcphoto" onchange="renderPC()">
-        <option value="canal_wide">1. Kanal - Alle Farben</option>
-        <option value="canal_winter">2. Winter-Stimmung</option>
-        <option value="canal_lagoon">3. Zur Lagune</option>
-        <option value="canal_sunset">4. Sonnenuntergang</option>
-        <option value="piazza">5. Piazza Galuppi</option>
-        <option value="canal_morning">6. Morgenkanal</option>
-      </select>
-      <div style="margin-top:6px;font-size:.72rem;opacity:.45;text-align:center">Reihenfolge im Admin anpassbar</div>
-      <select class="pcsel" id="pclang" onchange="renderPC()">
-        <option value="de">Deutsch</option>
-        <option value="en">English</option>
-        <option value="it">Italiano</option>
-        <option value="fr">Francais</option>
-        <option value="es">Espanol</option>
-        <option value="ja">Japanese</option>
-        <option value="zh">Chinese</option>
-        <option value="pl">Polski</option>
-      </select>
-      <input class="pcinp" id="pctext" type="text" placeholder="Eigener Grußtext (optional)..." oninput="renderPC()">
-      <input class="pcinp" id="pc_customer_name" type="text" placeholder="✦ Ihr Name für die gestrichelte Linie..." oninput="renderPC()" style="margin-top:8px">
-    </div>
-    <div style="margin-bottom:14px">
-      <p style="color:rgba(255,255,255,.7);font-size:.85rem;margin-bottom:8px;font-weight:700">Grusstext waehlen:</p>
-      <select class="pcsel" id="pcgreeting" onchange="renderPC()">
-        <option value="0">Herzliche Grüße von der Insel Burano</option>
-        <option value="1">Die Farben Buranos bleiben unvergesslich</option>
-        <option value="2">Die schönste Insel der Welt grüßt Dich</option>
-        <option value="3">Erinnerungen an Burano – für immer</option>
-        <option value="4">Buono viaggio! Bis bald in Burano</option>
-      </select>
-    </div>
-    <div style="background:rgba(255,210,63,.1);border:1px solid rgba(255,210,63,.3);border-radius:12px;padding:14px;margin-bottom:14px">
-      <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px">
-        <div>
-          <div style="font-weight:900;font-size:1rem;color:var(--gold)">1 Postkarte</div>
-          <div style="font-size:.8rem;opacity:.7">Sofort-Download als JPG</div>
-        </div>
-        <button class="btnPP" onclick="buyPostcard(1)" style="padding:10px 20px" id="pc_btn1">&#128153; 0,99 EUR</button>
-      </div>
-      <hr style="border:none;border-top:1px solid rgba(255,255,255,.1);margin:12px 0">
-      <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px">
-        <div>
-          <div style="font-weight:900;font-size:1rem;color:var(--gold)">10 Postkarten</div>
-          <div style="font-size:.8rem;opacity:.7">Alle Motive - Spare 50%!</div>
-        </div>
-        <button class="btnPP" onclick="buyPostcard(10)" style="padding:10px 20px">&#128153; 4,99 EUR</button>
-      </div>
-      <hr style="border:none;border-top:1px solid rgba(255,255,255,.1);margin:12px 0">
-      <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px">
-        <div>
-          <div style="font-weight:900;font-size:1rem;color:var(--gold)">Jede weitere</div>
-          <div style="font-size:.8rem;opacity:.7">Ab der 11. Postkarte</div>
-        </div>
-        <button class="btnPP" onclick="buyPostcard(0)" style="padding:10px 20px">&#128153; 0,45 EUR</button>
-      </div>
-    </div>
-    <button class="btnDL" onclick="previewAndDownload()">&#128229; Postkarte downloaden &amp; kaufen</button>
+  <p class="ssub" id="t_pc_sub">Foto auswaehlen &rarr; Vorschau &rarr; Teilen oder kaufen</p>
+
+  <!-- Foto-Auswahl -->
+  <div id="pc_select_area" style="margin-bottom:20px">
+    <p style="font-size:.85rem;opacity:.7;margin-bottom:10px">Foto aus der Galerie auswaehlen:</p>
+    <div id="pc_thumb_row" style="display:flex;gap:10px;flex-wrap:wrap"></div>
   </div>
-</div></div>
+
+  <!-- Vorschau mit Wasserzeichen -->
+  <div style="display:flex;justify-content:center;margin-bottom:16px;position:relative">
+    <canvas id="pcanv" width="600" height="800" style="border-radius:12px;box-shadow:0 10px 36px rgba(0,0,0,.5);max-width:100%"></canvas>
+  </div>
+
+  <!-- Steuerung -->
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px">
+    <select class="pcsel" id="pclang" onchange="renderPC()" style="grid-column:1/-1">
+      <option value="de">Grusstext: Deutsch</option>
+      <option value="en">Greeting: English</option>
+      <option value="it">Saluto: Italiano</option>
+      <option value="fr">Message: Francais</option>
+      <option value="es">Saludo: Espanol</option>
+      <option value="ja">&#12464;&#12522;&#12540;&#12486;&#12451;&#12531;&#12464;: &#26085;&#26412;&#35486;</option>
+      <option value="zh">&#31290;&#35797;: &#20013;&#25991;</option>
+      <option value="pl">Pozdrowienie: Polski</option>
+    </select>
+    <select class="pcsel" id="pcgreeting" onchange="renderPC()">
+      <option value="0">Herzliche Gruesse von der Insel Burano</option>
+      <option value="1">Die Farben Buranos bleiben unvergesslich</option>
+      <option value="2">Die schoenste Insel der Welt gruest Dich</option>
+      <option value="3">Erinnerungen an Burano - fuer immer</option>
+      <option value="4">Buono viaggio! Bis bald in Burano</option>
+    </select>
+    <input class="pcinp" id="pc_customer_name" type="text"
+      placeholder="Ihr Name (erscheint auf der Linie)..." oninput="renderPC()">
+  </div>
+
+  <!-- Buttons: Teilen (MIT Wasserzeichen) + Kaufen (OHNE) -->
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:8px">
+    <button onclick="shareWhatsApp()" class="btnH out"
+      style="display:flex;align-items:center;justify-content:center;gap:6px;padding:12px">
+      &#128172; WhatsApp<br><small style="opacity:.7;font-size:.68rem">mit Wasserzeichen</small>
+    </button>
+    <button onclick="shareEmail()" class="btnH out"
+      style="display:flex;align-items:center;justify-content:center;gap:6px;padding:12px">
+      &#9993; E-Mail<br><small style="opacity:.7;font-size:.68rem">mit Wasserzeichen</small>
+    </button>
+  </div>
+  <button onclick="buyAndDownload()" class="btnDL" id="t_pc_buy">
+    &#128153; 0,99 EUR kaufen &amp; ohne Wasserzeichen downloaden
+  </button>
+  <p style="text-align:center;font-size:.72rem;opacity:.45;margin-top:6px">
+    10 Postkarten 4,99 EUR &nbsp;|&nbsp; Jede weitere 0,45 EUR
+  </p>
+</div>
+</div>
 
 <!-- VIDEOS -->
 <div class="b1">
@@ -753,6 +739,7 @@ if("serviceWorker" in navigator){
 }
 </script>
 <script>
+
 
 // Translations - nur ASCII, keine Sonderzeichen im JS
 var TXT = {
@@ -1184,647 +1171,257 @@ function drawNameLine(ctx, W, H, yPos, color) {
   ctx.restore();
 }
 
-function renderPC() {
-  var cv = document.getElementById("pcanv");
+function renderPC(withWatermark) {
+  withWatermark = (withWatermark !== false); // Standard: MIT Wasserzeichen
+  var cv  = document.getElementById("pcanv");
+  if (!cv) return;
   var ctx = cv.getContext("2d");
-  var pk = document.getElementById("pcphoto").value;
-  var pl = document.getElementById("pclang").value;
-  var custom = document.getElementById("pctext").value;
   var W = cv.width, H = cv.height;
   ctx.clearRect(0, 0, W, H);
 
-  // Pruefe ob Admin-Foto gespeichert
-  var adminPhoto = localStorage.getItem("bl_pc_custom_photo");
-
-  if (!adminPhoto && (typeof POSTCARDS === "undefined" || !POSTCARDS[pk])) {
-    ctx.fillStyle = "#0D2B5E";
-    ctx.fillRect(0, 0, W, H);
-    ctx.fillStyle = "rgba(255,255,255,.3)";
-    ctx.font = "20px sans-serif";
-    ctx.textAlign = "center";
-    ctx.fillText("Foto wird geladen...", W/2, H/2);
-    return;
+  // Foto-Quelle: ausgewaehltes Foto
+  var imgSrc = window.pcSelectedPhoto || "";
+  if (!imgSrc) {
+    // Fallback: erstes verfuegbares Foto
+    if (typeof POSTCARDS !== "undefined") {
+      var keys = Object.keys(POSTCARDS);
+      if (keys.length) imgSrc = POSTCARDS[keys[0]];
+    }
+    if (!imgSrc) {
+      ctx.fillStyle = "#0D2B5E";
+      ctx.fillRect(0, 0, W, H);
+      ctx.fillStyle = "rgba(255,255,255,.4)";
+      ctx.font = "18px Nunito,sans-serif";
+      ctx.textAlign = "center";
+      ctx.fillText("Foto aus der Galerie auswaehlen", W/2, H/2);
+      return;
+    }
   }
 
   var img = new Image();
   img.onload = function() {
     ctx.drawImage(img, 0, 0, W, H);
+
     // Vignette
-    var vg = ctx.createRadialGradient(W/2,H/2,H*0.3,W/2,H/2,H*0.85);
-    vg.addColorStop(0,"rgba(0,0,0,0)"); vg.addColorStop(1,"rgba(0,0,0,.3)");
-    ctx.fillStyle = vg; ctx.fillRect(0,0,W,H);
-    // Border
-    ctx.strokeStyle = "rgba(255,255,255,.85)"; ctx.lineWidth = 10;
-    ctx.strokeRect(5,5,W-10,H-10);
-    // STAMP
-    var sx=W-150,sy=14,sw=132,sh=94;
-    ctx.fillStyle = "#fff"; ctx.shadowColor="rgba(0,0,0,.25)"; ctx.shadowBlur=7;
-    ctx.fillRect(sx,sy,sw,sh); ctx.shadowBlur=0;
-    ctx.setLineDash([5,4]); ctx.strokeStyle="rgba(0,0,0,.25)"; ctx.lineWidth=1.5;
-    ctx.strokeRect(sx+8,sy+8,sw-16,sh-16); ctx.setLineDash([]);
-    // Mini foto im Stempel
-    var si = new Image();
-    si.onload = function() {
-      ctx.save(); ctx.beginPath(); ctx.rect(sx+10,sy+10,sw-20,sh-30); ctx.clip();
-      ctx.drawImage(si,sx+10,sy+10,sw-20,sh-30); ctx.restore();
-      ctx.fillStyle="#1A237E"; ctx.font="bold 10px sans-serif"; ctx.textAlign="center";
-      ctx.fillText("ITALIA",sx+sw/2,sy+sh-18);
-      ctx.font="9px sans-serif"; ctx.fillText("EUR 1,25",sx+sw/2,sy+sh-6);
-      // POSTMARK
-      var mx=72,my=70,mr=44;
-      ctx.save(); ctx.globalAlpha=.8;
-      ctx.strokeStyle="#1565C0"; ctx.lineWidth=2.5;
-      ctx.beginPath(); ctx.arc(mx,my,mr,0,Math.PI*2); ctx.stroke();
-      ctx.beginPath(); ctx.arc(mx,my,mr-11,0,Math.PI*2); ctx.stroke();
-      for (var i=0;i<4;i++){ctx.beginPath();ctx.moveTo(mx-mr+5+i*17,my-5);ctx.lineTo(mx-mr+5+i*17+52,my-5);ctx.stroke();}
-      ctx.fillStyle="#1565C0"; ctx.font="bold 9px sans-serif"; ctx.textAlign="center";
-      ctx.fillText("BURANO (VE)",mx,my-16);
-      var now=new Date();
-      ctx.font="bold 11px sans-serif"; ctx.fillText(now.getDate()+" MAR.",mx,my);
-      ctx.fillText(now.getFullYear(),mx,my+14);
-      ctx.font="7px sans-serif"; ctx.fillText("* * *",mx,my+26);
-      ctx.globalAlpha=1; ctx.restore();
-      // GREETING TEXT
-      var greet = custom || getSelectedGreeting();
-      var customerName = document.getElementById("pc_customer_name") ?
-                         document.getElementById("pc_customer_name").value : "";
+    var vg = ctx.createRadialGradient(W/2, H/2, H*0.3, W/2, H/2, H*0.85);
+    vg.addColorStop(0, "rgba(0,0,0,0)");
+    vg.addColorStop(1, "rgba(0,0,0,.3)");
+    ctx.fillStyle = vg; ctx.fillRect(0, 0, W, H);
 
-      var savedPos = localStorage.getItem("bl_pc_text_pos") || "water";
-      var savedCol = localStorage.getItem("bl_pc_text_col") || "white";
-      var colorMap2 = {white:"rgba(255,255,255,0.95)", gold:"#FFD23F", dark:"rgba(20,20,20,0.9)"};
-      var textColor = colorMap2[savedCol] || "rgba(255,255,255,0.95)";
-      var curveY, curveRadius;
-      if(savedPos === "sky")         { curveY = H * 0.18; curveRadius = W * 0.85; }
-      else if(savedPos === "middle") { curveY = H * 0.48; curveRadius = W * 0.92; }
-      else                           { curveY = H * 0.80; curveRadius = W * 0.88; }
+    // Rahmen
+    ctx.strokeStyle = "rgba(255,255,255,.8)";
+    ctx.lineWidth = 8;
+    ctx.strokeRect(4, 4, W-8, H-8);
 
-      // Schreibschrift geschwungen
-      ctx.save();
-      ctx.shadowColor = "rgba(0,0,0,0.8)";
-      ctx.shadowBlur = 8;
-      ctx.font = "italic bold " + Math.round(W/28) + "px 'Brush Script MT', 'Comic Sans MS', cursive";
-      ctx.fillStyle = textColor;
+    // Stempel (oben rechts)
+    drawStamp(ctx, W, H);
+
+    // Gruesstext geschwungen
+    var greet = getSelectedGreeting();
+    var cust  = document.getElementById("pc_customer_name");
+    var name  = cust ? cust.value.trim() : "";
+    drawCurvedText(ctx, greet, W/2, H*0.68 + W*0.88, W*0.88, "rgba(255,255,255,.95)", Math.round(W/28));
+    drawNameLine(ctx, W, H, H*0.88, "rgba(255,255,255,.55)");
+    if (name) {
+      ctx.font = "italic " + Math.round(W/32) + "px 'Brush Script MT',cursive";
+      ctx.fillStyle = "rgba(255,255,255,.9)";
       ctx.textAlign = "center";
-      ctx.textBaseline = "alphabetic";
+      ctx.shadowColor = "rgba(0,0,0,.6)"; ctx.shadowBlur = 5;
+      ctx.fillText(name, W/2, H*0.88 + 18);
+      ctx.shadowBlur = 0;
+    }
 
-      // Text entlang Bogen zeichnen
-      var fontSize = Math.round(W/28);
-      drawCurvedText(ctx, greet, W/2, curveY + curveRadius, curveRadius, -Math.PI/2 - 0.08, textColor, fontSize);
-      ctx.restore();
+    // Footer
+    ctx.font = "bold 10px sans-serif";
+    ctx.fillStyle = "rgba(255,255,255,.6)";
+    ctx.textAlign = "center";
+    ctx.fillText("my-burano.com - Terra Nova 112", W/2, H - 7);
 
-      // Leerzeile fuer Kundenname
-      var lineY = H * 0.88;
-      var lineColor = "rgba(255,255,255,0.55)";
-      drawNameLine(ctx, W, H, lineY, lineColor);
-
-      // Wenn Kundenname eingegeben
-      if(customerName) {
+    // WASSERZEICHEN (stark, diagonal - nur wenn withWatermark)
+    if (withWatermark) {
+      ctx.save();
+      ctx.globalAlpha = 0.35;
+      ctx.font = "bold " + Math.round(W/10) + "px Nunito,sans-serif";
+      ctx.fillStyle = "#fff";
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      // Diagonal ueber das gesamte Bild
+      for (var row = 0; row < 3; row++) {
+        for (var col = 0; col < 2; col++) {
+          ctx.save();
+          var wx = W * (col * 0.6 + 0.25);
+          var wy = H * (row * 0.35 + 0.15);
+          ctx.translate(wx, wy);
+          ctx.rotate(-Math.PI / 6);
+          ctx.fillText("VORSCHAU", 0, 0);
+          ctx.restore();
+        }
+      }
+      ctx.globalAlpha = 0.55;
+      ctx.font = "bold " + Math.round(W/18) + "px Nunito,sans-serif";
+      for (var r2 = 0; r2 < 3; r2++) {
         ctx.save();
-        ctx.font = "italic " + Math.round(W/32) + "px 'Brush Script MT', cursive";
-        ctx.fillStyle = "rgba(255,255,255,0.9)";
-        ctx.textAlign = "center";
-        ctx.shadowColor = "rgba(0,0,0,0.6)";
-        ctx.shadowBlur = 5;
-        ctx.fillText(customerName, W/2, lineY + 18);
+        ctx.translate(W/2, H * (r2*0.35 + 0.28));
+        ctx.rotate(-Math.PI / 6);
+        ctx.fillText("shop.myburano.com", 0, 0);
         ctx.restore();
       }
+      ctx.restore();
+    }
+  };
+  img.src = imgSrc;
+}
 
-      // Footer
-      ctx.font = "bold 10px sans-serif";
-      ctx.fillStyle = "rgba(255,255,255,.6)";
-      ctx.textAlign = "center";
-      ctx.shadowBlur = 0;
-      ctx.fillText("my-burano.com - Terra Nova 112", W/2, H-6);
+function drawStamp(ctx, W, H) {
+  var sx=W-148, sy=14, sw=130, sh=90;
+  ctx.fillStyle="#fff";
+  ctx.shadowColor="rgba(0,0,0,.25)"; ctx.shadowBlur=6;
+  ctx.fillRect(sx,sy,sw,sh); ctx.shadowBlur=0;
+  ctx.setLineDash([5,4]); ctx.strokeStyle="rgba(0,0,0,.2)"; ctx.lineWidth=1.5;
+  ctx.strokeRect(sx+7,sy+7,sw-14,sh-14); ctx.setLineDash([]);
+  // Mini-Foto im Stempel
+  if (window.pcSelectedPhoto) {
+    var si = new Image();
+    si.onload = function() {
+      ctx.save(); ctx.beginPath(); ctx.rect(sx+9,sy+9,sw-18,sh-28); ctx.clip();
+      ctx.drawImage(si,sx+9,sy+9,sw-18,sh-28); ctx.restore();
     };
-    si.src = POSTCARDS[pk] || PHOTOS[pk] || "";
-  };
-  // Format-spezifisches Foto laden
-  // Foto-Quelle: eigenes (cust_X) oder Standard (std_key)
-  var photoPk = pk || "";
-  var imgSrc = "";
-  if(photoPk.indexOf("cust_") === 0) {
-    var custIdx2 = parseInt(photoPk.replace("cust_",""));
-    var custArr = getFormatPhotos(previewFmt);
-    imgSrc = custArr[custIdx2] || "";
-  } else {
-    var stdKey = photoPk.replace("std_","");
-    imgSrc = (POSTCARDS && POSTCARDS[stdKey]) || localStorage.getItem("bl_pc_custom_photo") || "";
+    si.src = window.pcSelectedPhoto;
   }
-  img.src = imgSrc || (POSTCARDS && POSTCARDS[pk]) || "";
+  ctx.fillStyle="#1A237E"; ctx.font="bold 9px sans-serif"; ctx.textAlign="center";
+  ctx.fillText("ITALIA", sx+sw/2, sy+sh-17);
+  ctx.font="8px sans-serif"; ctx.fillText("EUR 1,25", sx+sw/2, sy+sh-6);
+  // Poststempel
+  var mx=68, my=66, mr=42;
+  ctx.save(); ctx.globalAlpha=.8;
+  ctx.strokeStyle="#1565C0"; ctx.lineWidth=2;
+  ctx.beginPath(); ctx.arc(mx,my,mr,0,Math.PI*2); ctx.stroke();
+  ctx.beginPath(); ctx.arc(mx,my,mr-10,0,Math.PI*2); ctx.stroke();
+  ctx.fillStyle="#1565C0"; ctx.font="bold 8px sans-serif"; ctx.textAlign="center";
+  ctx.fillText("BURANO (VE)",mx,my-14);
+  var now=new Date();
+  ctx.font="bold 11px sans-serif";
+  ctx.fillText(now.getDate()+"."+(now.getMonth()+1)+"."+now.getFullYear(),mx,my+2);
+  ctx.font="7px sans-serif"; ctx.fillText("VENEZIA",mx,my+14);
+  ctx.globalAlpha=1; ctx.restore();
 }
 
-var GREETINGS = {
-  de: [
-    "Herzliche Grüße von der Insel Burano",
-    "Die Farben Buranos bleiben unvergesslich",
-    "Die schönste Insel der Welt grüßt Dich",
-    "Erinnerungen an Burano – für immer",
-    "Buono viaggio! Bis bald in Burano"
-  ],
-  en: [
-    "Warm greetings from the island of Burano",
-    "The colours of Burano – unforgettable forever",
-    "The most beautiful island in the world says hello",
-    "Memories of Burano – forever in my heart",
-    "Buono viaggio! See you soon in Burano"
-  ],
-  it: [
-    "Cordiali saluti dalla bellissima isola di Burano",
-    "I colori di Burano rimarranno per sempre nel cuore",
-    "La più bella isola del mondo ti saluta",
-    "Ricordi di Burano – per sempre con me",
-    "Buono viaggio! A presto a Burano"
-  ],
-  fr: [
-    "Chaleureuses salutations de la belle île de Burano",
-    "Les couleurs de Burano restent inoubliables",
-    "La plus belle île du monde vous salue",
-    "Souvenirs de Burano – pour toujours dans mon cœur",
-    "Buono viaggio! À bientôt à Burano"
-  ],
-  es: [
-    "Cordiales saludos desde la hermosa isla de Burano",
-    "Los colores de Burano son inolvidables para siempre",
-    "La isla más bella del mundo te saluda",
-    "Recuerdos de Burano – para siempre en mi corazón",
-    "Buono viaggio! Hasta pronto en Burano"
-  ],
-  ja: [
-    "美しいブラーノ島からの心温まるご挨拶",
-    "ブラーノの色彩は永遠に忘れられない",
-    "世界で最も美しい島からのご挨拶",
-    "ブラーノの思い出 – 永遠に心の中に",
-    "ブオン・ヴィアッジョ！またブラーノで会いましょう"
-  ],
-  zh: [
-    "来自美丽布拉诺岛的诚挚问候",
-    "布拉诺的色彩令人永生难忘",
-    "世界上最美丽的岛屿向您问候",
-    "布拉诺的回忆——永远铭记于心",
-    "一路顺风！期待再会布拉诺"
-  ],
-  pl: [
-    "Serdeczne pozdrowienia z pięknej wyspy Burano",
-    "Kolory Burano pozostają niezapomniane na zawsze",
-    "Najpiękniejsza wyspa świata pozdrawia Cię",
-    "Wspomnienia z Burano – na zawsze w moim sercu",
-    "Buono viaggio! Do zobaczenia wkrótce na Burano"
-  ]
-};
-
-function updateGreetingSelect() {
-  var sel = document.getElementById("pcgreeting");
-  if(!sel) return;
-  var greets = GREETINGS[curLang] || GREETINGS.de;
-  var current = sel.selectedIndex;
-  sel.innerHTML = greets.map(function(g, i) {
-    return '<option value="' + i + '">' + g + '</option>';
-  }).join('');
-  sel.selectedIndex = current;
-}
-
-function switchPcFormat(fmt) {
-  previewFmt = fmt;
-  uploadFormat = fmt;
-  var dims = formatDims[fmt] || {w:600,h:800};
+function renderPcClean(callback) {
+  // Postkarte OHNE Wasserzeichen rendern
   var cv = document.getElementById("pcanv");
-  if(cv) { cv.width=dims.w; cv.height=dims.h; }
-  // Foto-Auswahl für dieses Format befüllen
-  var arr = getFormatPhotos(fmt);
-  var sel = document.getElementById("pcphoto");
-  if(sel && arr.length) {
-    // Eigene Fotos + Standard-Fotos
-    var stdOpts = typeof GDEFS !== "undefined" && fmt==="4:3" ?
-      GDEFS.map(function(d,i){return "<option value='std_"+d.k+"'>"+(i+1)+". "+d.l+"</option>";}).join("") : "";
-    var custOpts = arr.map(function(_,i){return "<option value='cust_"+i+"'>Eigenes Foto "+(i+1)+"</option>";}).join("");
-    sel.innerHTML = stdOpts + custOpts;
-  } else if(sel) {
-    var stdOpts2 = typeof GDEFS !== "undefined" ?
-      GDEFS.map(function(d,i){return "<option value='std_"+d.k+"'>"+(i+1)+". "+d.l+"</option>";}).join("") : "";
-    sel.innerHTML = stdOpts2 || "<option>Keine Fotos in diesem Format</option>";
-  }
-  renderPC();
-}
-
-function getSelectedGreeting() {
-  var sel = document.getElementById("pcgreeting");
-  var greets = GREETINGS[curLang] || GREETINGS.de;
-  return sel ? greets[sel.selectedIndex] || greets[0] : greets[0];
-}
-
-// == FOTO FORMAT ==
-var currentFormat = "3:4";
-var formatRatios = {"3:4":{w:3,h:4}, "9:16":{w:9,h:16}};
-
-// Alle gespeicherten Formate
-var allFormatPhotos = {};
-var previewFmt = "3:4";
-
-function previewFormat(fmt) {
-  previewFmt = fmt;
-  // Buttons updaten
-  ["4:3","3:4","9:16"].forEach(function(f) {
-    var id = "fmt_" + f.replace(":","");
-    var btn = document.getElementById(id);
-    if(!btn) return;
-    if(f === fmt) {
-      btn.style.background = "var(--gold)";
-      btn.style.color = "var(--bd)";
-      btn.style.borderColor = "var(--gold)";
-    } else {
-      btn.style.background = "rgba(255,255,255,.08)";
-      btn.style.color = "#fff";
-      btn.style.borderColor = "rgba(255,255,255,.2)";
-    }
-  });
-  var labels = {"4:3":"Vorschau: 4:3 Querformat","3:4":"Vorschau: 3:4 Hochformat","9:16":"Vorschau: 9:16 Stories"};
-  var el = document.getElementById("format_info");
-  if(el) el.textContent = labels[fmt] || "";
-  // Canvas-Groesse anpassen
-  var dims = {"4:3":{w:720,h:540},"3:4":{w:600,h:800},"9:16":{w:540,h:960}};
-  var d = dims[fmt] || dims["3:4"];
-  var cv1 = document.getElementById("pcanv");
-  var cv2 = document.getElementById("pc_admin_preview");
-  if(cv1) { cv1.width=d.w; cv1.height=d.h; }
-  if(cv2) { cv2.width=d.w; cv2.height=d.h; }
-  // Vorschau mit gespeichertem Format-Bild
-  if(allFormatPhotos[fmt]) {
-    pcAdminImg = allFormatPhotos[fmt];
-  }
-  if(pcAdminImg) updatePcPreview();
-  renderPC();
-}
-
-function setPhotoFormat(fmt) { previewFormat(fmt); }
-
-function cropToFormat(imgSrc, fmt, callback) {
-  var allRatios = {"4:3":{w:4,h:3},"3:4":{w:3,h:4},"9:16":{w:9,h:16}};
-  var ratio = allRatios[fmt] || formatRatios[fmt] || {w:3,h:4};
+  if (!cv) return;
+  // Backup
+  var oldW = cv.width, oldH = cv.height;
+  // Nochmal rendern ohne Wasserzeichen
   var img = new Image();
   img.onload = function() {
-    var srcW = img.width, srcH = img.height;
-    var targetRatio = ratio.w / ratio.h;
-    var srcRatio = srcW / srcH;
-    var cropW, cropH, cropX, cropY;
-    if(srcRatio > targetRatio) {
-      // Breiter als Ziel - seitlich beschneiden
-      cropH = srcH;
-      cropW = Math.round(srcH * targetRatio);
-      cropX = Math.round((srcW - cropW) / 2);
-      cropY = 0;
-    } else {
-      // Hoeher als Ziel - oben/unten beschneiden
-      cropW = srcW;
-      cropH = Math.round(srcW / targetRatio);
-      cropX = 0;
-      cropY = Math.round((srcH - cropH) / 3); // leicht oben - Himmel behalten
-    }
-    var cv = document.createElement("canvas");
-    var maxW = fmt==="9:16" ? 540 : 600;
-    var scale = Math.min(1, maxW / cropW);
-    cv.width  = Math.round(cropW * scale);
-    cv.height = Math.round(cropH * scale);
     var ctx = cv.getContext("2d");
-    ctx.drawImage(img, cropX, cropY, cropW, cropH, 0, 0, cv.width, cv.height);
-    callback(cv.toDataURL("image/jpeg", 0.88));
-  };
-  img.src = imgSrc;
-}
-
-// == ADMIN FOTO UPLOAD ==
-var pcAdminImg = null;
-
-function handlePcDrop(e) {
-  e.preventDefault();
-  var file = e.dataTransfer.files[0];
-  if(file && file.type.startsWith("image/")) loadPcPhotoFile(file);
-}
-
-function loadPcPhoto(input) {
-  if(input.files && input.files[0]) loadPcPhotoFile(input.files[0]);
-}
-
-function loadPcPhotoFile(file) {
-  var reader = new FileReader();
-  reader.onload = function(e) {
-    pcAdminImg = e.target.result;
-    // Vorschau anzeigen
-    var prev = document.getElementById("pc_upload_preview");
-    prev.innerHTML = "<img src='" + pcAdminImg + "' style='max-width:100%;max-height:150px;border-radius:8px;'>";
-    document.getElementById("pc_admin_preview").style.display = "block";
-    document.getElementById("pc_save_btn").style.display = "block";
-    updatePcPreview();
-  };
-  reader.readAsDataURL(file);
-}
-
-function updatePcPreview() {
-  if(!pcAdminImg) return;
-  var cv = document.getElementById("pc_admin_preview");
-  var ctx = cv.getContext("2d");
-  var W = cv.width, H = cv.height;
-  var img = new Image();
-  img.onload = function() {
+    var W = cv.width, H = cv.height;
     ctx.clearRect(0,0,W,H);
-    ctx.drawImage(img, 0, 0, W, H);
-    // Vorschau-Text
-    ctx.fillStyle = "rgba(0,0,0,0.35)";
-    var pos = document.getElementById("pc_text_pos") ? document.getElementById("pc_text_pos").value : "water";
-    var yFactor = pos === "sky" ? 0.18 : pos === "middle" ? 0.5 : 0.82;
-    ctx.fillRect(0, H*yFactor - 40, W, 80);
-    var colors = {white:"#fff", gold:"#FFD23F", dark:"#1A1A1A"};
-    var col = colors[document.getElementById("pc_text_color") ? document.getElementById("pc_text_color").value : "white"] || "#fff";
-    ctx.font = "italic bold 22px 'Brush Script MT', cursive";
-    ctx.fillStyle = col;
-    ctx.textAlign = "center";
-    ctx.fillText("Herzliche Grüße von der Insel Burano", W/2, H*yFactor + 8);
-    // Namens-Linie
-    drawNameLine(ctx, W, H, H*0.88, "rgba(255,255,255,0.5)");
-    ctx.font = "10px sans-serif";
-    ctx.fillStyle = "rgba(255,255,255,.5)";
-    ctx.fillText("my-burano.com - Terra Nova 112", W/2, H-6);
+    ctx.drawImage(img,0,0,W,H);
+    var vg=ctx.createRadialGradient(W/2,H/2,H*.3,W/2,H/2,H*.85);
+    vg.addColorStop(0,"rgba(0,0,0,0)"); vg.addColorStop(1,"rgba(0,0,0,.3)");
+    ctx.fillStyle=vg; ctx.fillRect(0,0,W,H);
+    ctx.strokeStyle="rgba(255,255,255,.8)"; ctx.lineWidth=8;
+    ctx.strokeRect(4,4,W-8,H-8);
+    drawStamp(ctx,W,H);
+    var greet=getSelectedGreeting();
+    drawCurvedText(ctx,greet,W/2,H*.68+W*.88,W*.88,"rgba(255,255,255,.95)",Math.round(W/28));
+    drawNameLine(ctx,W,H,H*.88,"rgba(255,255,255,.55)");
+    var cust=document.getElementById("pc_customer_name");
+    var name=cust?cust.value.trim():"";
+    if(name){ctx.font="italic "+Math.round(W/32)+"px 'Brush Script MT',cursive";ctx.fillStyle="rgba(255,255,255,.9)";ctx.textAlign="center";ctx.fillText(name,W/2,H*.88+18);}
+    ctx.font="bold 10px sans-serif"; ctx.fillStyle="rgba(255,255,255,.6)"; ctx.textAlign="center";
+    ctx.fillText("my-burano.com - Terra Nova 112",W/2,H-7);
+    // Kein Wasserzeichen!
+    setTimeout(callback, 100); // kurz warten bis Stempel-Bild geladen
   };
-  img.src = pcAdminImg;
+  img.src = window.pcSelectedPhoto || "";
+  if (!img.src) { callback(); }
 }
 
-function savePcPhoto() {
-  if(!pcAdminImg) return;
-  // Bild komprimieren bevor speichern
-  var cv = document.createElement("canvas");
-  cv.width = 600; cv.height = 800;
-  var ctx = cv.getContext("2d");
-  var img = new Image();
-  img.onload = function() {
-    ctx.drawImage(img, 0, 0, 700, 490);
-    var compressed = cv.toDataURL("image/jpeg", 0.85);
-    try {
-      localStorage.setItem("bl_pc_custom_photo", compressed);
-      alert("✅ Foto gespeichert! Es wird jetzt im Postkarten-Generator verwendet.");
-      renderPC();
-    } catch(e) {
-      alert("⚠️ Foto zu groß für lokale Speicherung. Bitte kleineres Bild verwenden (max 1MB).");
-    }
-  };
-  img.src = pcAdminImg;
-}
-
-// == FOTO FORMAT ==
-var currentFormat = "3:4";
-var formatRatios = {"3:4":{w:3,h:4}, "9:16":{w:9,h:16}};
-
-// Alle gespeicherten Formate
-var allFormatPhotos = {};
-var previewFmt = "3:4";
-
-function previewFormat(fmt) {
-  previewFmt = fmt;
-  // Buttons updaten
-  ["4:3","3:4","9:16"].forEach(function(f) {
-    var id = "fmt_" + f.replace(":","");
-    var btn = document.getElementById(id);
-    if(!btn) return;
-    if(f === fmt) {
-      btn.style.background = "var(--gold)";
-      btn.style.color = "var(--bd)";
-      btn.style.borderColor = "var(--gold)";
-    } else {
-      btn.style.background = "rgba(255,255,255,.08)";
-      btn.style.color = "#fff";
-      btn.style.borderColor = "rgba(255,255,255,.2)";
-    }
-  });
-  var labels = {"4:3":"Vorschau: 4:3 Querformat","3:4":"Vorschau: 3:4 Hochformat","9:16":"Vorschau: 9:16 Stories"};
-  var el = document.getElementById("format_info");
-  if(el) el.textContent = labels[fmt] || "";
-  // Canvas-Groesse anpassen
-  var dims = {"4:3":{w:720,h:540},"3:4":{w:600,h:800},"9:16":{w:540,h:960}};
-  var d = dims[fmt] || dims["3:4"];
-  var cv1 = document.getElementById("pcanv");
-  var cv2 = document.getElementById("pc_admin_preview");
-  if(cv1) { cv1.width=d.w; cv1.height=d.h; }
-  if(cv2) { cv2.width=d.w; cv2.height=d.h; }
-  // Vorschau mit gespeichertem Format-Bild
-  if(allFormatPhotos[fmt]) {
-    pcAdminImg = allFormatPhotos[fmt];
-  }
-  if(pcAdminImg) updatePcPreview();
-  renderPC();
-}
-
-function setPhotoFormat(fmt) { previewFormat(fmt); }
-
-function cropToFormat(imgSrc, fmt, callback) {
-  var allRatios = {"4:3":{w:4,h:3},"3:4":{w:3,h:4},"9:16":{w:9,h:16}};
-  var ratio = allRatios[fmt] || formatRatios[fmt] || {w:3,h:4};
-  var img = new Image();
-  img.onload = function() {
-    var srcW = img.width, srcH = img.height;
-    var targetRatio = ratio.w / ratio.h;
-    var srcRatio = srcW / srcH;
-    var cropW, cropH, cropX, cropY;
-    if(srcRatio > targetRatio) {
-      // Breiter als Ziel - seitlich beschneiden
-      cropH = srcH;
-      cropW = Math.round(srcH * targetRatio);
-      cropX = Math.round((srcW - cropW) / 2);
-      cropY = 0;
-    } else {
-      // Hoeher als Ziel - oben/unten beschneiden
-      cropW = srcW;
-      cropH = Math.round(srcW / targetRatio);
-      cropX = 0;
-      cropY = Math.round((srcH - cropH) / 3); // leicht oben - Himmel behalten
-    }
-    var cv = document.createElement("canvas");
-    var maxW = fmt==="9:16" ? 540 : 600;
-    var scale = Math.min(1, maxW / cropW);
-    cv.width  = Math.round(cropW * scale);
-    cv.height = Math.round(cropH * scale);
-    var ctx = cv.getContext("2d");
-    ctx.drawImage(img, cropX, cropY, cropW, cropH, 0, 0, cv.width, cv.height);
-    callback(cv.toDataURL("image/jpeg", 0.88));
-  };
-  img.src = imgSrc;
-}
-
-// == ADMIN FOTO UPLOAD ==
-var pcAdminImg = null;
-
-function handlePcDrop(e) {
-  e.preventDefault();
-  var file = e.dataTransfer.files[0];
-  if(file && file.type.startsWith("image/")) loadPcPhotoFile(file);
-}
-function loadPcPhoto(input) {
-  if(input.files && input.files[0]) loadPcPhotoFile(input.files[0]);
-}
-function loadPcPhotoFile(file) {
-  var reader = new FileReader();
-  reader.onload = function(e) {
-    var raw = e.target.result;
-    cropToFormat(raw, uploadFormat, function(cropped) {
-      pcAdminImg = cropped;
-      var prev = document.getElementById("pc_upload_preview");
-      if(prev) prev.innerHTML = "<img src='" + cropped + "' style='max-width:100%;max-height:160px;border-radius:8px'>" +
-        "<div style='font-size:.72rem;color:var(--gold);margin-top:4px;text-align:center'>Format: " + uploadFormat + "</div>";
-      var dims = formatDims[uploadFormat] || {w:600,h:800};
-      var cv2 = document.getElementById("pc_admin_preview");
-      if(cv2) { cv2.width=dims.w; cv2.height=dims.h; cv2.style.display="block"; }
-      document.getElementById("pc_save_btn").style.display = "block";
-      updatePcPreview();
-    });
-  };
-  reader.readAsDataURL(file);
-}
-function updatePcPreview() {
-  if(!pcAdminImg) return;
-  var cv = document.getElementById("pc_admin_preview");
-  var ctx = cv.getContext("2d");
-  var W = cv.width, H = cv.height;
-  var img = new Image();
-  img.onload = function() {
-    ctx.clearRect(0,0,W,H);
-    ctx.drawImage(img, 0, 0, W, H);
-    var colorMap = {white:"rgba(255,255,255,0.95)", gold:"#FFD23F", dark:"rgba(20,20,20,0.9)"};
-    var posSel = document.getElementById("pc_text_pos");
-    var colSel = document.getElementById("pc_text_color");
-    var pos = posSel ? posSel.value : "water";
-    var col = colorMap[colSel ? colSel.value : "white"] || "rgba(255,255,255,0.95)";
-    var cy, cr;
-    if(pos==="sky")    { cy=H*0.05; cr=W*0.85; }
-    else if(pos==="middle") { cy=H*0.35; cr=W*0.92; }
-    else               { cy=H*0.68; cr=W*0.88; }
-    drawCurvedText(ctx, "Herzliche Gruesse von der Insel Burano", W/2, cy+cr, cr, col, Math.round(W/28));
-    drawNameLine(ctx, W, H, H*0.88, "rgba(255,255,255,0.5)");
-    ctx.font="10px sans-serif"; ctx.fillStyle="rgba(255,255,255,.5)"; ctx.textAlign="center";
-    ctx.fillText("my-burano.com - Terra Nova 112", W/2, H-6);
-  };
-  img.src = pcAdminImg;
-}
-function savePcPhoto() {
-  if(!pcAdminImg) return;
-  var cv = document.createElement("canvas");
-  cv.width=600; cv.height=800;
-  var ctx = cv.getContext("2d");
-  var img = new Image();
-  img.onload = function() {
-    ctx.drawImage(img, 0, 0, 700, 490);
-    var compressed = cv.toDataURL("image/jpeg", 0.82);
-    try {
-      localStorage.setItem("bl_pc_custom_photo", compressed);
-      var posSel = document.getElementById("pc_text_pos");
-      var colSel = document.getElementById("pc_text_color");
-      if(posSel) localStorage.setItem("bl_pc_text_pos", posSel.value);
-      if(colSel) localStorage.setItem("bl_pc_text_col", colSel.value);
-      alert("Foto + Einstellungen gespeichert!");
-      renderPC();
-    } catch(e) {
-      alert("Foto zu gross! Bitte JPG unter 800KB verwenden.");
-    }
-  };
-  img.src = pcAdminImg;
-}
-
-// == GALERIE REIHENFOLGE ADMIN ==
-function renderGalleryOrderAdmin() {
-  var el = document.getElementById("gallery_order_list");
-  if(!el) return;
-  el.innerHTML = galleryOrder.map(function(k, i) {
-    var def = GDEFS.find(function(d){return d.k===k;});
-    if(!def) return "";
-    return "<div style='display:flex;align-items:center;gap:8px;padding:6px 4px;border-bottom:1px solid rgba(255,255,255,.06)'>" +
-      "<span style='flex:1;font-size:.85rem'>" + (i+1) + ". " + def.l + "</span>" +
-      "<button onclick='moveGalleryItem(" + i + ",-1)' style='background:rgba(255,255,255,.1);border:none;border-radius:6px;padding:4px 10px;color:#fff;cursor:pointer;font-size:.9rem' " + (i===0?"disabled":"") + ">&#8593;</button>" +
-      "<button onclick='moveGalleryItem(" + i + ",1)' style='background:rgba(255,255,255,.1);border:none;border-radius:6px;padding:4px 10px;color:#fff;cursor:pointer;font-size:.9rem' " + (i===galleryOrder.length-1?"disabled":"") + ">&#8595;</button>" +
-      "</div>";
-  }).join("");
-}
-
-function moveGalleryItem(idx, dir) {
-  var newIdx = idx + dir;
-  if(newIdx < 0 || newIdx >= galleryOrder.length) return;
-  var tmp = galleryOrder[idx];
-  galleryOrder[idx] = galleryOrder[newIdx];
-  galleryOrder[newIdx] = tmp;
-  localStorage.setItem("bl_gallery_order", JSON.stringify(galleryOrder));
-  renderGalleryOrderAdmin();
-  renderGallery();
-  // Auch Postkarten-Select updaten
-  updatePostcardSelect();
-}
-
-function updatePostcardSelect() {
-  var sel = document.getElementById("pcphoto");
-  if(!sel) return;
-  var current = sel.value;
-  sel.innerHTML = galleryOrder.map(function(k, i) {
-    var def = GDEFS.find(function(d){return d.k===k;});
-    if(!def) return "";
-    return "<option value='" + k + "'" + (k===current?" selected":"") + ">" + (i+1) + ". " + def.l + "</option>";
-  }).join("");
-}
-
-function resetGalleryOrder() {
-  galleryOrder = GDEFS.map(function(d){return d.k;});
-  localStorage.setItem("bl_gallery_order", JSON.stringify(galleryOrder));
-  renderGalleryOrderAdmin();
-  renderGallery();
-  updatePostcardSelect();
-  alert("Reihenfolge zurueckgesetzt!");
-}
-
-function speakHistory() {
-  var btn = document.getElementById("hist_speak_btn");
-  if(window.speechSynthesis && window.speechSynthesis.speaking) {
-    stopSpeak();
-    if(btn) btn.innerHTML = "&#9654; Geschichte vorlesen";
-    return;
-  }
-  var histEl = document.getElementById("t_hist_body");
-  var text = histEl ? histEl.textContent : "";
-  if(btn) btn.innerHTML = "&#9209; Stopp";
-  speak(text, function(){
-    if(btn) btn.innerHTML = "&#9654; Geschichte vorlesen";
-    // Danach Chat öffnen und Frage stellen
-    setTimeout(function(){
-      openChat();
-    }, 800);
-  });
-}
-
-function buyPostcard(count) {
+function buyAndDownload() {
   var testmode = localStorage.getItem("bl_testmode")==="1";
-  if(count===1){ if(!testmode) ppGo("1 Burano Postkarte", 0.99); }
-  else if(count===10){ if(!testmode) ppGo("10 Burano Postkarten", 4.99); }
-  else{ if(!testmode) ppGo("Weitere Burano Postkarte", 0.45); }
+  if (!testmode) {
+    ppGo("1 Burano Postkarte ohne Wasserzeichen", 0.99);
+  }
+  // OHNE Wasserzeichen rendern und downloaden
+  renderPC(false); // false = kein Wasserzeichen
+  setTimeout(function() {
+    var cv = document.getElementById("pcanv");
+    if (!cv) return;
+    cv.toBlob(function(blob) {
+      var url = URL.createObjectURL(blob);
+      var a = document.createElement("a");
+      a.href = url;
+      a.download = "Burano-Postkarte-" + new Date().toISOString().slice(0,10) + ".jpg";
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      setTimeout(function() {
+        URL.revokeObjectURL(url);
+        renderPC(true); // danach wieder MIT Wasserzeichen anzeigen
+      }, 2000);
+    }, "image/jpeg", 0.93);
+  }, 800);
 }
 
-function previewAndDownload() {
-  var testmode = localStorage.getItem("bl_testmode")==="1";
-  if(!testmode) ppGo("1 Burano Postkarte", 0.99);
-  else alert("TEST-MODUS aktiv - Download ohne Bezahlung.");
+function shareWhatsApp() {
+  // Canvas als Blob -> Data URL -> WhatsApp
   var cv = document.getElementById("pcanv");
-  // Blob-Methode: echte JPG-Datei, kein data-URI
+  if (!cv) return;
   cv.toBlob(function(blob) {
     var url = URL.createObjectURL(blob);
-    var a = document.createElement("a");
-    a.href = url;
-    a.download = "Burano-Postkarte-" + new Date().toISOString().slice(0,10) + ".jpg";
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    setTimeout(function(){ URL.revokeObjectURL(url); }, 3000);
-  }, "image/jpeg", 0.92);
+    // WhatsApp kann keine direkte Datei nehmen - Link teilen
+    var text = encodeURIComponent("Meine Burano-Postkarte: " + window.location.href);
+    // Auf Mobile: native share API
+    if (navigator.share) {
+      cv.toBlob(function(b) {
+        var file = new File([b], "burano-postkarte.jpg", {type:"image/jpeg"});
+        navigator.share({
+          title: "Burano Postkarte",
+          text: "Herzliche Gruesse von der Insel Burano!",
+          files: [file]
+        }).catch(function() {
+          window.open("https://wa.me/?text=" + text, "_blank");
+        });
+      }, "image/jpeg", 0.9);
+    } else {
+      // Desktop: WhatsApp Web mit Text
+      window.open("https://wa.me/?text=" + text, "_blank");
+    }
+    URL.revokeObjectURL(url);
+  }, "image/jpeg", 0.9);
 }
 
-function dlPC() {
-  previewAndDownload();
+function shareEmail() {
   var cv = document.getElementById("pcanv");
-  var a = document.createElement("a");
-  a.href = cv.toDataURL("image/jpeg", 0.92);
-  a.download = "burano-postkarte-" + Date.now() + ".jpg";
-  a.click();
+  if (!cv) return;
+  // Canvas als Data URL fuer Email-Anhang
+  var dataUrl = cv.toDataURL("image/jpeg", 0.88);
+  // Auf Mobile: native share
+  if (navigator.share) {
+    cv.toBlob(function(b) {
+      var file = new File([b], "burano-postkarte.jpg", {type:"image/jpeg"});
+      navigator.share({
+        title: "Burano Postkarte",
+        text: getSelectedGreeting() + "\n\nshop.myburano.com",
+        files: [file]
+      }).catch(function() {
+        var subject = encodeURIComponent("Herzliche Gruesse von der Insel Burano!");
+        var body    = encodeURIComponent(getSelectedGreeting() + "\n\nshop.myburano.com - Terra Nova 112");
+        window.location.href = "mailto:?subject=" + subject + "&body=" + body;
+      });
+    }, "image/jpeg", 0.88);
+  } else {
+    var subject = encodeURIComponent("Herzliche Gruesse von der Insel Burano!");
+    var body    = encodeURIComponent(getSelectedGreeting() + "\n\nshop.myburano.com - Terra Nova 112");
+    window.location.href = "mailto:?subject=" + subject + "&body=" + body;
+  }
 }
+
+
+// ersetzt durch buyAndDownload
 
 // PARTNERS
 function renderPart() {
@@ -2539,6 +2136,7 @@ window.addEventListener("load", function() {
   genQR();
   setTimeout(renderPC, 300);
 });
+
 
 </script>
 </body>

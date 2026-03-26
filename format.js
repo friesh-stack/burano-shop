@@ -262,3 +262,110 @@ window.addEventListener("load", function() {
     renderAdminPhotoList();
   }, 500);
 });
+
+// ═══════════════════════════════════════════════════
+// FOTO-AUSWAHL fuer Postkarten-Generator
+// ═══════════════════════════════════════════════════
+
+function buildPcThumbs() {
+  var row = document.getElementById("pc_thumb_row");
+  if (!row) return;
+  row.innerHTML = "";
+
+  var allItems = [];
+
+  // Standard-Fotos (photos.js) - Format 4:3
+  if (typeof PHOTOS !== "undefined" && typeof GDEFS !== "undefined") {
+    GDEFS.forEach(function(d) {
+      allItems.push({src: PHOTOS[d.k] || "", lbl: d.l, fmt: "4:3"});
+    });
+  }
+
+  // Eigene hochgeladene Fotos aller Formate
+  Object.keys(FMTS).forEach(function(fmt) {
+    var arr = getFmtPhotos(fmt);
+    arr.forEach(function(src, i) {
+      allItems.push({src: src, lbl: "Foto " + (i+1) + " (" + fmt + ")", fmt: fmt});
+    });
+  });
+
+  if (!allItems.length) {
+    row.innerHTML = "<p style='opacity:.4;font-size:.82rem'>Noch keine Fotos vorhanden. Bitte im Admin hochladen.</p>";
+    return;
+  }
+
+  allItems.forEach(function(item, idx) {
+    var div = document.createElement("div");
+    div.style.cssText = "position:relative;cursor:pointer;border-radius:8px;overflow:hidden;border:3px solid transparent;transition:border-color .2s;flex-shrink:0";
+    var img = document.createElement("img");
+    img.src = item.src;
+    img.loading = "lazy";
+    img.title = item.lbl;
+
+    // Groesse je nach Format
+    var dims = {
+      "4:3":  "width:80px;height:60px",
+      "16:9": "width:107px;height:60px",
+      "3:4":  "width:45px;height:60px",
+      "9:16": "width:34px;height:60px"
+    };
+    img.style.cssText = (dims[item.fmt] || "width:80px;height:60px") + ";object-fit:cover;display:block";
+
+    div.appendChild(img);
+
+    // Klick: Foto auswaehlen
+    div.onclick = (function(s, d) {
+      return function() {
+        // Alle deselektieren
+        document.querySelectorAll("#pc_thumb_row > div").forEach(function(el) {
+          el.style.borderColor = "transparent";
+        });
+        // Dieses auswaehlen
+        d.style.borderColor = "var(--gold)";
+        // Foto setzen und Canvas aktualisieren
+        window.pcSelectedPhoto = s;
+        // Canvas-Groesse auf Format anpassen
+        var fmtCfg = FMTS[item.fmt];
+        if (fmtCfg) {
+          var cv = document.getElementById("pcanv");
+          if (cv) { cv.width = fmtCfg.w; cv.height = fmtCfg.h; }
+        }
+        // Postkarte rendern (mit Wasserzeichen)
+        if (typeof renderPC === "function") renderPC(true);
+        // Zum Generator scrollen
+        document.getElementById("postcard").scrollIntoView({behavior:"smooth"});
+      };
+    })(item.src, div);
+
+    row.appendChild(div);
+
+    // Erstes Foto automatisch auswaehlen
+    if (idx === 0 && !window.pcSelectedPhoto) {
+      div.style.borderColor = "var(--gold)";
+      window.pcSelectedPhoto = item.src;
+      var fmtCfg0 = FMTS[item.fmt];
+      if (fmtCfg0) {
+        var cv0 = document.getElementById("pcanv");
+        if (cv0) { cv0.width = fmtCfg0.w; cv0.height = fmtCfg0.h; }
+      }
+    }
+  });
+}
+
+// Thumbnails aufbauen sobald Seite geladen
+window.addEventListener("load", function() {
+  setTimeout(function() {
+    buildPcThumbs();
+    // Erstes Foto rendern
+    if (window.pcSelectedPhoto && typeof renderPC === "function") {
+      renderPC(true);
+    }
+  }, 600);
+});
+
+// renderFmtGallery erweitern: nach Galerie-Update auch Thumbs neu
+var _origRenderFmtGallery = renderFmtGallery;
+renderFmtGallery = function() {
+  _origRenderFmtGallery();
+  buildPcThumbs();
+};
