@@ -180,11 +180,12 @@ function renderPC(withWatermark){
   var src=window.pcSelectedPhoto||"";
   if(!src){
     ctx.fillStyle="#0D2B5E";ctx.fillRect(0,0,W,H);
-    ctx.fillStyle="rgba(255,255,255,.35)";ctx.font="16px Nunito,sans-serif";ctx.textAlign="center";
+    ctx.fillStyle="rgba(255,255,255,.35)";ctx.font="16px sans-serif";ctx.textAlign="center";
     ctx.fillText("Bitte ein Foto auswaehlen",W/2,H/2);return;
   }
   var img=new Image();
   img.onload=function(){
+    // Foto
     ctx.drawImage(img,0,0,W,H);
     // Vignette
     var vg=ctx.createRadialGradient(W/2,H/2,H*.2,W/2,H/2,H*.9);
@@ -192,56 +193,45 @@ function renderPC(withWatermark){
     ctx.fillStyle=vg;ctx.fillRect(0,0,W,H);
     // Rahmen
     ctx.strokeStyle="rgba(255,255,255,.8)";ctx.lineWidth=8;ctx.strokeRect(4,4,W-8,H-8);
-    // Stempel (kein Briefmarke)
+    // Poststempel
     drawPostmark(ctx,W,H);
-    // Text-Position
+    // Gruss-Text Position
     var pos=localStorage.getItem("bl_pc_pos")||"water";
     var textY=pos==="sky"?H*.15:pos==="middle"?H*.45:H*.72;
-    // Gruss-Text geschwungen
+    // Gruss geschwungen in Schreibschrift
     var greet=getSelectedGreeting();
     drawCurvedGreeting(ctx,greet,W,H,textY);
     // Namens-Linie
     var lineY=Math.min(textY+H*.13,H*.9);
     drawDashedLine(ctx,W,lineY);
-    var name=(document.getElementById("pc_customer_name")||{}).value||"";
-    if(name.trim()){
-      ctx.save();ctx.font="italic "+Math.round(W/30)+"px 'Brush Script MT',cursive,sans-serif";
+    var name=((document.getElementById("pc_customer_name")||{}).value||"").trim();
+    if(name){
+      ctx.save();
+      ctx.font="italic "+Math.round(W/30)+"px 'Brush Script MT',cursive";
       ctx.fillStyle="rgba(255,255,255,.92)";ctx.textAlign="center";
-      ctx.shadowColor="rgba(0,0,0,.7)";ctx.shadowBlur=6;
-      ctx.fillText(name.trim(),W/2,lineY+20);ctx.restore();
+      ctx.shadowColor="rgba(0,0,0,.8)";ctx.shadowBlur=8;
+      ctx.fillText(name,W/2,lineY+20);ctx.restore();
     }
     // Footer
-    ctx.font="bold 10px sans-serif";ctx.fillStyle="rgba(255,255,255,.55)";
+    ctx.font="bold 10px sans-serif";ctx.fillStyle="rgba(255,255,255,.5)";
     ctx.textAlign="center";ctx.shadowBlur=0;
     ctx.fillText("my-burano.com - Terra Nova 112",W/2,H-7);
-    // WASSERZEICHEN - sehr stark
+    // WASSERZEICHEN: nur shop.myburano.com in gold, mehrfach diagonal
     if(withWatermark){
       ctx.save();
-      // Halbtransparenter dunkler Schleier
-      ctx.fillStyle="rgba(0,0,0,0.25)";ctx.fillRect(0,0,W,H);
       ctx.textAlign="center";ctx.textBaseline="middle";
-      // Grosse diagonale VORSCHAU-Texte (sehr sichtbar)
-      ctx.font="bold "+Math.round(W/5.5)+"px Arial,sans-serif";
-      ctx.fillStyle="rgba(255,255,255,0.65)";
-      ctx.strokeStyle="rgba(0,0,0,0.4)";ctx.lineWidth=3;
-      var rows=[[W*.25,H*.2],[W*.7,H*.45],[W*.25,H*.7],[W*.75,H*.8],[W*.5,H*.35]];
-      rows.forEach(function(p){
-        ctx.save();ctx.translate(p[0],p[1]);ctx.rotate(-Math.PI/5);
-        ctx.strokeText("VORSCHAU",0,0);ctx.fillText("VORSCHAU",0,0);
-        ctx.restore();
-      });
-      // URL mittelgross
       ctx.font="bold "+Math.round(W/13)+"px Arial,sans-serif";
-      ctx.fillStyle="rgba(255,210,63,0.75)";ctx.strokeStyle="rgba(0,0,0,0.5)";ctx.lineWidth=2;
-      [[W*.5,H*.1],[W*.3,H*.55],[W*.65,H*.9]].forEach(function(p){
-        ctx.save();ctx.translate(p[0],p[1]);ctx.rotate(-Math.PI/8);
-        ctx.strokeText("shop.myburano.com",0,0);ctx.fillText("shop.myburano.com",0,0);
+      ctx.shadowColor="rgba(0,0,0,0.8)";ctx.shadowBlur=10;
+      ctx.fillStyle="rgba(255,210,63,0.85)";
+      ctx.strokeStyle="rgba(0,0,0,0.55)";ctx.lineWidth=2;
+      // 6 diagonale Positionen
+      var wp=[[W*.25,H*.18],[W*.72,H*.32],[W*.18,H*.52],[W*.75,H*.62],[W*.35,H*.82],[W*.68,H*.88]];
+      wp.forEach(function(p){
+        ctx.save();ctx.translate(p[0],p[1]);ctx.rotate(-Math.PI/7);
+        ctx.strokeText("shop.myburano.com",0,0);
+        ctx.fillText("shop.myburano.com",0,0);
         ctx.restore();
       });
-      // Kreuz-Diagonalen
-      ctx.globalAlpha=0.2;ctx.strokeStyle="#fff";ctx.lineWidth=Math.round(W/30);ctx.setLineDash([]);
-      ctx.beginPath();ctx.moveTo(0,0);ctx.lineTo(W,H);ctx.stroke();
-      ctx.beginPath();ctx.moveTo(W,0);ctx.lineTo(0,H);ctx.stroke();
       ctx.restore();
     }
   };
@@ -278,26 +268,22 @@ function drawPostmark(ctx,W,H){
 
 function drawCurvedGreeting(ctx,text,W,H,centerY){
   ctx.save();
-  // Schreibschrift-Font mit Fallbacks
-  var fs=Math.max(18,Math.round(W/22));
-  ctx.font="italic bold "+fs+"px 'Brush Script MT','Dancing Script','Segoe Script',cursive";
+  // Schreibschrift - mehrere Fallbacks fuer alle Geraete
+  var fs=Math.max(18,Math.round(W/21));
+  ctx.font="italic bold "+fs+"px 'Brush Script MT','Segoe Script','Comic Sans MS',cursive";
   ctx.fillStyle="rgba(255,255,255,0.98)";
   ctx.shadowColor="rgba(0,0,0,0.95)";
-  ctx.shadowBlur=14;
-  ctx.shadowOffsetX=1;ctx.shadowOffsetY=2;
-  ctx.textAlign="center";
+  ctx.shadowBlur=12;ctx.shadowOffsetX=1;ctx.shadowOffsetY=2;
   ctx.textBaseline="alphabetic";
-  // Bogen-Radius: kleiner = staerker gebogen
-  var radius=W*0.95;
-  // Zeichenmasse ermitteln
+  // Stark gebogener Bogen (kleiner Radius = staerkere Kruemmung)
+  var radius=W*0.85;
   var chars=text.split("");
   var widths=chars.map(function(c){return ctx.measureText(c).width;});
   var totalW=widths.reduce(function(a,b){return a+b;},0);
-  // Startwinkel so dass Text mittig sitzt
-  var totalArc=totalW/radius;
-  var angle=-Math.PI/2-totalArc/2;
-  // Bogenmittelpunkt unter dem centerY
+  // Bogenmitte unter centerY
+  var startAngle=-Math.PI/2-totalW/(2*radius);
   var x0=W/2, y0=centerY+radius;
+  var angle=startAngle;
   chars.forEach(function(ch,i){
     var cw=widths[i];
     var a=angle+cw/(2*radius);
