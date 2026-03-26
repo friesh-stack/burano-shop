@@ -274,8 +274,20 @@ footer strong{color:var(--gold);}
 <div class="sec rev">
   <h2 class="stit">&#127752; <span id="t_gal_title">Unsere Burano-Aufnahmen</span></h2>
   <p class="ssub" id="t_gal_sub">Aufgenommen direkt vor Ort - Terra Nova 112</p>
-  <div class="ggrid" id="ggrid">
-    <p style="opacity:.4;padding:20px" id="t_loading">Fotos werden geladen...</p>
+  <!-- 4:3 Querformat -->
+  <div id="sec_43" style="margin-bottom:32px">
+    <h3 style="font-family:Pacifico,cursive;font-size:1.2rem;color:var(--teal);margin-bottom:6px">&#127774; Querformat 4:3</h3>
+    <div class="ggrid" id="ggrid_43"></div>
+  </div>
+  <!-- 3:4 Hochformat -->
+  <div id="sec_34" style="margin-bottom:32px">
+    <h3 style="font-family:Pacifico,cursive;font-size:1.2rem;color:var(--gold);margin-bottom:6px">&#128247; Hochformat 3:4</h3>
+    <div class="ggrid" id="ggrid_34"></div>
+  </div>
+  <!-- 9:16 Stories/Video -->
+  <div id="sec_916">
+    <h3 style="font-family:Pacifico,cursive;font-size:1.2rem;color:var(--pink);margin-bottom:6px">&#127909; Stories &amp; Videos 9:16</h3>
+    <div class="ggrid" id="ggrid_916"></div>
   </div>
 </div></div>
 
@@ -287,14 +299,20 @@ footer strong{color:var(--gold);}
   <div class="pcc">
     <div class="pcprev"><canvas id="pcanv" width="600" height="800"></canvas></div>
     <div class="pcctrl">
-      <select class="pcsel" id="pcphoto" onchange="renderPC()">
-        <option value="canal_wide">Kanal - Alle Farben</option>
-        <option value="canal_winter">Winter-Stimmung</option>
-        <option value="canal_lagoon">Zur Lagune</option>
-        <option value="canal_sunset">Sonnenuntergang</option>
-        <option value="piazza">Piazza Galuppi</option>
-        <option value="canal_morning">Morgenkanal</option>
+      <select class="pcsel" id="pc_fmt_sel" onchange="switchPcFormat(this.value)" style="margin-bottom:8px">
+        <option value="4:3">4:3 Querformat</option>
+        <option value="3:4" selected>3:4 Hochformat</option>
+        <option value="9:16">9:16 Stories</option>
       </select>
+      <select class="pcsel" id="pcphoto" onchange="renderPC()">
+        <option value="canal_wide">1. Kanal - Alle Farben</option>
+        <option value="canal_winter">2. Winter-Stimmung</option>
+        <option value="canal_lagoon">3. Zur Lagune</option>
+        <option value="canal_sunset">4. Sonnenuntergang</option>
+        <option value="piazza">5. Piazza Galuppi</option>
+        <option value="canal_morning">6. Morgenkanal</option>
+      </select>
+      <div style="margin-top:6px;font-size:.72rem;opacity:.45;text-align:center">Reihenfolge im Admin anpassbar</div>
       <select class="pcsel" id="pclang" onchange="renderPC()">
         <option value="de">Deutsch</option>
         <option value="en">English</option>
@@ -595,8 +613,17 @@ footer strong{color:var(--gold);}
         </div>
       </div>
       <canvas id="pc_admin_preview" width="600" height="800" style="width:100%;border-radius:10px;display:none;margin-bottom:8px"></canvas>
-      <button class="abtn" onclick="savePcPhoto()" id="pc_save_btn" style="display:none">✅ Als Postkarten-Hintergrundbild speichern</button>
+      <button class="abtn" onclick="savePcPhoto()" id="pc_save_btn" style="display:none">Foto speichern</button>
+      <div style="margin-top:14px"><h4 style="color:var(--teal);font-size:.75rem;font-weight:900;letter-spacing:1px;text-transform:uppercase;margin-bottom:8px">Gespeicherte Fotos</h4><div id="admin_photo_list" style="background:rgba(255,255,255,.04);border-radius:10px;padding:10px;min-height:40px"></div></div>
     </div>
+    <!-- GALERIE REIHENFOLGE -->
+    <div class="asec">
+      <h4>Foto-Reihenfolge in der Galerie</h4>
+      <p style="font-size:.78rem;opacity:.55;margin-bottom:10px">Pfeile nutzen um Reihenfolge zu aendern. Wird auf der Seite sofort uebernommen.</p>
+      <div id="gallery_order_list" style="background:rgba(255,255,255,.04);border-radius:10px;padding:8px"></div>
+      <button class="abtn" onclick="resetGalleryOrder()" style="margin-top:8px;background:rgba(255,255,255,.1);color:#fff">Reihenfolge zuruecksetzen</button>
+    </div>
+
     <!-- VIDEO UPLOAD -->
     <div class="asec">
       <h4>Video-Clips verwalten</h4>
@@ -1258,8 +1285,19 @@ function renderPC() {
     };
     si.src = POSTCARDS[pk] || PHOTOS[pk] || "";
   };
-  var adminPhoto = localStorage.getItem("bl_pc_custom_photo");
-  img.src = adminPhoto || (POSTCARDS && POSTCARDS[pk]) || "";
+  // Format-spezifisches Foto laden
+  // Foto-Quelle: eigenes (cust_X) oder Standard (std_key)
+  var photoPk = pk || "";
+  var imgSrc = "";
+  if(photoPk.indexOf("cust_") === 0) {
+    var custIdx2 = parseInt(photoPk.replace("cust_",""));
+    var custArr = getFormatPhotos(previewFmt);
+    imgSrc = custArr[custIdx2] || "";
+  } else {
+    var stdKey = photoPk.replace("std_","");
+    imgSrc = (POSTCARDS && POSTCARDS[stdKey]) || localStorage.getItem("bl_pc_custom_photo") || "";
+  }
+  img.src = imgSrc || (POSTCARDS && POSTCARDS[pk]) || "";
 }
 
 var GREETINGS = {
@@ -1332,10 +1370,112 @@ function updateGreetingSelect() {
   sel.selectedIndex = current;
 }
 
+function switchPcFormat(fmt) {
+  previewFmt = fmt;
+  uploadFormat = fmt;
+  var dims = formatDims[fmt] || {w:600,h:800};
+  var cv = document.getElementById("pcanv");
+  if(cv) { cv.width=dims.w; cv.height=dims.h; }
+  // Foto-Auswahl für dieses Format befüllen
+  var arr = getFormatPhotos(fmt);
+  var sel = document.getElementById("pcphoto");
+  if(sel && arr.length) {
+    // Eigene Fotos + Standard-Fotos
+    var stdOpts = typeof GDEFS !== "undefined" && fmt==="4:3" ?
+      GDEFS.map(function(d,i){return "<option value='std_"+d.k+"'>"+(i+1)+". "+d.l+"</option>";}).join("") : "";
+    var custOpts = arr.map(function(_,i){return "<option value='cust_"+i+"'>Eigenes Foto "+(i+1)+"</option>";}).join("");
+    sel.innerHTML = stdOpts + custOpts;
+  } else if(sel) {
+    var stdOpts2 = typeof GDEFS !== "undefined" ?
+      GDEFS.map(function(d,i){return "<option value='std_"+d.k+"'>"+(i+1)+". "+d.l+"</option>";}).join("") : "";
+    sel.innerHTML = stdOpts2 || "<option>Keine Fotos in diesem Format</option>";
+  }
+  renderPC();
+}
+
 function getSelectedGreeting() {
   var sel = document.getElementById("pcgreeting");
   var greets = GREETINGS[curLang] || GREETINGS.de;
   return sel ? greets[sel.selectedIndex] || greets[0] : greets[0];
+}
+
+// == FOTO FORMAT ==
+var currentFormat = "3:4";
+var formatRatios = {"3:4":{w:3,h:4}, "9:16":{w:9,h:16}};
+
+// Alle gespeicherten Formate
+var allFormatPhotos = {};
+var previewFmt = "3:4";
+
+function previewFormat(fmt) {
+  previewFmt = fmt;
+  // Buttons updaten
+  ["4:3","3:4","9:16"].forEach(function(f) {
+    var id = "fmt_" + f.replace(":","");
+    var btn = document.getElementById(id);
+    if(!btn) return;
+    if(f === fmt) {
+      btn.style.background = "var(--gold)";
+      btn.style.color = "var(--bd)";
+      btn.style.borderColor = "var(--gold)";
+    } else {
+      btn.style.background = "rgba(255,255,255,.08)";
+      btn.style.color = "#fff";
+      btn.style.borderColor = "rgba(255,255,255,.2)";
+    }
+  });
+  var labels = {"4:3":"Vorschau: 4:3 Querformat","3:4":"Vorschau: 3:4 Hochformat","9:16":"Vorschau: 9:16 Stories"};
+  var el = document.getElementById("format_info");
+  if(el) el.textContent = labels[fmt] || "";
+  // Canvas-Groesse anpassen
+  var dims = {"4:3":{w:720,h:540},"3:4":{w:600,h:800},"9:16":{w:540,h:960}};
+  var d = dims[fmt] || dims["3:4"];
+  var cv1 = document.getElementById("pcanv");
+  var cv2 = document.getElementById("pc_admin_preview");
+  if(cv1) { cv1.width=d.w; cv1.height=d.h; }
+  if(cv2) { cv2.width=d.w; cv2.height=d.h; }
+  // Vorschau mit gespeichertem Format-Bild
+  if(allFormatPhotos[fmt]) {
+    pcAdminImg = allFormatPhotos[fmt];
+  }
+  if(pcAdminImg) updatePcPreview();
+  renderPC();
+}
+
+function setPhotoFormat(fmt) { previewFormat(fmt); }
+
+function cropToFormat(imgSrc, fmt, callback) {
+  var allRatios = {"4:3":{w:4,h:3},"3:4":{w:3,h:4},"9:16":{w:9,h:16}};
+  var ratio = allRatios[fmt] || formatRatios[fmt] || {w:3,h:4};
+  var img = new Image();
+  img.onload = function() {
+    var srcW = img.width, srcH = img.height;
+    var targetRatio = ratio.w / ratio.h;
+    var srcRatio = srcW / srcH;
+    var cropW, cropH, cropX, cropY;
+    if(srcRatio > targetRatio) {
+      // Breiter als Ziel - seitlich beschneiden
+      cropH = srcH;
+      cropW = Math.round(srcH * targetRatio);
+      cropX = Math.round((srcW - cropW) / 2);
+      cropY = 0;
+    } else {
+      // Hoeher als Ziel - oben/unten beschneiden
+      cropW = srcW;
+      cropH = Math.round(srcW / targetRatio);
+      cropX = 0;
+      cropY = Math.round((srcH - cropH) / 3); // leicht oben - Himmel behalten
+    }
+    var cv = document.createElement("canvas");
+    var maxW = fmt==="9:16" ? 540 : 600;
+    var scale = Math.min(1, maxW / cropW);
+    cv.width  = Math.round(cropW * scale);
+    cv.height = Math.round(cropH * scale);
+    var ctx = cv.getContext("2d");
+    ctx.drawImage(img, cropX, cropY, cropW, cropH, 0, 0, cv.width, cv.height);
+    callback(cv.toDataURL("image/jpeg", 0.88));
+  };
+  img.src = imgSrc;
 }
 
 // == ADMIN FOTO UPLOAD ==
@@ -1415,6 +1555,85 @@ function savePcPhoto() {
   img.src = pcAdminImg;
 }
 
+// == FOTO FORMAT ==
+var currentFormat = "3:4";
+var formatRatios = {"3:4":{w:3,h:4}, "9:16":{w:9,h:16}};
+
+// Alle gespeicherten Formate
+var allFormatPhotos = {};
+var previewFmt = "3:4";
+
+function previewFormat(fmt) {
+  previewFmt = fmt;
+  // Buttons updaten
+  ["4:3","3:4","9:16"].forEach(function(f) {
+    var id = "fmt_" + f.replace(":","");
+    var btn = document.getElementById(id);
+    if(!btn) return;
+    if(f === fmt) {
+      btn.style.background = "var(--gold)";
+      btn.style.color = "var(--bd)";
+      btn.style.borderColor = "var(--gold)";
+    } else {
+      btn.style.background = "rgba(255,255,255,.08)";
+      btn.style.color = "#fff";
+      btn.style.borderColor = "rgba(255,255,255,.2)";
+    }
+  });
+  var labels = {"4:3":"Vorschau: 4:3 Querformat","3:4":"Vorschau: 3:4 Hochformat","9:16":"Vorschau: 9:16 Stories"};
+  var el = document.getElementById("format_info");
+  if(el) el.textContent = labels[fmt] || "";
+  // Canvas-Groesse anpassen
+  var dims = {"4:3":{w:720,h:540},"3:4":{w:600,h:800},"9:16":{w:540,h:960}};
+  var d = dims[fmt] || dims["3:4"];
+  var cv1 = document.getElementById("pcanv");
+  var cv2 = document.getElementById("pc_admin_preview");
+  if(cv1) { cv1.width=d.w; cv1.height=d.h; }
+  if(cv2) { cv2.width=d.w; cv2.height=d.h; }
+  // Vorschau mit gespeichertem Format-Bild
+  if(allFormatPhotos[fmt]) {
+    pcAdminImg = allFormatPhotos[fmt];
+  }
+  if(pcAdminImg) updatePcPreview();
+  renderPC();
+}
+
+function setPhotoFormat(fmt) { previewFormat(fmt); }
+
+function cropToFormat(imgSrc, fmt, callback) {
+  var allRatios = {"4:3":{w:4,h:3},"3:4":{w:3,h:4},"9:16":{w:9,h:16}};
+  var ratio = allRatios[fmt] || formatRatios[fmt] || {w:3,h:4};
+  var img = new Image();
+  img.onload = function() {
+    var srcW = img.width, srcH = img.height;
+    var targetRatio = ratio.w / ratio.h;
+    var srcRatio = srcW / srcH;
+    var cropW, cropH, cropX, cropY;
+    if(srcRatio > targetRatio) {
+      // Breiter als Ziel - seitlich beschneiden
+      cropH = srcH;
+      cropW = Math.round(srcH * targetRatio);
+      cropX = Math.round((srcW - cropW) / 2);
+      cropY = 0;
+    } else {
+      // Hoeher als Ziel - oben/unten beschneiden
+      cropW = srcW;
+      cropH = Math.round(srcW / targetRatio);
+      cropX = 0;
+      cropY = Math.round((srcH - cropH) / 3); // leicht oben - Himmel behalten
+    }
+    var cv = document.createElement("canvas");
+    var maxW = fmt==="9:16" ? 540 : 600;
+    var scale = Math.min(1, maxW / cropW);
+    cv.width  = Math.round(cropW * scale);
+    cv.height = Math.round(cropH * scale);
+    var ctx = cv.getContext("2d");
+    ctx.drawImage(img, cropX, cropY, cropW, cropH, 0, 0, cv.width, cv.height);
+    callback(cv.toDataURL("image/jpeg", 0.88));
+  };
+  img.src = imgSrc;
+}
+
 // == ADMIN FOTO UPLOAD ==
 var pcAdminImg = null;
 
@@ -1429,12 +1648,18 @@ function loadPcPhoto(input) {
 function loadPcPhotoFile(file) {
   var reader = new FileReader();
   reader.onload = function(e) {
-    pcAdminImg = e.target.result;
-    var prev = document.getElementById("pc_upload_preview");
-    prev.innerHTML = "<img src='" + pcAdminImg + "' style='max-width:100%;max-height:150px;border-radius:8px'>";
-    document.getElementById("pc_admin_preview").style.display = "block";
-    document.getElementById("pc_save_btn").style.display = "block";
-    updatePcPreview();
+    var raw = e.target.result;
+    cropToFormat(raw, uploadFormat, function(cropped) {
+      pcAdminImg = cropped;
+      var prev = document.getElementById("pc_upload_preview");
+      if(prev) prev.innerHTML = "<img src='" + cropped + "' style='max-width:100%;max-height:160px;border-radius:8px'>" +
+        "<div style='font-size:.72rem;color:var(--gold);margin-top:4px;text-align:center'>Format: " + uploadFormat + "</div>";
+      var dims = formatDims[uploadFormat] || {w:600,h:800};
+      var cv2 = document.getElementById("pc_admin_preview");
+      if(cv2) { cv2.width=dims.w; cv2.height=dims.h; cv2.style.display="block"; }
+      document.getElementById("pc_save_btn").style.display = "block";
+      updatePcPreview();
+    });
   };
   reader.readAsDataURL(file);
 }
@@ -1485,6 +1710,54 @@ function savePcPhoto() {
     }
   };
   img.src = pcAdminImg;
+}
+
+// == GALERIE REIHENFOLGE ADMIN ==
+function renderGalleryOrderAdmin() {
+  var el = document.getElementById("gallery_order_list");
+  if(!el) return;
+  el.innerHTML = galleryOrder.map(function(k, i) {
+    var def = GDEFS.find(function(d){return d.k===k;});
+    if(!def) return "";
+    return "<div style='display:flex;align-items:center;gap:8px;padding:6px 4px;border-bottom:1px solid rgba(255,255,255,.06)'>" +
+      "<span style='flex:1;font-size:.85rem'>" + (i+1) + ". " + def.l + "</span>" +
+      "<button onclick='moveGalleryItem(" + i + ",-1)' style='background:rgba(255,255,255,.1);border:none;border-radius:6px;padding:4px 10px;color:#fff;cursor:pointer;font-size:.9rem' " + (i===0?"disabled":"") + ">&#8593;</button>" +
+      "<button onclick='moveGalleryItem(" + i + ",1)' style='background:rgba(255,255,255,.1);border:none;border-radius:6px;padding:4px 10px;color:#fff;cursor:pointer;font-size:.9rem' " + (i===galleryOrder.length-1?"disabled":"") + ">&#8595;</button>" +
+      "</div>";
+  }).join("");
+}
+
+function moveGalleryItem(idx, dir) {
+  var newIdx = idx + dir;
+  if(newIdx < 0 || newIdx >= galleryOrder.length) return;
+  var tmp = galleryOrder[idx];
+  galleryOrder[idx] = galleryOrder[newIdx];
+  galleryOrder[newIdx] = tmp;
+  localStorage.setItem("bl_gallery_order", JSON.stringify(galleryOrder));
+  renderGalleryOrderAdmin();
+  renderGallery();
+  // Auch Postkarten-Select updaten
+  updatePostcardSelect();
+}
+
+function updatePostcardSelect() {
+  var sel = document.getElementById("pcphoto");
+  if(!sel) return;
+  var current = sel.value;
+  sel.innerHTML = galleryOrder.map(function(k, i) {
+    var def = GDEFS.find(function(d){return d.k===k;});
+    if(!def) return "";
+    return "<option value='" + k + "'" + (k===current?" selected":"") + ">" + (i+1) + ". " + def.l + "</option>";
+  }).join("");
+}
+
+function resetGalleryOrder() {
+  galleryOrder = GDEFS.map(function(d){return d.k;});
+  localStorage.setItem("bl_gallery_order", JSON.stringify(galleryOrder));
+  renderGalleryOrderAdmin();
+  renderGallery();
+  updatePostcardSelect();
+  alert("Reihenfolge zurueckgesetzt!");
 }
 
 function speakHistory() {
@@ -1912,6 +2185,7 @@ function loadAdm(){
   document.getElementById("apiinp").value=apiKey?"(gespeichert)":"";
   rAdmPart();
   renderAdminPartnerExt();
+  renderAdminPhotoList();
 }
 function rAdmPart(){
   document.getElementById("aplst").innerHTML=partners.map(function(p,i){
@@ -2087,6 +2361,7 @@ function saveVideos() {
   if(p2) localStorage.setItem("bl_vid2_price", p2.value);
   // Video-Vorschaubilder in Shop-Sektion anzeigen
   updateVideoThumbs();
+  renderAdminPhotoList();
   alert("Videos gespeichert!");
 }
 
@@ -2207,6 +2482,7 @@ window.addEventListener("load", function() {
   setInterval(loadWeather, 600000); // alle 10 Min
   // Video-Thumbnails laden
   updateVideoThumbs();
+  renderAdminPhotoList();
   // Insel-Fotos laden
   var mazzPhoto = localStorage.getItem("bl_mazz_photo");
   var torcPhoto = localStorage.getItem("bl_torc_photo");
@@ -2221,3 +2497,1424 @@ window.addEventListener("load", function() {
 </script>
 </body>
 </html>
+// == DRAG & DROP (Reihenfolge innerhalb Format-Gruppe) ==
+var dragSrcFmt = null;
+var dragSrcIdx = -1;
+
+function dragStart(e) {
+  dragSrcFmt = e.currentTarget.getAttribute("data-fmt");
+  dragSrcIdx = parseInt(e.currentTarget.getAttribute("data-idx"));
+  e.currentTarget.style.opacity = "0.4";
+  e.dataTransfer.effectAllowed = "move";
+}
+function dragOver(e) {
+  e.preventDefault();
+  e.currentTarget.style.borderColor = "var(--gold)";
+}
+function dragEnd(e) {
+  e.currentTarget.style.opacity = "1";
+  document.querySelectorAll(".gi").forEach(function(el){ el.style.borderColor="transparent"; });
+}
+function dropPhoto(e) {
+  e.preventDefault();
+  var tgtFmt = e.currentTarget.getAttribute("data-fmt");
+  var tgtIdx = parseInt(e.currentTarget.getAttribute("data-idx"));
+  if(dragSrcFmt === tgtFmt && dragSrcIdx !== tgtIdx) {
+    var arr = getFormatPhotos(dragSrcFmt);
+    var item = arr.splice(dragSrcIdx, 1)[0];
+    arr.splice(tgtIdx, 0, item);
+    saveFormatPhotos(dragSrcFmt, arr);
+    renderGallery();
+  }
+  dragSrcFmt = null; dragSrcIdx = -1;
+}
+
+function renderGallery() {
+  ["43","34","916"].forEach(function(key) {
+    var fmt = key==="43"?"4:3":key==="34"?"3:4":"9:16";
+    var grid = document.getElementById("ggrid_" + key);
+    var sec  = document.getElementById("sec_"  + key);
+    if(!grid) return;
+    var arr = getFormatPhotos(fmt);
+    // Standard-Fotos (photos.js) nur in 4:3
+    var extras = [];
+    if(fmt === "4:3" && typeof PHOTOS !== "undefined") {
+      extras = GDEFS.map(function(d,i){return {src:PHOTOS[d.k]||"",lbl:d.l,key:d.k};});
+    }
+    var all = extras.concat(arr.map(function(src,i){return {src:src,lbl:"Foto "+(extras.length+i+1),key:"custom_"+i};}));
+    if(sec) sec.style.display = all.length ? "block" : "none";
+    if(!all.length) { grid.innerHTML=""; return; }
+    grid.innerHTML = all.map(function(item,i) {
+      var isCustom = item.key && item.key.indexOf("custom_")===0;
+      var customIdx = isCustom ? parseInt(item.key.replace("custom_","")) : -1;
+      return "<div class='gi' draggable='" + isCustom + "' data-fmt='" + fmt + "' data-idx='" + i + "'" +
+        " onclick="openMdl('" + item.lbl + "',0.99)"" +
+        (isCustom ? " ondragstart='dragStart(event)' ondragover='dragOver(event)' ondrop='dropPhoto(event)' ondragend='dragEnd(event)'" : "") +
+        " style='aspect-ratio:" + (fmt==="4:3"?"4/3":fmt==="3:4"?"3/4":"9/16") + "'>" +
+        "<img src='" + item.src + "' alt='" + item.lbl + "' loading='lazy' style='width:100%;height:100%;object-fit:cover'>" +
+        "<div class='lbl'>" + item.lbl + "</div>" +
+        (isCustom ? "<div style='position:absolute;top:6px;left:6px;background:rgba(0,0,0,.5);color:rgba(255,255,255,.7);font-size:.65rem;padding:2px 6px;border-radius:6px;cursor:grab'>&#8597;</div>" : "") +
+        "</div>";
+    }).join("");
+  });
+}
+
+
+function renderPC() {
+  var cv = document.getElementById("pcanv");
+  var ctx = cv.getContext("2d");
+  var pk = document.getElementById("pcphoto").value;
+  var pl = document.getElementById("pclang").value;
+  var custom = document.getElementById("pctext").value;
+  var W = cv.width, H = cv.height;
+  ctx.clearRect(0, 0, W, H);
+
+  // Pruefe ob Admin-Foto gespeichert
+  var adminPhoto = localStorage.getItem("bl_pc_custom_photo");
+
+  if (!adminPhoto && (typeof POSTCARDS === "undefined" || !POSTCARDS[pk])) {
+    ctx.fillStyle = "#0D2B5E";
+    ctx.fillRect(0, 0, W, H);
+    ctx.fillStyle = "rgba(255,255,255,.3)";
+    ctx.font = "20px sans-serif";
+    ctx.textAlign = "center";
+    ctx.fillText("Foto wird geladen...", W/2, H/2);
+    return;
+  }
+
+  var img = new Image();
+  img.onload = function() {
+    ctx.drawImage(img, 0, 0, W, H);
+    // Vignette
+    var vg = ctx.createRadialGradient(W/2,H/2,H*0.3,W/2,H/2,H*0.85);
+    vg.addColorStop(0,"rgba(0,0,0,0)"); vg.addColorStop(1,"rgba(0,0,0,.3)");
+    ctx.fillStyle = vg; ctx.fillRect(0,0,W,H);
+    // Border
+    ctx.strokeStyle = "rgba(255,255,255,.85)"; ctx.lineWidth = 10;
+    ctx.strokeRect(5,5,W-10,H-10);
+    // STAMP
+    var sx=W-150,sy=14,sw=132,sh=94;
+    ctx.fillStyle = "#fff"; ctx.shadowColor="rgba(0,0,0,.25)"; ctx.shadowBlur=7;
+    ctx.fillRect(sx,sy,sw,sh); ctx.shadowBlur=0;
+    ctx.setLineDash([5,4]); ctx.strokeStyle="rgba(0,0,0,.25)"; ctx.lineWidth=1.5;
+    ctx.strokeRect(sx+8,sy+8,sw-16,sh-16); ctx.setLineDash([]);
+    // Mini foto im Stempel
+    var si = new Image();
+    si.onload = function() {
+      ctx.save(); ctx.beginPath(); ctx.rect(sx+10,sy+10,sw-20,sh-30); ctx.clip();
+      ctx.drawImage(si,sx+10,sy+10,sw-20,sh-30); ctx.restore();
+      ctx.fillStyle="#1A237E"; ctx.font="bold 10px sans-serif"; ctx.textAlign="center";
+      ctx.fillText("ITALIA",sx+sw/2,sy+sh-18);
+      ctx.font="9px sans-serif"; ctx.fillText("EUR 1,25",sx+sw/2,sy+sh-6);
+      // POSTMARK
+      var mx=72,my=70,mr=44;
+      ctx.save(); ctx.globalAlpha=.8;
+      ctx.strokeStyle="#1565C0"; ctx.lineWidth=2.5;
+      ctx.beginPath(); ctx.arc(mx,my,mr,0,Math.PI*2); ctx.stroke();
+      ctx.beginPath(); ctx.arc(mx,my,mr-11,0,Math.PI*2); ctx.stroke();
+      for (var i=0;i<4;i++){ctx.beginPath();ctx.moveTo(mx-mr+5+i*17,my-5);ctx.lineTo(mx-mr+5+i*17+52,my-5);ctx.stroke();}
+      ctx.fillStyle="#1565C0"; ctx.font="bold 9px sans-serif"; ctx.textAlign="center";
+      ctx.fillText("BURANO (VE)",mx,my-16);
+      var now=new Date();
+      ctx.font="bold 11px sans-serif"; ctx.fillText(now.getDate()+" MAR.",mx,my);
+      ctx.fillText(now.getFullYear(),mx,my+14);
+      ctx.font="7px sans-serif"; ctx.fillText("* * *",mx,my+26);
+      ctx.globalAlpha=1; ctx.restore();
+      // GREETING TEXT
+      var greet = custom || getSelectedGreeting();
+      var customerName = document.getElementById("pc_customer_name") ?
+                         document.getElementById("pc_customer_name").value : "";
+
+      var savedPos = localStorage.getItem("bl_pc_text_pos") || "water";
+      var savedCol = localStorage.getItem("bl_pc_text_col") || "white";
+      var colorMap2 = {white:"rgba(255,255,255,0.95)", gold:"#FFD23F", dark:"rgba(20,20,20,0.9)"};
+      var textColor = colorMap2[savedCol] || "rgba(255,255,255,0.95)";
+      var curveY, curveRadius;
+      if(savedPos === "sky")         { curveY = H * 0.18; curveRadius = W * 0.85; }
+      else if(savedPos === "middle") { curveY = H * 0.48; curveRadius = W * 0.92; }
+      else                           { curveY = H * 0.80; curveRadius = W * 0.88; }
+
+      // Schreibschrift geschwungen
+      ctx.save();
+      ctx.shadowColor = "rgba(0,0,0,0.8)";
+      ctx.shadowBlur = 8;
+      ctx.font = "italic bold " + Math.round(W/28) + "px 'Brush Script MT', 'Comic Sans MS', cursive";
+      ctx.fillStyle = textColor;
+      ctx.textAlign = "center";
+      ctx.textBaseline = "alphabetic";
+
+      // Text entlang Bogen zeichnen
+      var fontSize = Math.round(W/28);
+      drawCurvedText(ctx, greet, W/2, curveY + curveRadius, curveRadius, -Math.PI/2 - 0.08, textColor, fontSize);
+      ctx.restore();
+
+      // Leerzeile fuer Kundenname
+      var lineY = H * 0.88;
+      var lineColor = "rgba(255,255,255,0.55)";
+      drawNameLine(ctx, W, H, lineY, lineColor);
+
+      // Wenn Kundenname eingegeben
+      if(customerName) {
+        ctx.save();
+        ctx.font = "italic " + Math.round(W/32) + "px 'Brush Script MT', cursive";
+        ctx.fillStyle = "rgba(255,255,255,0.9)";
+        ctx.textAlign = "center";
+        ctx.shadowColor = "rgba(0,0,0,0.6)";
+        ctx.shadowBlur = 5;
+        ctx.fillText(customerName, W/2, lineY + 18);
+        ctx.restore();
+      }
+
+      // Footer
+      ctx.font = "bold 10px sans-serif";
+      ctx.fillStyle = "rgba(255,255,255,.6)";
+      ctx.textAlign = "center";
+      ctx.shadowBlur = 0;
+      ctx.fillText("my-burano.com - Terra Nova 112", W/2, H-6);
+    };
+    si.src = POSTCARDS[pk] || PHOTOS[pk] || "";
+  };
+  // Format-spezifisches Foto laden
+  // Foto-Quelle: eigenes (cust_X) oder Standard (std_key)
+  var photoPk = pk || "";
+  var imgSrc = "";
+  if(photoPk.indexOf("cust_") === 0) {
+    var custIdx2 = parseInt(photoPk.replace("cust_",""));
+    var custArr = getFormatPhotos(previewFmt);
+    imgSrc = custArr[custIdx2] || "";
+  } else {
+    var stdKey = photoPk.replace("std_","");
+    imgSrc = (POSTCARDS && POSTCARDS[stdKey]) || localStorage.getItem("bl_pc_custom_photo") || "";
+  }
+  img.src = imgSrc || (POSTCARDS && POSTCARDS[pk]) || "";
+}
+
+var GREETINGS = {
+  de: [
+    "Herzliche Grüße von der Insel Burano",
+    "Die Farben Buranos bleiben unvergesslich",
+    "Die schönste Insel der Welt grüßt Dich",
+    "Erinnerungen an Burano – für immer",
+    "Buono viaggio! Bis bald in Burano"
+  ],
+  en: [
+    "Warm greetings from the island of Burano",
+    "The colours of Burano – unforgettable forever",
+    "The most beautiful island in the world says hello",
+    "Memories of Burano – forever in my heart",
+    "Buono viaggio! See you soon in Burano"
+  ],
+  it: [
+    "Cordiali saluti dalla bellissima isola di Burano",
+    "I colori di Burano rimarranno per sempre nel cuore",
+    "La più bella isola del mondo ti saluta",
+    "Ricordi di Burano – per sempre con me",
+    "Buono viaggio! A presto a Burano"
+  ],
+  fr: [
+    "Chaleureuses salutations de la belle île de Burano",
+    "Les couleurs de Burano restent inoubliables",
+    "La plus belle île du monde vous salue",
+    "Souvenirs de Burano – pour toujours dans mon cœur",
+    "Buono viaggio! À bientôt à Burano"
+  ],
+  es: [
+    "Cordiales saludos desde la hermosa isla de Burano",
+    "Los colores de Burano son inolvidables para siempre",
+    "La isla más bella del mundo te saluda",
+    "Recuerdos de Burano – para siempre en mi corazón",
+    "Buono viaggio! Hasta pronto en Burano"
+  ],
+  ja: [
+    "美しいブラーノ島からの心温まるご挨拶",
+    "ブラーノの色彩は永遠に忘れられない",
+    "世界で最も美しい島からのご挨拶",
+    "ブラーノの思い出 – 永遠に心の中に",
+    "ブオン・ヴィアッジョ！またブラーノで会いましょう"
+  ],
+  zh: [
+    "来自美丽布拉诺岛的诚挚问候",
+    "布拉诺的色彩令人永生难忘",
+    "世界上最美丽的岛屿向您问候",
+    "布拉诺的回忆——永远铭记于心",
+    "一路顺风！期待再会布拉诺"
+  ],
+  pl: [
+    "Serdeczne pozdrowienia z pięknej wyspy Burano",
+    "Kolory Burano pozostają niezapomniane na zawsze",
+    "Najpiękniejsza wyspa świata pozdrawia Cię",
+    "Wspomnienia z Burano – na zawsze w moim sercu",
+    "Buono viaggio! Do zobaczenia wkrótce na Burano"
+  ]
+};
+
+function updateGreetingSelect() {
+  var sel = document.getElementById("pcgreeting");
+  if(!sel) return;
+  var greets = GREETINGS[curLang] || GREETINGS.de;
+  var current = sel.selectedIndex;
+  sel.innerHTML = greets.map(function(g, i) {
+    return '<option value="' + i + '">' + g + '</option>';
+  }).join('');
+  sel.selectedIndex = current;
+}
+
+function switchPcFormat(fmt) {
+  previewFmt = fmt;
+  uploadFormat = fmt;
+  var dims = formatDims[fmt] || {w:600,h:800};
+  var cv = document.getElementById("pcanv");
+  if(cv) { cv.width=dims.w; cv.height=dims.h; }
+  // Foto-Auswahl für dieses Format befüllen
+  var arr = getFormatPhotos(fmt);
+  var sel = document.getElementById("pcphoto");
+  if(sel && arr.length) {
+    // Eigene Fotos + Standard-Fotos
+    var stdOpts = typeof GDEFS !== "undefined" && fmt==="4:3" ?
+      GDEFS.map(function(d,i){return "<option value='std_"+d.k+"'>"+(i+1)+". "+d.l+"</option>";}).join("") : "";
+    var custOpts = arr.map(function(_,i){return "<option value='cust_"+i+"'>Eigenes Foto "+(i+1)+"</option>";}).join("");
+    sel.innerHTML = stdOpts + custOpts;
+  } else if(sel) {
+    var stdOpts2 = typeof GDEFS !== "undefined" ?
+      GDEFS.map(function(d,i){return "<option value='std_"+d.k+"'>"+(i+1)+". "+d.l+"</option>";}).join("") : "";
+    sel.innerHTML = stdOpts2 || "<option>Keine Fotos in diesem Format</option>";
+  }
+  renderPC();
+}
+
+function getSelectedGreeting() {
+  var sel = document.getElementById("pcgreeting");
+  var greets = GREETINGS[curLang] || GREETINGS.de;
+  return sel ? greets[sel.selectedIndex] || greets[0] : greets[0];
+}
+
+// == FOTO FORMAT ==
+var currentFormat = "3:4";
+var formatRatios = {"3:4":{w:3,h:4}, "9:16":{w:9,h:16}};
+
+// Alle gespeicherten Formate
+var allFormatPhotos = {};
+var previewFmt = "3:4";
+
+function previewFormat(fmt) {
+  previewFmt = fmt;
+  // Buttons updaten
+  ["4:3","3:4","9:16"].forEach(function(f) {
+    var id = "fmt_" + f.replace(":","");
+    var btn = document.getElementById(id);
+    if(!btn) return;
+    if(f === fmt) {
+      btn.style.background = "var(--gold)";
+      btn.style.color = "var(--bd)";
+      btn.style.borderColor = "var(--gold)";
+    } else {
+      btn.style.background = "rgba(255,255,255,.08)";
+      btn.style.color = "#fff";
+      btn.style.borderColor = "rgba(255,255,255,.2)";
+    }
+  });
+  var labels = {"4:3":"Vorschau: 4:3 Querformat","3:4":"Vorschau: 3:4 Hochformat","9:16":"Vorschau: 9:16 Stories"};
+  var el = document.getElementById("format_info");
+  if(el) el.textContent = labels[fmt] || "";
+  // Canvas-Groesse anpassen
+  var dims = {"4:3":{w:720,h:540},"3:4":{w:600,h:800},"9:16":{w:540,h:960}};
+  var d = dims[fmt] || dims["3:4"];
+  var cv1 = document.getElementById("pcanv");
+  var cv2 = document.getElementById("pc_admin_preview");
+  if(cv1) { cv1.width=d.w; cv1.height=d.h; }
+  if(cv2) { cv2.width=d.w; cv2.height=d.h; }
+  // Vorschau mit gespeichertem Format-Bild
+  if(allFormatPhotos[fmt]) {
+    pcAdminImg = allFormatPhotos[fmt];
+  }
+  if(pcAdminImg) updatePcPreview();
+  renderPC();
+}
+
+function setPhotoFormat(fmt) { previewFormat(fmt); }
+
+function cropToFormat(imgSrc, fmt, callback) {
+  var allRatios = {"4:3":{w:4,h:3},"3:4":{w:3,h:4},"9:16":{w:9,h:16}};
+  var ratio = allRatios[fmt] || formatRatios[fmt] || {w:3,h:4};
+  var img = new Image();
+  img.onload = function() {
+    var srcW = img.width, srcH = img.height;
+    var targetRatio = ratio.w / ratio.h;
+    var srcRatio = srcW / srcH;
+    var cropW, cropH, cropX, cropY;
+    if(srcRatio > targetRatio) {
+      // Breiter als Ziel - seitlich beschneiden
+      cropH = srcH;
+      cropW = Math.round(srcH * targetRatio);
+      cropX = Math.round((srcW - cropW) / 2);
+      cropY = 0;
+    } else {
+      // Hoeher als Ziel - oben/unten beschneiden
+      cropW = srcW;
+      cropH = Math.round(srcW / targetRatio);
+      cropX = 0;
+      cropY = Math.round((srcH - cropH) / 3); // leicht oben - Himmel behalten
+    }
+    var cv = document.createElement("canvas");
+    var maxW = fmt==="9:16" ? 540 : 600;
+    var scale = Math.min(1, maxW / cropW);
+    cv.width  = Math.round(cropW * scale);
+    cv.height = Math.round(cropH * scale);
+    var ctx = cv.getContext("2d");
+    ctx.drawImage(img, cropX, cropY, cropW, cropH, 0, 0, cv.width, cv.height);
+    callback(cv.toDataURL("image/jpeg", 0.88));
+  };
+  img.src = imgSrc;
+}
+
+// == ADMIN FOTO UPLOAD ==
+var pcAdminImg = null;
+
+function handlePcDrop(e) {
+  e.preventDefault();
+  var file = e.dataTransfer.files[0];
+  if(file && file.type.startsWith("image/")) loadPcPhotoFile(file);
+}
+
+function loadPcPhoto(input) {
+  if(input.files && input.files[0]) loadPcPhotoFile(input.files[0]);
+}
+
+function loadPcPhotoFile(file) {
+  var reader = new FileReader();
+  reader.onload = function(e) {
+    pcAdminImg = e.target.result;
+    // Vorschau anzeigen
+    var prev = document.getElementById("pc_upload_preview");
+    prev.innerHTML = "<img src='" + pcAdminImg + "' style='max-width:100%;max-height:150px;border-radius:8px;'>";
+    document.getElementById("pc_admin_preview").style.display = "block";
+    document.getElementById("pc_save_btn").style.display = "block";
+    updatePcPreview();
+  };
+  reader.readAsDataURL(file);
+}
+
+function updatePcPreview() {
+  if(!pcAdminImg) return;
+  var cv = document.getElementById("pc_admin_preview");
+  var ctx = cv.getContext("2d");
+  var W = cv.width, H = cv.height;
+  var img = new Image();
+  img.onload = function() {
+    ctx.clearRect(0,0,W,H);
+    ctx.drawImage(img, 0, 0, W, H);
+    // Vorschau-Text
+    ctx.fillStyle = "rgba(0,0,0,0.35)";
+    var pos = document.getElementById("pc_text_pos") ? document.getElementById("pc_text_pos").value : "water";
+    var yFactor = pos === "sky" ? 0.18 : pos === "middle" ? 0.5 : 0.82;
+    ctx.fillRect(0, H*yFactor - 40, W, 80);
+    var colors = {white:"#fff", gold:"#FFD23F", dark:"#1A1A1A"};
+    var col = colors[document.getElementById("pc_text_color") ? document.getElementById("pc_text_color").value : "white"] || "#fff";
+    ctx.font = "italic bold 22px 'Brush Script MT', cursive";
+    ctx.fillStyle = col;
+    ctx.textAlign = "center";
+    ctx.fillText("Herzliche Grüße von der Insel Burano", W/2, H*yFactor + 8);
+    // Namens-Linie
+    drawNameLine(ctx, W, H, H*0.88, "rgba(255,255,255,0.5)");
+    ctx.font = "10px sans-serif";
+    ctx.fillStyle = "rgba(255,255,255,.5)";
+    ctx.fillText("my-burano.com - Terra Nova 112", W/2, H-6);
+  };
+  img.src = pcAdminImg;
+}
+
+function savePcPhoto() {
+  if(!pcAdminImg) return;
+  // Bild komprimieren bevor speichern
+  var cv = document.createElement("canvas");
+  cv.width = 600; cv.height = 800;
+  var ctx = cv.getContext("2d");
+  var img = new Image();
+  img.onload = function() {
+    ctx.drawImage(img, 0, 0, 700, 490);
+    var compressed = cv.toDataURL("image/jpeg", 0.85);
+    try {
+      localStorage.setItem("bl_pc_custom_photo", compressed);
+      alert("✅ Foto gespeichert! Es wird jetzt im Postkarten-Generator verwendet.");
+      renderPC();
+    } catch(e) {
+      alert("⚠️ Foto zu groß für lokale Speicherung. Bitte kleineres Bild verwenden (max 1MB).");
+    }
+  };
+  img.src = pcAdminImg;
+}
+
+// == FOTO FORMAT ==
+var currentFormat = "3:4";
+var formatRatios = {"3:4":{w:3,h:4}, "9:16":{w:9,h:16}};
+
+// Alle gespeicherten Formate
+var allFormatPhotos = {};
+var previewFmt = "3:4";
+
+function previewFormat(fmt) {
+  previewFmt = fmt;
+  // Buttons updaten
+  ["4:3","3:4","9:16"].forEach(function(f) {
+    var id = "fmt_" + f.replace(":","");
+    var btn = document.getElementById(id);
+    if(!btn) return;
+    if(f === fmt) {
+      btn.style.background = "var(--gold)";
+      btn.style.color = "var(--bd)";
+      btn.style.borderColor = "var(--gold)";
+    } else {
+      btn.style.background = "rgba(255,255,255,.08)";
+      btn.style.color = "#fff";
+      btn.style.borderColor = "rgba(255,255,255,.2)";
+    }
+  });
+  var labels = {"4:3":"Vorschau: 4:3 Querformat","3:4":"Vorschau: 3:4 Hochformat","9:16":"Vorschau: 9:16 Stories"};
+  var el = document.getElementById("format_info");
+  if(el) el.textContent = labels[fmt] || "";
+  // Canvas-Groesse anpassen
+  var dims = {"4:3":{w:720,h:540},"3:4":{w:600,h:800},"9:16":{w:540,h:960}};
+  var d = dims[fmt] || dims["3:4"];
+  var cv1 = document.getElementById("pcanv");
+  var cv2 = document.getElementById("pc_admin_preview");
+  if(cv1) { cv1.width=d.w; cv1.height=d.h; }
+  if(cv2) { cv2.width=d.w; cv2.height=d.h; }
+  // Vorschau mit gespeichertem Format-Bild
+  if(allFormatPhotos[fmt]) {
+    pcAdminImg = allFormatPhotos[fmt];
+  }
+  if(pcAdminImg) updatePcPreview();
+  renderPC();
+}
+
+function setPhotoFormat(fmt) { previewFormat(fmt); }
+
+function cropToFormat(imgSrc, fmt, callback) {
+  var allRatios = {"4:3":{w:4,h:3},"3:4":{w:3,h:4},"9:16":{w:9,h:16}};
+  var ratio = allRatios[fmt] || formatRatios[fmt] || {w:3,h:4};
+  var img = new Image();
+  img.onload = function() {
+    var srcW = img.width, srcH = img.height;
+    var targetRatio = ratio.w / ratio.h;
+    var srcRatio = srcW / srcH;
+    var cropW, cropH, cropX, cropY;
+    if(srcRatio > targetRatio) {
+      // Breiter als Ziel - seitlich beschneiden
+      cropH = srcH;
+      cropW = Math.round(srcH * targetRatio);
+      cropX = Math.round((srcW - cropW) / 2);
+      cropY = 0;
+    } else {
+      // Hoeher als Ziel - oben/unten beschneiden
+      cropW = srcW;
+      cropH = Math.round(srcW / targetRatio);
+      cropX = 0;
+      cropY = Math.round((srcH - cropH) / 3); // leicht oben - Himmel behalten
+    }
+    var cv = document.createElement("canvas");
+    var maxW = fmt==="9:16" ? 540 : 600;
+    var scale = Math.min(1, maxW / cropW);
+    cv.width  = Math.round(cropW * scale);
+    cv.height = Math.round(cropH * scale);
+    var ctx = cv.getContext("2d");
+    ctx.drawImage(img, cropX, cropY, cropW, cropH, 0, 0, cv.width, cv.height);
+    callback(cv.toDataURL("image/jpeg", 0.88));
+  };
+  img.src = imgSrc;
+}
+
+// == ADMIN FOTO UPLOAD ==
+var pcAdminImg = null;
+
+function handlePcDrop(e) {
+  e.preventDefault();
+  var file = e.dataTransfer.files[0];
+  if(file && file.type.startsWith("image/")) loadPcPhotoFile(file);
+}
+function loadPcPhoto(input) {
+  if(input.files && input.files[0]) loadPcPhotoFile(input.files[0]);
+}
+function loadPcPhotoFile(file) {
+  var reader = new FileReader();
+  reader.onload = function(e) {
+    var raw = e.target.result;
+    cropToFormat(raw, uploadFormat, function(cropped) {
+      pcAdminImg = cropped;
+      var prev = document.getElementById("pc_upload_preview");
+      if(prev) prev.innerHTML = "<img src='" + cropped + "' style='max-width:100%;max-height:160px;border-radius:8px'>" +
+        "<div style='font-size:.72rem;color:var(--gold);margin-top:4px;text-align:center'>Format: " + uploadFormat + "</div>";
+      var dims = formatDims[uploadFormat] || {w:600,h:800};
+      var cv2 = document.getElementById("pc_admin_preview");
+      if(cv2) { cv2.width=dims.w; cv2.height=dims.h; cv2.style.display="block"; }
+      document.getElementById("pc_save_btn").style.display = "block";
+      updatePcPreview();
+    });
+  };
+  reader.readAsDataURL(file);
+}
+function updatePcPreview() {
+  if(!pcAdminImg) return;
+  var cv = document.getElementById("pc_admin_preview");
+  var ctx = cv.getContext("2d");
+  var W = cv.width, H = cv.height;
+  var img = new Image();
+  img.onload = function() {
+    ctx.clearRect(0,0,W,H);
+    ctx.drawImage(img, 0, 0, W, H);
+    var colorMap = {white:"rgba(255,255,255,0.95)", gold:"#FFD23F", dark:"rgba(20,20,20,0.9)"};
+    var posSel = document.getElementById("pc_text_pos");
+    var colSel = document.getElementById("pc_text_color");
+    var pos = posSel ? posSel.value : "water";
+    var col = colorMap[colSel ? colSel.value : "white"] || "rgba(255,255,255,0.95)";
+    var cy, cr;
+    if(pos==="sky")    { cy=H*0.05; cr=W*0.85; }
+    else if(pos==="middle") { cy=H*0.35; cr=W*0.92; }
+    else               { cy=H*0.68; cr=W*0.88; }
+    drawCurvedText(ctx, "Herzliche Gruesse von der Insel Burano", W/2, cy+cr, cr, col, Math.round(W/28));
+    drawNameLine(ctx, W, H, H*0.88, "rgba(255,255,255,0.5)");
+    ctx.font="10px sans-serif"; ctx.fillStyle="rgba(255,255,255,.5)"; ctx.textAlign="center";
+    ctx.fillText("my-burano.com - Terra Nova 112", W/2, H-6);
+  };
+  img.src = pcAdminImg;
+}
+function savePcPhoto() {
+  if(!pcAdminImg) return;
+  var cv = document.createElement("canvas");
+  cv.width=600; cv.height=800;
+  var ctx = cv.getContext("2d");
+  var img = new Image();
+  img.onload = function() {
+    ctx.drawImage(img, 0, 0, 700, 490);
+    var compressed = cv.toDataURL("image/jpeg", 0.82);
+    try {
+      localStorage.setItem("bl_pc_custom_photo", compressed);
+      var posSel = document.getElementById("pc_text_pos");
+      var colSel = document.getElementById("pc_text_color");
+      if(posSel) localStorage.setItem("bl_pc_text_pos", posSel.value);
+      if(colSel) localStorage.setItem("bl_pc_text_col", colSel.value);
+      alert("Foto + Einstellungen gespeichert!");
+      renderPC();
+    } catch(e) {
+      alert("Foto zu gross! Bitte JPG unter 800KB verwenden.");
+    }
+  };
+  img.src = pcAdminImg;
+}
+
+// == GALERIE REIHENFOLGE ADMIN ==
+function renderGalleryOrderAdmin() {
+  var el = document.getElementById("gallery_order_list");
+  if(!el) return;
+  el.innerHTML = galleryOrder.map(function(k, i) {
+    var def = GDEFS.find(function(d){return d.k===k;});
+    if(!def) return "";
+    return "<div style='display:flex;align-items:center;gap:8px;padding:6px 4px;border-bottom:1px solid rgba(255,255,255,.06)'>" +
+      "<span style='flex:1;font-size:.85rem'>" + (i+1) + ". " + def.l + "</span>" +
+      "<button onclick='moveGalleryItem(" + i + ",-1)' style='background:rgba(255,255,255,.1);border:none;border-radius:6px;padding:4px 10px;color:#fff;cursor:pointer;font-size:.9rem' " + (i===0?"disabled":"") + ">&#8593;</button>" +
+      "<button onclick='moveGalleryItem(" + i + ",1)' style='background:rgba(255,255,255,.1);border:none;border-radius:6px;padding:4px 10px;color:#fff;cursor:pointer;font-size:.9rem' " + (i===galleryOrder.length-1?"disabled":"") + ">&#8595;</button>" +
+      "</div>";
+  }).join("");
+}
+
+function moveGalleryItem(idx, dir) {
+  var newIdx = idx + dir;
+  if(newIdx < 0 || newIdx >= galleryOrder.length) return;
+  var tmp = galleryOrder[idx];
+  galleryOrder[idx] = galleryOrder[newIdx];
+  galleryOrder[newIdx] = tmp;
+  localStorage.setItem("bl_gallery_order", JSON.stringify(galleryOrder));
+  renderGalleryOrderAdmin();
+  renderGallery();
+  // Auch Postkarten-Select updaten
+  updatePostcardSelect();
+}
+
+function updatePostcardSelect() {
+  var sel = document.getElementById("pcphoto");
+  if(!sel) return;
+  var current = sel.value;
+  sel.innerHTML = galleryOrder.map(function(k, i) {
+    var def = GDEFS.find(function(d){return d.k===k;});
+    if(!def) return "";
+    return "<option value='" + k + "'" + (k===current?" selected":"") + ">" + (i+1) + ". " + def.l + "</option>";
+  }).join("");
+}
+
+function resetGalleryOrder() {
+  galleryOrder = GDEFS.map(function(d){return d.k;});
+  localStorage.setItem("bl_gallery_order", JSON.stringify(galleryOrder));
+  renderGalleryOrderAdmin();
+  renderGallery();
+  updatePostcardSelect();
+  alert("Reihenfolge zurueckgesetzt!");
+}
+
+function speakHistory() {
+  var btn = document.getElementById("hist_speak_btn");
+  if(window.speechSynthesis && window.speechSynthesis.speaking) {
+    stopSpeak();
+    if(btn) btn.innerHTML = "&#9654; Geschichte vorlesen";
+    return;
+  }
+  var histEl = document.getElementById("t_hist_body");
+  var text = histEl ? histEl.textContent : "";
+  if(btn) btn.innerHTML = "&#9209; Stopp";
+  speak(text, function(){
+    if(btn) btn.innerHTML = "&#9654; Geschichte vorlesen";
+    // Danach Chat öffnen und Frage stellen
+    setTimeout(function(){
+      openChat();
+    }, 800);
+  });
+}
+
+function buyPostcard(count) {
+  var testmode = localStorage.getItem("bl_testmode")==="1";
+  if(count===1){ if(!testmode) ppGo("1 Burano Postkarte", 0.99); }
+  else if(count===10){ if(!testmode) ppGo("10 Burano Postkarten", 4.99); }
+  else{ if(!testmode) ppGo("Weitere Burano Postkarte", 0.45); }
+}
+
+function previewAndDownload() {
+  var testmode = localStorage.getItem("bl_testmode")==="1";
+  if(!testmode) ppGo("1 Burano Postkarte", 0.99);
+  else alert("TEST-MODUS aktiv - Download ohne Bezahlung.");
+  var cv = document.getElementById("pcanv");
+  // Blob-Methode: echte JPG-Datei, kein data-URI
+  cv.toBlob(function(blob) {
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement("a");
+    a.href = url;
+    a.download = "Burano-Postkarte-" + new Date().toISOString().slice(0,10) + ".jpg";
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    setTimeout(function(){ URL.revokeObjectURL(url); }, 3000);
+  }, "image/jpeg", 0.92);
+}
+
+function dlPC() {
+  previewAndDownload();
+  var cv = document.getElementById("pcanv");
+  var a = document.createElement("a");
+  a.href = cv.toDataURL("image/jpeg", 0.92);
+  a.download = "burano-postkarte-" + Date.now() + ".jpg";
+  a.click();
+}
+
+// PARTNERS
+function renderPart() {
+  var grid = document.getElementById("pgrid");
+  if (!partners.length) { grid.innerHTML = "<p style='opacity:.4'>Noch keine Partner.</p>"; return; }
+  grid.innerHTML = partners.map(function(p) {
+    return "<div class='ptcard'>" +
+      "<h3>" + p.name + "</h3>" +
+      "<p>Offizieller Partner - " + p.prov + "% Provision</p>" +
+      "<div class='cpn'>" + p.coupon + "% Rabatt - Code: " + p.code + "</div></div>";
+  }).join("");
+}
+
+// RENTAL BG
+function setRental() {
+  var r1=document.getElementById("rbg1"), r2=document.getElementById("rbg2");
+  if (typeof PHOTOS !== "undefined") {
+    if(r1 && PHOTOS.canal_wide) r1.style.backgroundImage="url("+PHOTOS.canal_wide+")";
+    if(r2 && PHOTOS.canal_lagoon) r2.style.backgroundImage="url("+PHOTOS.canal_lagoon+")";
+  }
+}
+
+// QR CODE
+function genQR() {
+  try {
+    new QRCode(document.getElementById("qrcode"), {
+      text: window.location.href.replace("index.html",""),
+      width:180, height:180,
+      colorDark:"#0A1628", colorLight:"#FFFFFF",
+      correctLevel: QRCode.CorrectLevel.H
+    });
+  } catch(e) {}
+}
+
+// MODAL
+function openMdl(name, price) {
+  mPrice=price; mQty=1; mItem=name;
+  document.getElementById("mt").textContent = name;
+  document.getElementById("md").textContent = "Burano - sofort nach Zahlung verfuegbar";
+  document.getElementById("qdis").textContent = 1;
+  updTotal();
+  document.getElementById("bmdl").classList.add("open");
+}
+function chgQ(d) { mQty=Math.max(1,mQty+d); document.getElementById("qdis").textContent=mQty; updTotal(); }
+function updTotal() {
+  var tot=(mPrice*mQty).toFixed(2).replace(".",",");
+  document.getElementById("mtot").textContent=tot+" EUR";
+  document.getElementById("mpaybtn").onclick=function(){ppGo(mItem+(mQty>1?" x"+mQty:""),mPrice*mQty);};
+}
+var vmP = 3.99;
+function openVMdl(title, price) {
+  vmP=price;
+  document.getElementById("vmt").textContent=title;
+  document.getElementById("vmpr").textContent=price.toFixed(2).replace(".",",")+' EUR';
+  document.getElementById("vmpaybtn").onclick=function(){
+    var txt=document.getElementById("vtxt").value;
+    ppGo(title+(txt?" - "+txt:""),vmP);
+    document.getElementById("vmdl").classList.remove("open");
+  };
+  document.getElementById("vmdl").classList.add("open");
+}
+
+// PAYPAL
+function ppGo(item, amount) {
+  amount=parseFloat(amount.toFixed(2));
+  var testmode = localStorage.getItem("bl_testmode")==="1";
+  if(testmode){
+    // Test-Modus: kein PayPal, direkt weiter
+    alert("TEST-MODUS aktiv\nKein PayPal - Download startet direkt.\n\nArtikel: "+item+"\nPreis: "+amount+" EUR");
+    document.getElementById("bmdl").classList.remove("open");
+    return;
+  }
+  stats.s++; stats.r=(parseFloat(stats.r)+amount).toFixed(2);
+  localStorage.setItem("bl_stats",JSON.stringify(stats));
+  var note=encodeURIComponent("Burano Shop - "+item);
+  var user=ppe.indexOf("@")>-1?ppe.split("@")[0]:ppe;
+  window.open("https://www.paypal.com/paypalme/"+user+"/"+amount+"EUR?note="+note,"_blank");
+  document.getElementById("bmdl").classList.remove("open");
+}
+
+// AI CHAT
+function toggleChat() {
+  var c=document.getElementById("aichat");
+  c.classList.toggle("open");
+  if(c.classList.contains("open") && aiHist.length===0) initAI();
+}
+function openChat() {
+  document.getElementById("aichat").classList.add("open");
+  if(aiHist.length===0) initAI();
+}
+// == VOICE ENGINE ==
+var LANG_CODES = {
+  de:"de-DE", en:"en-US", it:"it-IT",
+  fr:"fr-FR", es:"es-ES", ja:"ja-JP",
+  zh:"zh-CN", pl:"pl-PL"
+};
+var voiceReady = false;
+var pendingSpeak = null;
+
+// Stimmen laden (iOS braucht onvoiceschanged)
+function initVoices() {
+  if(!window.speechSynthesis) return;
+  var voices = window.speechSynthesis.getVoices();
+  if(voices.length > 0) { voiceReady = true; if(pendingSpeak) { speak(pendingSpeak); pendingSpeak=null; } }
+  else { window.speechSynthesis.onvoiceschanged = function(){ voiceReady=true; if(pendingSpeak){speak(pendingSpeak);pendingSpeak=null;} }; }
+}
+
+function getBestVoice(langCode) {
+  var voices = window.speechSynthesis.getVoices();
+  // Exakter Match
+  for(var i=0;i<voices.length;i++) if(voices[i].lang===langCode) return voices[i];
+  // Prefix Match (z.B. "de" in "de-AT")
+  var prefix = langCode.split("-")[0];
+  for(var i=0;i<voices.length;i++) if(voices[i].lang.startsWith(prefix)) return voices[i];
+  return null;
+}
+
+function speak(text, onEnd) {
+  if(!window.speechSynthesis) { if(onEnd) onEnd(); return; }
+  if(!voiceReady) { pendingSpeak = text; if(onEnd) setTimeout(onEnd, 2000); return; }
+  window.speechSynthesis.cancel();
+  var utt = new SpeechSynthesisUtterance(text);
+  var langCode = LANG_CODES[curLang] || "de-DE";
+  utt.lang = langCode;
+  utt.rate = curLang==="zh"||curLang==="ja" ? 0.8 : 0.92;
+  utt.pitch = 1.0;
+  var voice = getBestVoice(langCode);
+  if(voice) utt.voice = voice;
+  if(onEnd) utt.onend = onEnd;
+  // iOS Safari Fix: kurze Verzoegerung noetig
+  setTimeout(function(){ window.speechSynthesis.speak(utt); }, 100);
+}
+
+function stopSpeak() {
+  if(window.speechSynthesis) window.speechSynthesis.cancel();
+}
+
+// Vorlesen-Button Zustand
+var isSpeaking = false;
+function toggleSpeak(text, btn) {
+  if(window.speechSynthesis && window.speechSynthesis.speaking) {
+    stopSpeak(); if(btn) btn.textContent="▶"; return;
+  }
+  speak(text, function(){ if(btn) btn.textContent="▶"; });
+  if(btn) btn.textContent="⏹";
+}
+
+function initAI() {
+  var welcome = tx("ai_welcome");
+  addMsg(welcome, "bot", false); // false = nicht automatisch sprechen, wir steuern selbst
+
+  var followUp = {
+    de:"Was möchtest du über Burano wissen?",
+    en:"What would you like to know about Burano?",
+    it:"Cosa vuoi sapere su Burano?",
+    fr:"Que souhaitez-vous savoir sur Burano?",
+    es:"¿Qué quieres saber sobre Burano?",
+    ja:"ブラーノについて何を知りたいですか？",
+    zh:"您想了解布拉诺的什么？",
+    pl:"Co chcesz wiedzieć o Burano?"
+  };
+
+  // Begruessung vorlesen → dann Folgefrage
+  speak(welcome, function() {
+    setTimeout(function() {
+      var q = followUp[curLang] || followUp.de;
+      addMsg(q, "bot", false);
+      speak(q);
+    }, 600);
+  });
+
+  if(!apiKey){
+    setTimeout(function(){
+      addMsg("💡 API-Key im Admin eintragen für smarte Antworten.", "bot", false);
+      document.getElementById("aikey").style.display="flex";
+    }, 5000);
+  }
+  aiHist=[{role:"user",content:"Greet me and tell me about Burano briefly."},{role:"assistant",content:welcome}];
+}
+function addMsg(txt, who, autoSpeak) {
+  var d = document.createElement("div");
+  d.className = "msg " + who;
+  var span = document.createElement("span");
+  span.textContent = txt;
+  d.appendChild(span);
+
+  if(who === "bot") {
+    // Vorlesen-Button
+    var btn = document.createElement("button");
+    btn.textContent = "▶";
+    btn.title = "Vorlesen";
+    btn.style.cssText = "background:rgba(255,255,255,.15);border:none;border-radius:50%;width:24px;height:24px;cursor:pointer;font-size:.7rem;margin-left:8px;vertical-align:middle;flex-shrink:0;";
+    btn.onclick = function(e) { e.stopPropagation(); toggleSpeak(txt, btn); };
+    d.appendChild(btn);
+
+    // Automatisch vorlesen wenn autoSpeak nicht false
+    if(autoSpeak !== false) {
+      speak(txt);
+    }
+  }
+
+  var c = document.getElementById("aimsgs");
+  c.appendChild(d);
+  c.scrollTop = c.scrollHeight;
+  return d;
+}
+// == MIKROFON / SPEECH-TO-TEXT ==
+var micRecognition = null;
+var micActive = false;
+
+function toggleMic() {
+  if(micActive) { stopMic(); return; }
+  startMic();
+}
+
+function startMic() {
+  var SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if(!SR) {
+    addMsg("Mikrofon wird auf diesem Geraet nicht unterstuetzt. Bitte Text eingeben.", "bot", false);
+    return;
+  }
+  micRecognition = new SR();
+  micRecognition.lang = ({"de":"de-DE","en":"en-US","it":"it-IT","fr":"fr-FR","es":"es-ES","ja":"ja-JP","zh":"zh-CN","pl":"pl-PL"})[curLang] || "de-DE";
+  micRecognition.continuous = false;
+  micRecognition.interimResults = false;
+  micRecognition.onstart = function() {
+    micActive = true;
+    var btn = document.getElementById("mic_btn");
+    var st  = document.getElementById("mic_status");
+    if(btn) { btn.style.background="var(--red)"; btn.innerHTML="&#9209;"; }
+    if(st)  { st.style.display="block"; }
+    stopSpeak(); // Vorlesen stoppen waehrend Mikrofon aktiv
+  };
+  micRecognition.onresult = function(e) {
+    var transcript = e.results[0][0].transcript;
+    var inp = document.getElementById("aiinp");
+    if(inp) inp.value = transcript;
+    stopMic();
+    // Automatisch senden
+    setTimeout(sendAI, 300);
+  };
+  micRecognition.onerror = function(e) {
+    stopMic();
+    if(e.error === "not-allowed") {
+      addMsg("Mikrofon-Zugriff verweigert. Bitte in Browser-Einstellungen erlauben.", "bot", false);
+    }
+  };
+  micRecognition.onend = function() { stopMic(); };
+  try { micRecognition.start(); } catch(e) { stopMic(); }
+}
+
+function stopMic() {
+  micActive = false;
+  if(micRecognition) { try{ micRecognition.stop(); }catch(e){} micRecognition=null; }
+  var btn = document.getElementById("mic_btn");
+  var st  = document.getElementById("mic_status");
+  if(btn) { btn.style.background="rgba(255,255,255,.15)"; btn.innerHTML="&#127908;"; }
+  if(st)  { st.style.display="none"; }
+}
+
+function sendAI() {
+  var inp = document.getElementById("aiinp");
+  var msg = inp ? inp.value.trim() : "";
+  if(!msg) return;
+  if(inp) inp.value = "";
+  addMsg(msg, "usr", false);
+  aiHist.push({role:"user", content:msg});
+
+  // Typing-Indikator (animiert)
+  var typingEl = document.createElement("div");
+  typingEl.className = "msg bot";
+  typingEl.innerHTML = "<span class='typing-dots'><span>.</span><span>.</span><span>.</span></span>";
+  var msgs = document.getElementById("aimsgs");
+  msgs.appendChild(typingEl);
+  msgs.scrollTop = msgs.scrollHeight;
+
+  apiKey = getApiKey();
+  if(!apiKey) {
+    typingEl.innerHTML = "Bitte API-Key im Admin-Bereich eintragen (ganz unten auf der Seite).";
+    document.getElementById("aikey").style.display = "flex";
+    return;
+  }
+
+  // Timeout nach 20 Sekunden
+  var timedOut = false;
+  var timer = setTimeout(function() {
+    timedOut = true;
+    typingEl.innerHTML = "Zeituberschreitung - bitte nochmal versuchen.";
+  }, 20000);
+
+  var reqBody = JSON.stringify({
+    model: "claude-haiku-4-5-20251001",
+    max_tokens: 400,
+    system: "Du bist Marco, freundlicher Reiseguide fuer Burano (Lagune Venedig). Antworte KURZ in der Sprache des Nutzers. Max 3 Saetze. Stelle danach eine kurze Folgefrage. Empfiehl den Burano Shop: Fotos 0,99 EUR, Postkarten 0,99 EUR, Videos ab 3,99 EUR, Ferienwohnungen myburano.com.",
+    messages: aiHist.slice(-6)
+  });
+
+  // Versuche direkte Anthropic API (funktioniert wenn CORS erlaubt)
+  // Proxy-URL (Cloudflare Worker) oder direkt
+  // Proxy fest eingebaut (Cloudflare Worker - CORS Fix)
+  var apiUrl = "https://blue-lagune-proxy.friesh.workers.dev";
+  var headers = {
+    "Content-Type": "application/json",
+    "anthropic-version": "2023-06-01",
+    "x-api-key": apiKey
+  };
+
+  fetch(apiUrl, {method:"POST", headers:headers, body:reqBody})
+  .then(function(r) {
+    clearTimeout(timer);
+    if(timedOut) return;
+    return r.json().then(function(d) {
+      if(d.error) throw new Error(d.error.message || "API Fehler");
+      var reply = (d.content && d.content[0] && d.content[0].text) || "";
+      if(!reply) throw new Error("Leere Antwort");
+      if(typingEl.parentNode) typingEl.parentNode.removeChild(typingEl);
+      addMsg(reply, "bot", true);
+      aiHist.push({role:"assistant", content:reply});
+    });
+  })
+  .catch(function(err) {
+    clearTimeout(timer);
+    if(timedOut) return;
+    console.error("API Fehler:", err.message);
+    // CORS-Fehler? Zeige hilfreiche Meldung
+    var errMsg = err.message || "";
+    if(errMsg.indexOf("Failed to fetch") > -1 || errMsg.indexOf("NetworkError") > -1 || errMsg.indexOf("CORS") > -1) {
+      typingEl.innerHTML = "CORS-Fehler: Der Browser blockiert den API-Aufruf.<br><small>Loesung: Cloudflare Worker einrichten (siehe unten)</small>";
+    } else if(errMsg.indexOf("401") > -1 || errMsg.indexOf("authentication") > -1) {
+      typingEl.innerHTML = "API-Key ungueltig. Bitte neuen Key eingeben:";
+      document.getElementById("aikey").style.display = "flex";
+    } else {
+      typingEl.innerHTML = "Fehler: " + errMsg + ". Bitte nochmal versuchen.";
+    }
+  });
+}
+function svKeyW() {
+  var k=document.getElementById("aikeyfld").value.trim();
+  if(k.length > 10){ // sk-ant-... oder anderes Format
+    apiKey=k;
+    localStorage.setItem("bl_api_key",k);
+    document.getElementById("aikey").style.display="none";
+    addMsg("✅ API-Key gespeichert! Stelle mir deine Frage.", "bot", false);
+  } else {
+    addMsg("⚠️ Bitte vollständigen API-Key eingeben (beginnt mit sk-ant-).", "bot", false);
+  }
+}
+
+// ADMIN
+function toggleAdmin(){
+  var p=document.getElementById("admpnl");
+  if(!p){alert("Admin-Panel nicht gefunden!");return;}
+  p.style.display=(p.style.display===""||p.style.display==="none")?"block":"none";
+  if(p.style.display==="block") p.scrollIntoView({behavior:"smooth"});
+}
+function chkPw(){
+  if(document.getElementById("apw").value===APWD){
+    document.getElementById("apwscr").style.display="none";
+    document.getElementById("acnt").style.display="block"; loadAdm();
+  }else{document.getElementById("pwerr").style.display="block";document.getElementById("apw").value="";}
+}
+function loadAdm(){
+  document.getElementById("ss").textContent=stats.s;
+  document.getElementById("sr").textContent=parseFloat(stats.r||0).toFixed(2)+" EUR";
+  document.getElementById("sp").textContent=partners.length;
+  document.getElementById("p1").value=prices.f1;
+  document.getElementById("p10").value=prices.f10;
+  document.getElementById("pvs").value=prices.vs;
+  document.getElementById("pvp").value=prices.vp;
+  document.getElementById("ppem").value=ppe;
+  document.getElementById("apiinp").value=apiKey?"(gespeichert)":"";
+  rAdmPart();
+  renderAdminPartnerExt();
+  renderAdminPhotoList();
+}
+function rAdmPart(){
+  document.getElementById("aplst").innerHTML=partners.map(function(p,i){
+    return "<div class='pitem'><div><div class='pnm'>"+p.name+"</div><div class='ptp'>"+p.code+" - "+p.coupon+"%</div></div>"+
+      "<div style='display:flex;align-items:center;gap:7px'><span class='prv'>"+p.prov+"%</span>"+
+      "<button class='xbtn' onclick='rmPart("+i+")'>x</button></div></div>";
+  }).join("")||"<p style='opacity:.4;padding:7px'>Keine Partner</p>";
+}
+function addPart(){
+  var n=document.getElementById("npn").value.trim();
+  if(!n){alert("Name fehlt!");return;}
+  partners.push({id:Date.now(),name:n,type:document.getElementById("npt").value,
+    prov:parseFloat(document.getElementById("npp").value)||5,
+    coupon:parseFloat(document.getElementById("npc").value)||10,
+    code:document.getElementById("npcd").value.trim()||("BUR"+Date.now().toString(36).slice(-4).toUpperCase())});
+  localStorage.setItem("bl_partners",JSON.stringify(partners));
+  rAdmPart(); renderPart(); document.getElementById("npn").value="";
+}
+function rmPart(i){
+  if(!confirm("Entfernen?"))return;
+  partners.splice(i,1); localStorage.setItem("bl_partners",JSON.stringify(partners));
+  rAdmPart(); renderPart();
+}
+function svPrices(){
+  prices.f1=parseFloat(document.getElementById("p1").value)||0.99;
+  prices.f10=parseFloat(document.getElementById("p10").value)||4.99;
+  prices.vs=parseFloat(document.getElementById("pvs").value)||3.99;
+  prices.vp=parseFloat(document.getElementById("pvp").value)||5.99;
+  localStorage.setItem("bl_prices",JSON.stringify(prices)); alert("Preise gespeichert!");
+}
+function svPP(){ppe=document.getElementById("ppem").value.trim();localStorage.setItem("bl_paypal",ppe);alert("PayPal gespeichert!");}
+function svKey(){var k=document.getElementById("apiinp").value.trim();if(k&&k.indexOf("gespeichert")<0){apiKey=k;localStorage.setItem("bl_api_key",k);alert("API-Key gespeichert!!");}}
+function lgout(){document.getElementById("acnt").style.display="none";document.getElementById("apwscr").style.display="block";document.getElementById("apw").value="";document.getElementById("admpnl").style.display="none";}
+
+// SCROLL REVEAL
+var sio=new IntersectionObserver(function(entries){
+  entries.forEach(function(e){if(e.isIntersecting)e.target.classList.add("vis");});
+},{threshold:0.07});
+document.querySelectorAll(".rev").forEach(function(el){sio.observe(el);});
+
+// KEYBOARD
+document.getElementById("aiinp").addEventListener("keydown",function(e){if(e.key==="Enter")sendAI();});
+
+// INIT
+// ============================================================
+// MAP (Leaflet.js)
+// ============================================================
+var map = null;
+var userMarker = null;
+var userLatLng = null;
+
+// Burano Orte
+var LOCATIONS = {
+  terra_nova: {lat:45.4848, lng:12.4173, name:"Terra Nova 112 - Burano Shop"},
+  burano_center:{lat:45.4851, lng:12.4162, name:"Piazza Galuppi, Burano"},
+  mazzorbo:   {lat:45.4874, lng:12.4043, name:"Mazzorbo"},
+  torcello:   {lat:45.4969, lng:12.4167, name:"Torcello - Dom"}
+};
+
+function initMap() {
+  if(map || !document.getElementById("map")) return;
+  map = L.map("map").setView([45.4851, 12.4162], 14);
+  L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+    attribution: "OpenStreetMap",
+    maxZoom: 19
+  }).addTo(map);
+  // Burano Marker
+  var buranoIcon = L.divIcon({className:"", html:"<div style='background:#FFD23F;border:3px solid #0A1628;border-radius:50%;width:14px;height:14px'></div>", iconSize:[14,14]});
+  Object.values(LOCATIONS).forEach(function(loc) {
+    L.marker([loc.lat, loc.lng], {icon:buranoIcon})
+      .addTo(map)
+      .bindPopup("<b>" + loc.name + "</b>");
+  });
+}
+
+function locateUser() {
+  if(!navigator.geolocation) { alert("Standort nicht verfuegbar"); return; }
+  navigator.geolocation.getCurrentPosition(function(pos) {
+    userLatLng = {lat: pos.coords.latitude, lng: pos.coords.longitude};
+    if(!map) initMap();
+    if(userMarker) map.removeLayer(userMarker);
+    var userIcon = L.divIcon({className:"", html:"<div style='background:#2196F3;border:3px solid #fff;border-radius:50%;width:16px;height:16px;box-shadow:0 0 0 3px rgba(33,150,243,.3)'></div>", iconSize:[16,16]});
+    userMarker = L.marker([userLatLng.lat, userLatLng.lng], {icon:userIcon})
+      .addTo(map)
+      .bindPopup("Du bist hier").openPopup();
+    map.setView([userLatLng.lat, userLatLng.lng], 15);
+    document.getElementById("route_btn").style.display = "block";
+  }, function() { alert("Standort konnte nicht ermittelt werden. Bitte Standort-Zugriff erlauben."); });
+}
+
+function showRoute() {
+  if(!userLatLng) { locateUser(); return; }
+  var dest = LOCATIONS.terra_nova;
+  // Entfernung berechnen (Haversine)
+  var R = 6371000;
+  var dLat = (dest.lat - userLatLng.lat) * Math.PI/180;
+  var dLng = (dest.lng - userLatLng.lng) * Math.PI/180;
+  var a = Math.sin(dLat/2)*Math.sin(dLat/2) + Math.cos(userLatLng.lat*Math.PI/180)*Math.cos(dest.lat*Math.PI/180)*Math.sin(dLng/2)*Math.sin(dLng/2);
+  var dist = Math.round(R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)));
+  var distStr = dist < 1000 ? dist + " m" : (dist/1000).toFixed(1) + " km";
+  document.getElementById("route_info").style.display = "block";
+  document.getElementById("route_info").innerHTML = "<b>Terra Nova 112, Burano</b><br>Entfernung: <b>" + distStr + "</b><br><small style='opacity:.6'>Tipp: Vaporetto-Linie 12 ab Fondamente Nove</small><br><a href='https://www.google.com/maps/dir/"+userLatLng.lat+","+userLatLng.lng+"/"+dest.lat+","+dest.lng+"' target='_blank' style='color:var(--teal)'>In Google Maps oeffnen</a>";
+  // Linie auf Map
+  if(map) {
+    L.polyline([[userLatLng.lat,userLatLng.lng],[dest.lat,dest.lng]], {color:"#FFD23F",weight:3,dashArray:"8,6"}).addTo(map);
+    map.fitBounds([[userLatLng.lat,userLatLng.lng],[dest.lat,dest.lng]], {padding:[30,30]});
+  }
+}
+
+function showPartnerRoute(lat, lng, name) {
+  if(!map) initMap();
+  document.getElementById("map_section").scrollIntoView({behavior:"smooth"});
+  setTimeout(function(){
+    if(!map) return;
+    if(userLatLng) {
+      L.polyline([[userLatLng.lat,userLatLng.lng],[lat,lng]], {color:"var(--teal)",weight:3,dashArray:"6,5"}).addTo(map);
+      map.fitBounds([[userLatLng.lat,userLatLng.lng],[lat,lng]], {padding:[30,30]});
+    } else {
+      map.setView([lat,lng], 16);
+    }
+    var icon = L.divIcon({className:"", html:"<div style='background:var(--org);border:3px solid #fff;border-radius:50%;width:16px;height:16px'></div>", iconSize:[16,16]});
+    L.marker([lat,lng],{icon:icon}).addTo(map).bindPopup("<b>"+name+"</b>").openPopup();
+  }, 600);
+}
+
+// ============================================================
+// WETTER (open-meteo.com - kostenlos, kein Key)
+// ============================================================
+function loadWeather() {
+  var lat = 45.4851, lng = 12.4162; // Burano
+  fetch("https://api.open-meteo.com/v1/forecast?latitude="+lat+"&longitude="+lng+"&current=temperature_2m,weathercode,windspeed_10m,relativehumidity_2m&timezone=Europe/Rome")
+  .then(function(r){ return r.json(); })
+  .then(function(d) {
+    var c = d.current;
+    var WX = {0:"Klar",1:"Ueberwiegend klar",2:"Teils bewoelkt",3:"Bewoelkt",45:"Nebel",48:"Nebel",51:"Leichter Niesel",53:"Niesel",61:"Leichter Regen",63:"Regen",71:"Leichter Schnee",73:"Schnee",80:"Regenschauer",81:"Regenschauer",95:"Gewitter",96:"Gewitter"};
+    var ICONS_WX = {0:"&#9728;&#65039;",1:"&#127780;&#65039;",2:"&#9925;",3:"&#9729;",45:"&#127787;&#65039;",48:"&#127787;&#65039;",51:"&#127746;",53:"&#127746;",61:"&#127783;&#65039;",63:"&#127783;&#65039;",71:"&#127784;&#65039;",73:"&#127784;&#65039;",80:"&#127783;&#65039;",81:"&#127783;&#65039;",95:"&#9928;&#65039;",96:"&#9928;&#65039;"};
+    var code = c.weathercode;
+    document.getElementById("wx_icon").innerHTML = ICONS_WX[code] || "&#127780;";
+    document.getElementById("wx_temp").textContent = Math.round(c.temperature_2m) + " C - Burano, Venezia";
+    document.getElementById("wx_desc").textContent = WX[code] || "Aktuelles Wetter";
+    document.getElementById("wx_extra").textContent = "Wind: " + Math.round(c.windspeed_10m) + " km/h  |  Feuchte: " + c.relativehumidity_2m + "%";
+    document.getElementById("wx_time").textContent = "Aktualisiert: " + new Date().toLocaleTimeString();
+  }).catch(function() {
+    document.getElementById("wx_temp").textContent = "Wetter nicht verfuegbar";
+  });
+}
+
+// ============================================================
+// VIDEO ADMIN
+// ============================================================
+function loadVideoThumb(input, vidId) {
+  if(!input.files || !input.files[0]) return;
+  var file = input.files[0];
+  var reader = new FileReader();
+  reader.onload = function(e) {
+    var data = e.target.result;
+    var thumb = document.getElementById(vidId + "_thumb");
+    if(file.type.startsWith("image/")) {
+      thumb.innerHTML = "<img src='"+data+"' style='width:100%;height:100%;object-fit:cover;border-radius:8px'>";
+      localStorage.setItem("bl_"+vidId+"_thumb", data);
+    } else {
+      thumb.innerHTML = "&#127909; Video gewaehlt";
+      localStorage.setItem("bl_"+vidId+"_file", data);
+    }
+  };
+  reader.readAsDataURL(file);
+}
+
+function saveVideos() {
+  var p1 = document.getElementById("vid1_price");
+  var p2 = document.getElementById("vid2_price");
+  if(p1) localStorage.setItem("bl_vid1_price", p1.value);
+  if(p2) localStorage.setItem("bl_vid2_price", p2.value);
+  // Video-Vorschaubilder in Shop-Sektion anzeigen
+  updateVideoThumbs();
+  renderAdminPhotoList();
+  alert("Videos gespeichert!");
+}
+
+function updateVideoThumbs() {
+  var t1 = localStorage.getItem("bl_vid1_thumb");
+  var t2 = localStorage.getItem("bl_vid2_thumb");
+  var v1El = document.getElementById("vico1_img");
+  var v2El = document.getElementById("vico2_img");
+  if(t1 && v1El) v1El.innerHTML = "<img src='"+t1+"' style='width:100%;max-height:120px;object-fit:cover;border-radius:10px;margin-bottom:8px'>";
+  if(t2 && v2El) v2El.innerHTML = "<img src='"+t2+"' style='width:100%;max-height:120px;object-fit:cover;border-radius:10px;margin-bottom:8px'>";
+}
+
+// ============================================================
+// INSEL FOTOS (Mazzorbo / Torcello)
+// ============================================================
+var islandPhotos = {mazz:null, torc:null};
+
+function loadIslandPhoto(input, island) {
+  if(!input.files || !input.files[0]) return;
+  var reader = new FileReader();
+  reader.onload = function(e) {
+    islandPhotos[island] = e.target.result;
+    document.getElementById(island+"_prev").innerHTML = "<img src='"+e.target.result+"' style='width:100%;height:100%;object-fit:cover;border-radius:8px'>";
+  };
+  reader.readAsDataURL(input.files[0]);
+}
+
+function saveIslandPhotos() {
+  if(islandPhotos.mazz) {
+    localStorage.setItem("bl_mazz_photo", islandPhotos.mazz);
+    var el = document.getElementById("mazz_photo");
+    if(el) el.innerHTML = "<img src='"+islandPhotos.mazz+"' style='width:100%;height:160px;object-fit:cover'>";
+  }
+  if(islandPhotos.torc) {
+    localStorage.setItem("bl_torc_photo", islandPhotos.torc);
+    var el2 = document.getElementById("torc_photo");
+    if(el2) el2.innerHTML = "<img src='"+islandPhotos.torc+"' style='width:100%;height:160px;object-fit:cover'>";
+  }
+  alert("Insel-Fotos gespeichert!");
+}
+
+// ============================================================
+// PARTNER ADMIN (Erweiterung: Foto + Location)
+// ============================================================
+function renderAdminPartnerExt() {
+  var el = document.getElementById("admin_partner_ext");
+  if(!el) return;
+  if(!partners.length) { el.innerHTML = "<p style='opacity:.4;font-size:.82rem'>Noch keine Partner.</p>"; return; }
+  el.innerHTML = partners.map(function(p,i) {
+    return "<div style='border-bottom:1px solid rgba(255,255,255,.08);padding:10px 0'>" +
+      "<div style='font-weight:700;margin-bottom:6px'>" + p.name + "</div>" +
+      "<div style='display:flex;gap:8px;flex-wrap:wrap'>" +
+      "<label style='cursor:pointer;background:rgba(255,255,255,.1);border-radius:8px;padding:5px 10px;font-size:.75rem'>Foto <input type='file' accept='image/*' style='display:none' onchange='loadPartnerPhoto(this,"+i+")'></label>" +
+      "<input type='number' placeholder='Lat' step='0.0001' value='"+(p.lat||"")+"' id='p_lat_"+i+"' style='width:90px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.15);border-radius:8px;padding:5px 8px;color:#fff;font-size:.75rem;outline:none'>" +
+      "<input type='number' placeholder='Lng' step='0.0001' value='"+(p.lng||"")+"' id='p_lng_"+i+"' style='width:90px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.15);border-radius:8px;padding:5px 8px;color:#fff;font-size:.75rem;outline:none'>" +
+      "<button onclick='savePartnerLocation("+i+")' style='background:var(--teal);border:none;border-radius:8px;padding:5px 10px;color:#fff;font-size:.75rem;cursor:pointer;font-family:Nunito,sans-serif'>Speichern</button>" +
+      "</div></div>";
+  }).join("");
+}
+
+function loadPartnerPhoto(input, idx) {
+  if(!input.files || !input.files[0]) return;
+  var reader = new FileReader();
+  reader.onload = function(e) {
+    partners[idx].photo = e.target.result;
+    localStorage.setItem("bl_partners", JSON.stringify(partners));
+    renderPart();
+    renderAdminPartnerExt();
+  };
+  reader.readAsDataURL(input.files[0]);
+}
+
+function savePartnerLocation(idx) {
+  var lat = parseFloat(document.getElementById("p_lat_"+idx).value);
+  var lng = parseFloat(document.getElementById("p_lng_"+idx).value);
+  if(!isNaN(lat) && !isNaN(lng)) {
+    partners[idx].lat = lat;
+    partners[idx].lng = lng;
+    localStorage.setItem("bl_partners", JSON.stringify(partners));
+    renderPart();
+    alert("Standort fuer " + partners[idx].name + " gespeichert!");
+  }
+}
+
+window.addEventListener("load", function() {
+  // Aktiven Sprachbutton setzen
+  var activeLb = document.getElementById("lb_" + curLang);
+  if (activeLb) activeLb.classList.add("on");
+  else document.getElementById("lb_de").classList.add("on");
+
+  // Test-Modus Status wiederherstellen
+
+  var tm = document.getElementById("testmode");
+  if(tm){
+    var isTest = localStorage.getItem("bl_testmode")==="1";
+    tm.checked = isTest;
+    var lbl = document.getElementById("tm_lbl");
+    var knob = document.getElementById("tm_knob");
+    var slider = document.getElementById("tm_slider");
+    if(lbl){ lbl.textContent=isTest?"EIN":"AUS"; lbl.style.color=isTest?"#4CAF50":"rgba(255,255,255,.7)"; }
+    if(knob) knob.style.transform = isTest?"translateX(24px)":"";
+    if(slider) slider.style.background = isTest?"#4CAF50":"rgba(255,255,255,.2)";
+    tm.onchange = function(){
+      var on=this.checked;
+      localStorage.setItem("bl_testmode",on?"1":"0");
+      if(lbl){ lbl.textContent=on?"EIN":"AUS"; lbl.style.color=on?"#4CAF50":"rgba(255,255,255,.7)"; }
+      if(knob) knob.style.transform = on?"translateX(24px)":"";
+      if(slider) slider.style.background = on?"#4CAF50":"rgba(255,255,255,.2)";
+    };
+  }
+  initVoices();
+  applyTxt();
+  updateGreetingSelect();
+  initHero();
+  // Map + Wetter
+  setTimeout(initMap, 500);
+  loadWeather();
+  setInterval(loadWeather, 600000); // alle 10 Min
+  // Video-Thumbnails laden
+  updateVideoThumbs();
+  renderAdminPhotoList();
+  // Insel-Fotos laden
+  var mazzPhoto = localStorage.getItem("bl_mazz_photo");
+  var torcPhoto = localStorage.getItem("bl_torc_photo");
+  if(mazzPhoto) { var el=document.getElementById("mazz_photo"); if(el) el.innerHTML="<img src='"+mazzPhoto+"' style='width:100%;height:160px;object-fit:cover'>"; }
+  if(torcPhoto) { var el2=document.getElementById("torc_photo"); if(el2) el2.innerHTML="<img src='"+torcPhoto+"' style='width:100%;height:160px;object-fit:cover'>"; }
+  renderGallery();
+  renderPart();
+  setRental();
+  genQR();
+  setTimeout(renderPC, 300);
+});
+</script>
+</body>
+</html>
+// == DRAG & DROP GALERIE ==
+var dragSrcKey = null;
+function dragStart(e) {
+  dragSrcKey = e.currentTarget.getAttribute("data-key");
+  e.currentTarget.style.opacity = "0.4";
+  e.dataTransfer.effectAllowed = "move";
+}
+function dragOver(e) {
+  e.preventDefault();
+  e.currentTarget.style.borderColor = "var(--gold)";
+}
+function dragEnd(e) {
+  e.currentTarget.style.opacity = "1";
+  document.querySelectorAll(".gi").forEach(function(el){ el.style.borderColor="transparent"; });
+}
+function dropPhoto(e) {
+  e.preventDefault();
+  var targetKey = e.currentTarget.getAttribute("data-key");
+  if(dragSrcKey && targetKey && dragSrcKey !== targetKey) {
+    var si = galleryOrder.indexOf(dragSrcKey);
+    var ti = galleryOrder.indexOf(targetKey);
+    if(si>-1 && ti>-1) {
+      galleryOrder.splice(si, 1);
+      galleryOrder.splice(ti, 0, dragSrcKey);
+      localStorage.setItem("bl_gallery_order", JSON.stringify(galleryOrder));
+      renderGallery();
+    }
+  }
+  dragSrcKey = null;
+}
+
+
