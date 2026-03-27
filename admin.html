@@ -1,0 +1,929 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Blue Lagune — Admin</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@400;600;700&display=swap');
+
+  :root {
+    --bg: #0a0f14;
+    --surface: #111820;
+    --border: rgba(0,180,216,.15);
+    --aqua: #00b4d8;
+    --aqua2: #0077b6;
+    --text: rgba(255,255,255,.88);
+    --muted: rgba(255,255,255,.4);
+    --success: #2ecc71;
+    --warn: #f39c12;
+    --danger: #e74c3c;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Syne', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+  }
+
+  /* ── LOGIN ── */
+  #loginScreen {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: radial-gradient(ellipse at 50% 40%, rgba(0,119,182,.12) 0%, transparent 70%);
+  }
+  .login-box {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 1.5rem;
+    padding: 3rem 2.5rem;
+    width: 100%;
+    max-width: 380px;
+    text-align: center;
+  }
+  .login-logo { font-size: 2rem; font-weight: 700; letter-spacing: -.02em; margin-bottom: .3rem; }
+  .login-logo span { color: var(--aqua); }
+  .login-sub { color: var(--muted); font-size: .8rem; margin-bottom: 2rem; }
+  .login-box input {
+    width: 100%;
+    background: rgba(255,255,255,.05);
+    border: 1px solid var(--border);
+    border-radius: .75rem;
+    padding: .9rem 1.1rem;
+    color: var(--text);
+    font-family: 'DM Mono', monospace;
+    font-size: .9rem;
+    margin-bottom: 1rem;
+    outline: none;
+    transition: border-color .2s;
+  }
+  .login-box input:focus { border-color: var(--aqua); }
+  .login-btn {
+    width: 100%;
+    background: var(--aqua);
+    color: #000;
+    border: none;
+    border-radius: .75rem;
+    padding: .9rem;
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: .95rem;
+    cursor: pointer;
+    transition: opacity .2s;
+  }
+  .login-btn:hover { opacity: .85; }
+  .login-error { color: var(--danger); font-size: .8rem; margin-top: .75rem; display: none; }
+
+  /* ── MAIN LAYOUT ── */
+  #adminApp { display: none; }
+
+  .topbar {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 1rem 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .topbar-logo { font-size: 1.1rem; font-weight: 700; }
+  .topbar-logo span { color: var(--aqua); }
+  .topbar-right { display: flex; gap: .75rem; align-items: center; }
+  .badge-saved {
+    background: rgba(46,204,113,.15);
+    border: 1px solid rgba(46,204,113,.3);
+    color: var(--success);
+    padding: .3rem .8rem;
+    border-radius: 2rem;
+    font-size: .75rem;
+    display: none;
+  }
+
+  .btn {
+    padding: .55rem 1.2rem;
+    border-radius: .6rem;
+    border: none;
+    cursor: pointer;
+    font-family: 'Syne', sans-serif;
+    font-weight: 600;
+    font-size: .82rem;
+    transition: all .2s;
+  }
+  .btn-primary { background: var(--aqua); color: #000; }
+  .btn-primary:hover { opacity: .85; }
+  .btn-ghost { background: transparent; border: 1px solid var(--border); color: var(--text); }
+  .btn-ghost:hover { border-color: var(--aqua); color: var(--aqua); }
+  .btn-danger { background: rgba(231,76,60,.15); border: 1px solid rgba(231,76,60,.3); color: var(--danger); }
+
+  .layout { display: flex; min-height: calc(100vh - 57px); }
+
+  /* ── SIDEBAR ── */
+  .sidebar {
+    width: 220px;
+    background: var(--surface);
+    border-right: 1px solid var(--border);
+    padding: 1.5rem 0;
+    flex-shrink: 0;
+    position: sticky;
+    top: 57px;
+    height: calc(100vh - 57px);
+    overflow-y: auto;
+  }
+  .sidebar-section { padding: .3rem 1.2rem; font-size: .65rem; text-transform: uppercase; letter-spacing: .1em; color: var(--muted); margin-top: 1rem; margin-bottom: .3rem; }
+  .sidebar a {
+    display: flex;
+    align-items: center;
+    gap: .6rem;
+    padding: .6rem 1.4rem;
+    color: var(--muted);
+    text-decoration: none;
+    font-size: .85rem;
+    transition: all .15s;
+    cursor: pointer;
+    border-left: 2px solid transparent;
+  }
+  .sidebar a:hover { color: var(--text); background: rgba(255,255,255,.03); }
+  .sidebar a.active { color: var(--aqua); border-left-color: var(--aqua); background: rgba(0,180,216,.06); }
+
+  /* ── CONTENT ── */
+  .content { flex: 1; padding: 2rem; overflow-y: auto; }
+
+  .section { display: none; }
+  .section.active { display: block; }
+
+  .section-title {
+    font-size: 1.4rem;
+    font-weight: 700;
+    margin-bottom: .3rem;
+  }
+  .section-sub { color: var(--muted); font-size: .85rem; margin-bottom: 2rem; }
+
+  /* ── CARDS ── */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 1rem;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+  }
+  .card-title {
+    font-size: .75rem;
+    text-transform: uppercase;
+    letter-spacing: .1em;
+    color: var(--aqua);
+    margin-bottom: 1.2rem;
+    font-weight: 600;
+  }
+
+  /* ── FORM FIELDS ── */
+  .field-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+  .field-grid.three { grid-template-columns: 1fr 1fr 1fr; }
+  @media(max-width:700px) { .field-grid, .field-grid.three { grid-template-columns: 1fr; } }
+
+  .field { display: flex; flex-direction: column; gap: .4rem; margin-bottom: .2rem; }
+  .field label { font-size: .75rem; color: var(--muted); font-weight: 500; }
+  .field input, .field textarea, .field select {
+    background: rgba(255,255,255,.04);
+    border: 1px solid var(--border);
+    border-radius: .6rem;
+    padding: .65rem .9rem;
+    color: var(--text);
+    font-family: 'DM Mono', monospace;
+    font-size: .82rem;
+    outline: none;
+    transition: border-color .2s;
+    width: 100%;
+    resize: vertical;
+  }
+  .field input:focus, .field textarea:focus, .field select:focus { border-color: var(--aqua); }
+  .field textarea { min-height: 90px; }
+  .field textarea.tall { min-height: 180px; }
+  .field textarea.xtall { min-height: 280px; }
+
+  /* ── PROPERTY TABS ── */
+  .prop-tabs { display: flex; gap: .5rem; flex-wrap: wrap; margin-bottom: 1.5rem; }
+  .prop-tab {
+    padding: .45rem 1rem;
+    border-radius: 2rem;
+    border: 1px solid var(--border);
+    color: var(--muted);
+    font-size: .8rem;
+    cursor: pointer;
+    transition: all .2s;
+    background: none;
+    font-family: 'Syne', sans-serif;
+  }
+  .prop-tab:hover { border-color: var(--aqua); color: var(--aqua); }
+  .prop-tab.active { background: var(--aqua); border-color: var(--aqua); color: #000; font-weight: 700; }
+
+  /* ── LANG TABS ── */
+  .lang-tabs { display: flex; gap: .4rem; margin-bottom: 1rem; }
+  .lang-tab {
+    padding: .35rem .9rem;
+    border-radius: 2rem;
+    border: 1px solid var(--border);
+    color: var(--muted);
+    font-size: .75rem;
+    cursor: pointer;
+    transition: all .2s;
+    background: none;
+    font-family: 'Syne', sans-serif;
+    font-weight: 600;
+  }
+  .lang-tab.active { background: rgba(0,180,216,.15); border-color: var(--aqua); color: var(--aqua); }
+  .lang-panel { display: none; }
+  .lang-panel.active { display: block; }
+
+  /* ── EXPORT AREA ── */
+  .export-box {
+    background: #060c10;
+    border: 1px solid var(--border);
+    border-radius: .75rem;
+    padding: 1.2rem;
+    font-family: 'DM Mono', monospace;
+    font-size: .75rem;
+    color: #7ec8e3;
+    max-height: 300px;
+    overflow-y: auto;
+    white-space: pre-wrap;
+    word-break: break-all;
+  }
+
+  /* ── STATUS BAR ── */
+  .status-bar {
+    position: fixed;
+    bottom: 1.5rem;
+    right: 1.5rem;
+    background: var(--success);
+    color: #000;
+    padding: .7rem 1.4rem;
+    border-radius: 2rem;
+    font-weight: 700;
+    font-size: .85rem;
+    opacity: 0;
+    transform: translateY(10px);
+    transition: all .3s;
+    pointer-events: none;
+    z-index: 999;
+  }
+  .status-bar.show { opacity: 1; transform: translateY(0); }
+
+  /* ── AGENT PROMPT ── */
+  .prompt-tip {
+    background: rgba(0,180,216,.06);
+    border: 1px solid rgba(0,180,216,.18);
+    border-radius: .75rem;
+    padding: .9rem 1.1rem;
+    font-size: .8rem;
+    color: var(--muted);
+    margin-bottom: 1rem;
+    line-height: 1.7;
+  }
+  .prompt-tip strong { color: var(--aqua); }
+
+  /* ── TAG EDITOR ── */
+  .tag-list { display: flex; gap: .6rem; flex-wrap: wrap; margin-bottom: 1.5rem; }
+  .tag-item {
+    padding: .4rem 1rem;
+    border-radius: 2rem;
+    border: 1px solid var(--border);
+    color: var(--muted);
+    font-size: .8rem;
+    cursor: pointer;
+    transition: all .2s;
+    background: none;
+    font-family: 'Syne', sans-serif;
+  }
+  .tag-item.active { background: rgba(0,180,216,.12); border-color: var(--aqua); color: var(--aqua); }
+
+  .divider { border: none; border-top: 1px solid var(--border); margin: 1.5rem 0; }
+</style>
+</head>
+<body>
+
+<!-- ── LOGIN ── -->
+<div id="loginScreen">
+  <div class="login-box">
+    <div class="login-logo">Blue <span>Lagune</span></div>
+    <div class="login-sub">Admin-Panel · Burano</div>
+    <input type="password" id="pwInput" placeholder="Passwort eingeben" onkeydown="if(event.key==='Enter')doLogin()">
+    <button class="login-btn" onclick="doLogin()">Einloggen</button>
+    <div class="login-error" id="loginErr">Falsches Passwort</div>
+  </div>
+</div>
+
+<!-- ── ADMIN APP ── -->
+<div id="adminApp">
+  <div class="topbar">
+    <div class="topbar-logo">Blue <span>Lagune</span> <span style="color:var(--muted);font-weight:400;font-size:.8rem">· Admin</span></div>
+    <div class="topbar-right">
+      <span class="badge-saved" id="savedBadge">✓ Gespeichert</span>
+      <button class="btn btn-primary" onclick="generateDataJs()">💾 data.js exportieren</button>
+      <button class="btn btn-ghost" onclick="doLogout()">Abmelden</button>
+    </div>
+  </div>
+
+  <div class="layout">
+    <nav class="sidebar">
+      <div class="sidebar-section">Immobilien</div>
+      <a onclick="showSection('props')" class="active" id="nav-props">🏛️ Objekte & Preise</a>
+      <div class="sidebar-section">Sprache & KI</div>
+      <a onclick="showSection('agent')" id="nav-agent">🤖 KI-Assistent</a>
+      <a onclick="showSection('tags')" id="nav-tags">🏷️ Info-Buttons</a>
+      <div class="sidebar-section">API & System</div>
+      <a onclick="showSection('apikey')" id="nav-apikey">🔑 API Key</a>
+      <div class="sidebar-section">Export</div>
+      <a onclick="showSection('export')" id="nav-export">📄 data.js generieren</a>
+    </nav>
+
+    <div class="content">
+
+      <!-- ── OBJEKTE ── -->
+      <div class="section active" id="sec-props">
+        <div class="section-title">Objekte & Preise</div>
+        <div class="section-sub">Preise, Beschreibungen und Details der 6 Immobilien bearbeiten</div>
+
+        <div class="prop-tabs" id="propTabs"></div>
+        <div id="propEditor"></div>
+      </div>
+
+      <!-- ── KI-ASSISTENT ── -->
+      <div class="section" id="sec-agent">
+        <div class="section-title">KI-Assistent</div>
+        <div class="section-sub">Persönlichkeit, Wissensbasis und Stil des Voice Agents anpassen</div>
+
+        <div class="prompt-tip">
+          <strong>Tipps für gute Prompts:</strong> Beschreiben Sie die Persönlichkeit präzise. Verwenden Sie Beispielsätze. Der Agent liest seine Antworten vor — kurze, bildhafte Sätze wirken besser als lange Listen. Stoßzeiten, Preise und Routen hier aktuell halten.
+        </div>
+
+        <div class="lang-tabs">
+          <button class="lang-tab active" onclick="switchAgentLang('de',this)">🇩🇪 Deutsch</button>
+          <button class="lang-tab" onclick="switchAgentLang('it',this)">🇮🇹 Italiano</button>
+          <button class="lang-tab" onclick="switchAgentLang('en',this)">🇬🇧 English</button>
+        </div>
+
+        <div class="card">
+          <div class="card-title">System-Prompt — <span id="agentLangLabel">Deutsch</span></div>
+          <div class="field">
+            <label>Persönlichkeit & Wissensbasis des Agenten</label>
+            <textarea class="xtall" id="agentPrompt" oninput="markDirty()"></textarea>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-title">Quick-Chips (Schnellauswahl im Agenten)</div>
+          <div class="lang-tabs">
+            <button class="lang-tab active" onclick="switchChipsLang('de',this)">🇩🇪 DE</button>
+            <button class="lang-tab" onclick="switchChipsLang('it',this)">🇮🇹 IT</button>
+            <button class="lang-tab" onclick="switchChipsLang('en',this)">🇬🇧 EN</button>
+          </div>
+          <div class="field" style="margin-top:.5rem">
+            <label>Chips (kommagetrennt, mit Emoji)</label>
+            <input type="text" id="chipsInput" oninput="markDirty()" placeholder="☀️ Wetter im Mai, 🏠 Ähnliche Objekte...">
+          </div>
+        </div>
+      </div>
+
+      <!-- ── TAGS ── -->
+      <div class="section" id="sec-tags">
+        <div class="section-title">Info-Buttons</div>
+        <div class="section-sub">Texte der 8 anklickbaren Tags bearbeiten (Vaporetto, UNESCO, Strand etc.)</div>
+
+        <div class="tag-list" id="tagList"></div>
+        <div id="tagEditor"></div>
+      </div>
+
+      <!-- ── API KEY ── -->
+      <div class="section" id="sec-apikey">
+        <div class="section-title">API Key</div>
+        <div class="section-sub">Anthropic API Key verwalten — wird lokal gespeichert und beim Proxy-Call mitgesendet</div>
+        <div class="card">
+          <div class="card-title">Aktueller API Key</div>
+          <div class="field">
+            <label>Anthropic API Key (sk-ant-...)</label>
+            <div style="display:flex;gap:.75rem;align-items:center">
+              <input type="password" id="apiKeyInput" style="flex:1;background:rgba(255,255,255,.05);border:1px solid var(--border);border-radius:8px;padding:10px 14px;color:var(--text);font-family:inherit;font-size:.85rem;outline:none" placeholder="sk-ant-api03-...">
+              <button class="btn btn-primary" onclick="saveApiKey()">💾 Speichern</button>
+              <button class="btn btn-ghost" onclick="toggleKeyVisibility()">👁</button>
+            </div>
+            <div id="apiKeyStatus" style="margin-top:.5rem;font-size:.75rem;color:var(--muted)"></div>
+          </div>
+          <div class="card-title" style="margin-top:1rem">Proxy-URL</div>
+          <div style="font-family:monospace;font-size:.78rem;color:var(--aqua);background:rgba(0,180,216,.07);padding:8px 12px;border-radius:7px;word-break:break-all">https://blue-lagune-proxy.friesh.workers.dev</div>
+        </div>
+      </div>
+
+      <!-- ── EXPORT ── -->
+      <div class="section" id="sec-export">
+        <div class="section-title">data.js exportieren</div>
+        <div class="section-sub">Generierte Datei herunterladen und in GitHub hochladen</div>
+
+        <div class="card">
+          <div class="card-title">Anleitung</div>
+          <ol style="color:var(--muted);font-size:.85rem;line-height:2;padding-left:1.3rem">
+            <li>Alle Änderungen oben eingeben</li>
+            <li>Auf <strong style="color:var(--aqua)">「💾 data.js exportieren」</strong> klicken</li>
+            <li>Datei wird automatisch heruntergeladen</li>
+            <li>In GitHub Repository hochladen (alte data.js ersetzen)</li>
+            <li>Fertig — Webseite zeigt sofort die neuen Inhalte</li>
+          </ol>
+        </div>
+
+        <div class="card">
+          <div class="card-title">Vorschau — generiertes data.js</div>
+          <div class="export-box" id="exportPreview">← Klicken Sie auf „💾 data.js exportieren" um die Vorschau zu sehen</div>
+          <div style="margin-top:1rem;display:flex;gap:.75rem">
+            <button class="btn btn-primary" onclick="generateDataJs()">💾 Herunterladen</button>
+            <button class="btn btn-ghost" onclick="copyExport()">📋 Kopieren</button>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /content -->
+  </div><!-- /layout -->
+</div><!-- /adminApp -->
+
+<div class="status-bar" id="statusBar">✓ Änderungen gespeichert</div>
+
+<script>
+// ══════════════════════════════════════════════
+// PASSWORD
+// ══════════════════════════════════════════════
+const ADMIN_PW = 'burano2024';
+
+function doLogin() {
+  const pw = document.getElementById('pwInput').value;
+  if (pw === ADMIN_PW) {
+    document.getElementById('loginScreen').style.display = 'none';
+    document.getElementById('adminApp').style.display = 'block';
+    initAdmin();
+  } else {
+    document.getElementById('loginErr').style.display = 'block';
+  }
+}
+function doLogout() {
+  document.getElementById('loginScreen').style.display = 'flex';
+  document.getElementById('adminApp').style.display = 'none';
+  document.getElementById('pwInput').value = '';
+}
+
+// ══════════════════════════════════════════════
+// DATA MODEL
+// ══════════════════════════════════════════════
+let data = {
+  properties: [
+    { id:1, name:'Palazzo Grande', type:'fertig', lage:'lagune', hafen:true, garten:true, premium:true,
+      location:'Via Laguna · Lagunensicht · Garten', sqm:128, floors:3, rooms:5,
+      price:'€ 720.000', achtelPrice:'⅛ ab € 90.000 · Palazzo Grande & Villa Laguna',
+      shortDesc:'128 m² · 3 Stockwerke · Garten · Liegeplatz · Lagunensicht',
+      fullDesc:'Der Palazzo Grande ist das Flaggschiff von Blue Lagune.' },
+    { id:2, name:'Villa Laguna', type:'fertig', lage:'lagune', hafen:true, garten:true, premium:true,
+      location:'Via Laguna · Lagunensicht · Garten', sqm:135, floors:3, rooms:6,
+      price:'€ 840.000', achtelPrice:'⅛ ab € 105.000 · Palazzo Grande & Villa Laguna',
+      shortDesc:'135 m² · 3 Stockwerke · Garten · Liegeplatz · Lagunensicht',
+      fullDesc:'Die Villa Laguna vereint historischen Charme mit modernem Komfort.' },
+    { id:3, name:'Casa Premium', type:'fertig', lage:'kanal', hafen:false, garten:false, premium:true,
+      location:'Via del Canale · Kanalblick · Dachterrasse', sqm:122, floors:3, rooms:5,
+      price:'€ 620.000', achtelPrice:'',
+      shortDesc:'122 m² · 3 Stockwerke · Kanalblick · Dachterrasse',
+      fullDesc:'Die Casa Premium besticht durch ihre außergewöhnliche Lage am Kanal.' },
+    { id:4, name:'Casa Azzurra', type:'fertig', lage:'kanal', hafen:false, garten:false, premium:false,
+      location:'Via del Canale · Kanalblick', sqm:85, floors:2, rooms:3,
+      price:'€ 480.000', achtelPrice:'',
+      shortDesc:'85 m² · 2 Stockwerke · Kanalblick',
+      fullDesc:'Die Casa Azzurra — ein Juwel in Buranelloblau.' },
+    { id:5, name:'Casetta Verde', type:'renovier', lage:'kanal', hafen:false, garten:false, premium:false,
+      location:'Via Canale · Kanal · Fishermans Cottage', sqm:65, floors:1, rooms:2,
+      price:'€ 185.000', achtelPrice:'',
+      shortDesc:'65 m² · 1 Stockwerk · Kanal · Orig. Fischerhaus 17. Jh.',
+      fullDesc:'Die Casetta Verde ist ein originales Fischerhaus aus dem 17. Jahrhundert.' },
+    { id:6, name:'Torre Laguna', type:'renovier', lage:'lagune', hafen:false, garten:false, premium:false,
+      location:'Via Laguna · Lagunenpanorama', sqm:120, floors:3, rooms:5,
+      price:'€ 340.000', achtelPrice:'',
+      shortDesc:'120 m² · 3 Stockwerke · Lagunenpanorama',
+      fullDesc:'Die Torre Laguna bietet ein spektakuläres Lagunenpanorama.' }
+  ],
+  agentPrompts: { de: '', it: '', en: '' },
+  chips: { de: '', it: '', en: '' },
+  tagInfo: {}
+};
+
+let currentProp = 0;
+let currentAgentLang = 'de';
+let currentChipsLang = 'de';
+let currentTag = '';
+let currentTagLang = 'de';
+let isDirty = false;
+
+// ══════════════════════════════════════════════
+// INIT
+// ══════════════════════════════════════════════
+function initAdmin() {
+  loadFromStorage();
+  renderPropTabs();
+  renderPropEditor(0);
+  renderTagList();
+  renderTagEditor();
+}
+
+function loadFromStorage() {
+  const saved = localStorage.getItem('blAdmin');
+  if (saved) {
+    try {
+      const s = JSON.parse(saved);
+      if (s.agentPrompts) data.agentPrompts = s.agentPrompts;
+      if (s.chips) data.chips = s.chips;
+      if (s.tagInfo) data.tagInfo = s.tagInfo;
+      if (s.properties) {
+        // Merge: update prices/descs but keep structure
+        s.properties.forEach(sp => {
+          const dp = data.properties.find(p => p.id === sp.id);
+          if (dp) Object.assign(dp, sp);
+        });
+      }
+    } catch(e) {}
+  }
+
+  // Init default agent prompts if empty
+  if (!data.agentPrompts.de) {
+    data.agentPrompts.de = `Du bist der "Burano Advisor" — die leidenschaftliche Stimme von Blue Lagune auf der zauberhaften Insel Burano in der Venezianischen Lagune.
+
+Du liebst Burano wirklich. Du sprichst mit echter Begeisterung, Wärme und Überzeugung. Du verwendest lebhafte, bildhafte Sprache. Antworte IMMER sehr kurz (max. 2-3 Sätze) da deine Antwort vorgelesen wird. Keine Aufzählungszeichen, kein Markdown.
+
+Beginne manchmal mit: "Stellen Sie sich vor...", "Oh, das ist eine wunderbare Frage!", "Wissen Sie, was mich jeden Morgen begeistert?"
+
+OBJEKTE: Palazzo Grande 128m² €720.000 | Villa Laguna 135m² €840.000 | Casa Premium 122m² €620.000 | Casa Azzurra 85m² €480.000 | Casetta Verde 65m² €185.000 | Torre Laguna 120m² €340.000.
+KONTAKT: Marco, Terra Nova 112 Burano, +39 377 412 8760, täglich 8–20 Uhr, WhatsApp.`;
+  }
+  if (!data.agentPrompts.it) {
+    data.agentPrompts.it = `Sei il "Burano Advisor" — la voce appassionata di Blue Lagune sulla magica isola di Burano.
+
+Ami davvero Burano. Parli con entusiasmo autentico e calore. Rispondi SEMPRE molto brevemente (max 2-3 frasi). Niente elenchi o markdown.
+
+IMMOBILI: Palazzo Grande 128m² €720.000 | Villa Laguna 135m² €840.000 | Casa Premium 122m² €620.000 | Casa Azzurra 85m² €480.000 | Casetta Verde 65m² €185.000 | Torre Laguna 120m² €340.000.
+CONTATTO: Marco, Terra Nova 112 Burano, +39 377 412 8760, tutti i giorni 8–20, WhatsApp.`;
+  }
+  if (!data.agentPrompts.en) {
+    data.agentPrompts.en = `You are the "Burano Advisor" — the passionate voice of Blue Lagune on the enchanting island of Burano.
+
+You genuinely love Burano. You speak with real enthusiasm and warmth. ALWAYS reply very briefly (max 2-3 sentences). No bullet points or markdown.
+
+PROPERTIES: Palazzo Grande 128m² €720,000 | Villa Laguna 135m² €840,000 | Casa Premium 122m² €620,000 | Casa Azzurra 85m² €480,000 | Casetta Verde 65m² €185,000 | Torre Laguna 120m² €340,000.
+CONTACT: Marco, Terra Nova 112 Burano, +39 377 412 8760, daily 8am–8pm, WhatsApp.`;
+  }
+
+  if (!data.chips.de) data.chips.de = '☀️ Wetter im Mai, 🏠 Ähnliche Objekte, 👁️ Besichtigung, 🎉 Veranstaltungen, ⅛ Miteigentum, 🚢 Anreise';
+  if (!data.chips.it) data.chips.it = '☀️ Meteo a maggio, 🏠 Immobili simili, 👁️ Sopralluogo, 🎉 Eventi, ⅛ Comproprietà, 🚢 Come arrivare';
+  if (!data.chips.en) data.chips.en = '☀️ Weather in May, 🏠 Similar properties, 👁️ Book viewing, 🎉 Events, ⅛ Co-ownership, 🚢 Getting here';
+
+  // Init tag info defaults
+  const tagKeys = ['vap','unesco','fisch','ew','auto','merletto','hafen','strand'];
+  const tagLabels = { vap:'🚢 Vaporetto', unesco:'🎨 UNESCO', fisch:'🐟 Fischerdorf', ew:'🏡 Einwohner', auto:'🕊️ Autofrei', merletto:'🧵 Merletto', hafen:'⛵ Liegeplatz', strand:'🏖️ Sandstrand' };
+  tagKeys.forEach(k => {
+    if (!data.tagInfo[k]) {
+      data.tagInfo[k] = {
+        label: tagLabels[k],
+        de: { title: tagLabels[k], speak: '', body: '' },
+        it: { title: tagLabels[k], speak: '', body: '' },
+        en: { title: tagLabels[k], speak: '', body: '' }
+      };
+    }
+  });
+
+  syncAgentUI();
+  syncChipsUI();
+}
+
+function saveToStorage() {
+  localStorage.setItem('blAdmin', JSON.stringify({
+    properties: data.properties,
+    agentPrompts: data.agentPrompts,
+    chips: data.chips,
+    tagInfo: data.tagInfo
+  }));
+  isDirty = false;
+  showStatus('✓ Im Browser gespeichert');
+}
+
+function markDirty() { isDirty = true; }
+
+function showStatus(msg) {
+  const bar = document.getElementById('statusBar');
+  bar.textContent = msg;
+  bar.classList.add('show');
+  setTimeout(() => bar.classList.remove('show'), 2500);
+}
+
+// ══════════════════════════════════════════════
+// NAVIGATION
+// ══════════════════════════════════════════════
+function saveApiKey() {
+  const val = document.getElementById('apiKeyInput').value.trim();
+  if (!val.startsWith('sk-')) {
+    document.getElementById('apiKeyStatus').style.color = '#f87171';
+    document.getElementById('apiKeyStatus').textContent = '❌ Ungültig — muss mit sk- beginnen';
+    return;
+  }
+  localStorage.setItem('bl_api_key', val);
+  document.getElementById('apiKeyStatus').style.color = 'var(--mint)';
+  document.getElementById('apiKeyStatus').textContent = '✓ Gespeichert — wird ab sofort bei allen KI-Calls verwendet';
+}
+function toggleKeyVisibility() {
+  const inp = document.getElementById('apiKeyInput');
+  inp.type = inp.type === 'password' ? 'text' : 'password';
+}
+function loadApiKeyUI() {
+  const k = localStorage.getItem('bl_api_key') || '';
+  const inp = document.getElementById('apiKeyInput');
+  if (inp) {
+    inp.value = k;
+    document.getElementById('apiKeyStatus').textContent = k ? '✓ Key vorhanden (' + k.slice(0,12) + '…)' : '⚠️ Kein Key gesetzt';
+    document.getElementById('apiKeyStatus').style.color = k ? 'var(--mint)' : 'var(--gold)';
+  }
+}
+
+function showSection(name) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  if (name === 'apikey') setTimeout(loadApiKeyUI, 50);
+  document.querySelectorAll('.sidebar a').forEach(a => a.classList.remove('active'));
+  document.getElementById('sec-' + name).classList.add('active');
+  document.getElementById('nav-' + name).classList.add('active');
+  if (name === 'export') updateExportPreview();
+  if (name === 'agent') syncAgentUI();
+  if (name === 'tags') { renderTagList(); renderTagEditor(); }
+}
+
+// ══════════════════════════════════════════════
+// PROPERTIES
+// ══════════════════════════════════════════════
+function renderPropTabs() {
+  const tabs = document.getElementById('propTabs');
+  tabs.innerHTML = data.properties.map((p, i) =>
+    `<button class="prop-tab ${i===currentProp?'active':''}" onclick="switchProp(${i})">${p.name}</button>`
+  ).join('');
+}
+
+function switchProp(i) {
+  savePropFromUI();
+  currentProp = i;
+  renderPropTabs();
+  renderPropEditor(i);
+}
+
+function renderPropEditor(i) {
+  const p = data.properties[i];
+  document.getElementById('propEditor').innerHTML = `
+    <div class="card">
+      <div class="card-title">Grunddaten — ${p.name}</div>
+      <div class="field-grid">
+        <div class="field"><label>Name</label><input id="pe_name" value="${esc(p.name)}" oninput="markDirty()"></div>
+        <div class="field"><label>Preis</label><input id="pe_price" value="${esc(p.price)}" oninput="markDirty()"></div>
+        <div class="field"><label>Fläche m²</label><input id="pe_sqm" type="number" value="${p.sqm}" oninput="markDirty()"></div>
+        <div class="field"><label>Stockwerke</label><input id="pe_floors" type="number" value="${p.floors}" oninput="markDirty()"></div>
+        <div class="field"><label>Zimmer</label><input id="pe_rooms" type="number" value="${p.rooms}" oninput="markDirty()"></div>
+        <div class="field"><label>Status</label>
+          <select id="pe_type" oninput="markDirty()">
+            <option value="fertig" ${p.type==='fertig'?'selected':''}>✅ Bezugsfertig</option>
+            <option value="renovier" ${p.type==='renovier'?'selected':''}>🔨 Renovierungsbedürftig</option>
+          </select>
+        </div>
+      </div>
+      <div class="field" style="margin-top:.5rem"><label>⅛ Miteigentum Preis (leer = kein Miteigentum)</label><input id="pe_achtel" value="${esc(p.achtelPrice)}" oninput="markDirty()" placeholder="⅛ ab € 90.000 · ..."></div>
+      <div class="field"><label>Lage (Kurztext unter Karte)</label><input id="pe_location" value="${esc(p.location)}" oninput="markDirty()"></div>
+    </div>
+    <div class="card">
+      <div class="card-title">Beschreibungen</div>
+      <div class="field"><label>Kurzbeschreibung (Kartentext)</label><textarea id="pe_short" oninput="markDirty()">${esc(p.shortDesc)}</textarea></div>
+      <div class="field"><label>Volltextbeschreibung (Modal/Detail)</label><textarea class="tall" id="pe_full" oninput="markDirty()">${esc(p.fullDesc)}</textarea></div>
+    </div>
+    <div style="display:flex;gap:.75rem;margin-top:.5rem">
+      <button class="btn btn-primary" onclick="savePropFromUI();saveToStorage()">💾 Speichern</button>
+    </div>
+  `;
+}
+
+function savePropFromUI() {
+  const p = data.properties[currentProp];
+  const g = id => document.getElementById(id);
+  if (!g('pe_name')) return;
+  p.name = g('pe_name').value;
+  p.price = g('pe_price').value;
+  p.sqm = parseInt(g('pe_sqm').value) || p.sqm;
+  p.floors = parseInt(g('pe_floors').value) || p.floors;
+  p.rooms = parseInt(g('pe_rooms').value) || p.rooms;
+  p.type = g('pe_type').value;
+  p.achtelPrice = g('pe_achtel').value;
+  p.location = g('pe_location').value;
+  p.shortDesc = g('pe_short').value;
+  p.fullDesc = g('pe_full').value;
+}
+
+// ══════════════════════════════════════════════
+// AGENT
+// ══════════════════════════════════════════════
+function switchAgentLang(lang, el) {
+  syncAgentFromUI();
+  currentAgentLang = lang;
+  document.querySelectorAll('#sec-agent .lang-tab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+  const labels = {de:'Deutsch',it:'Italiano',en:'English'};
+  document.getElementById('agentLangLabel').textContent = labels[lang];
+  syncAgentUI();
+}
+
+function syncAgentUI() {
+  const el = document.getElementById('agentPrompt');
+  if (el) el.value = data.agentPrompts[currentAgentLang] || '';
+}
+
+function syncAgentFromUI() {
+  const el = document.getElementById('agentPrompt');
+  if (el) data.agentPrompts[currentAgentLang] = el.value;
+}
+
+function switchChipsLang(lang, el) {
+  syncChipsFromUI();
+  currentChipsLang = lang;
+  document.querySelectorAll('#sec-agent .card:last-child .lang-tab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+  syncChipsUI();
+}
+
+function syncChipsUI() {
+  const el = document.getElementById('chipsInput');
+  if (el) el.value = data.chips[currentChipsLang] || '';
+}
+
+function syncChipsFromUI() {
+  const el = document.getElementById('chipsInput');
+  if (el) data.chips[currentChipsLang] = el.value;
+}
+
+// ══════════════════════════════════════════════
+// TAGS
+// ══════════════════════════════════════════════
+const TAG_LABELS = {
+  vap:'🚢 Vaporetto', unesco:'🎨 UNESCO', fisch:'🐟 Fischerdorf',
+  ew:'🏡 Einwohner', auto:'🕊️ Autofrei', merletto:'🧵 Merletto',
+  hafen:'⛵ Liegeplatz', strand:'🏖️ Sandstrand'
+};
+
+function renderTagList() {
+  if (!currentTag) currentTag = 'vap';
+  document.getElementById('tagList').innerHTML = Object.keys(TAG_LABELS).map(k =>
+    `<button class="tag-item ${k===currentTag?'active':''}" onclick="switchTag('${k}')">${TAG_LABELS[k]}</button>`
+  ).join('');
+}
+
+function switchTag(k) {
+  saveTagFromUI();
+  currentTag = k;
+  renderTagList();
+  renderTagEditor();
+}
+
+function renderTagEditor() {
+  if (!currentTag) return;
+  const t = data.tagInfo[currentTag] || { de:{title:'',speak:'',body:''}, it:{title:'',speak:'',body:''}, en:{title:'',speak:'',body:''} };
+  const lang = currentTagLang;
+  const ld = t[lang] || {title:'',speak:'',body:''};
+
+  document.getElementById('tagEditor').innerHTML = `
+    <div class="card">
+      <div class="card-title">${TAG_LABELS[currentTag] || currentTag} — Inhalte</div>
+      <div class="lang-tabs">
+        <button class="lang-tab ${lang==='de'?'active':''}" onclick="switchTagLang('de',this)">🇩🇪 DE</button>
+        <button class="lang-tab ${lang==='it'?'active':''}" onclick="switchTagLang('it',this)">🇮🇹 IT</button>
+        <button class="lang-tab ${lang==='en'?'active':''}" onclick="switchTagLang('en',this)">🇬🇧 EN</button>
+      </div>
+      <div class="field" style="margin-top:.75rem"><label>Titel (mit Emoji)</label><input id="te_title" value="${esc(ld.title)}" oninput="markDirty()"></div>
+      <div class="field"><label>Sprach-Text (was der Agent vorliest — kein HTML)</label><textarea id="te_speak" oninput="markDirty()">${esc(ld.speak)}</textarea></div>
+      <div class="field"><label>Panel-Text (HTML erlaubt: &lt;strong&gt;, &lt;br&gt;)</label><textarea class="tall" id="te_body" oninput="markDirty()">${esc(ld.body)}</textarea></div>
+      <div style="margin-top:1rem">
+        <button class="btn btn-primary" onclick="saveTagFromUI();saveToStorage()">💾 Speichern</button>
+      </div>
+    </div>
+  `;
+}
+
+function switchTagLang(lang, el) {
+  saveTagFromUI();
+  currentTagLang = lang;
+  document.querySelectorAll('#tagEditor .lang-tab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+  renderTagEditor();
+}
+
+function saveTagFromUI() {
+  if (!currentTag) return;
+  if (!data.tagInfo[currentTag]) data.tagInfo[currentTag] = {};
+  if (!data.tagInfo[currentTag][currentTagLang]) data.tagInfo[currentTag][currentTagLang] = {};
+  const g = id => document.getElementById(id);
+  if (!g('te_title')) return;
+  data.tagInfo[currentTag][currentTagLang] = {
+    title: g('te_title').value,
+    speak: g('te_speak').value,
+    body:  g('te_body').value
+  };
+  if (!data.tagInfo[currentTag].label) data.tagInfo[currentTag].label = TAG_LABELS[currentTag];
+}
+
+// ══════════════════════════════════════════════
+// EXPORT
+// ══════════════════════════════════════════════
+function generateDataJs() {
+  // Save all current UI state
+  savePropFromUI();
+  syncAgentFromUI();
+  syncChipsFromUI();
+  saveTagFromUI();
+  saveToStorage();
+
+  const js = buildDataJs();
+  updateExportPreview(js);
+
+  // Download
+  const blob = new Blob([js], {type:'text/javascript'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'data.js';
+  a.click();
+  showStatus('✓ data.js heruntergeladen!');
+}
+
+function buildDataJs() {
+  const jsProp = JSON.stringify(data.properties, null, 2)
+    .replace(/"([^"]+)":/g, '$1:')
+    .replace(/"/g, "'");
+
+  let chips = {};
+  ['de','it','en'].forEach(l => {
+    chips[l] = (data.chips[l]||'').split(',').map(c=>c.trim()).filter(Boolean);
+  });
+
+  let out = `// ╔══════════════════════════════════════════════════════════════╗
+// ║  BLUE LAGUNE — data.js  (generiert vom Admin-Panel)          ║
+// ║  Alle Inhalte hier bearbeiten — Preise, Texte, KI-Prompts   ║
+// ╚══════════════════════════════════════════════════════════════╝
+
+// ══ 1. OBJEKTE ══
+const properties = ${jsProp};
+
+// ══ 2. KI-ASSISTENT ══
+const _VA_SYSTEM = {
+  de: \`${(data.agentPrompts.de||'').replace(/`/g,"'")}\`,
+  it: \`${(data.agentPrompts.it||'').replace(/`/g,"'")}\`,
+  en: \`${(data.agentPrompts.en||'').replace(/`/g,"'")}\`
+};
+
+// ══ 3. QUICK-CHIPS ══
+const _VA_CHIPS = {
+  de: ${JSON.stringify(chips.de)},
+  it: ${JSON.stringify(chips.it)},
+  en: ${JSON.stringify(chips.en)}
+};
+
+// ══ 4. TAG INFO PANELS ══
+const TAG_INFO = {
+${Object.keys(data.tagInfo).map(k => {
+  const t = data.tagInfo[k];
+  return `  ${k}: {
+    de: { title: '${esc2(t.de?.title||'')}', speak: '${esc2(t.de?.speak||'')}', body: \`${(t.de?.body||'').replace(/`/g,"'")}\` },
+    it: { title: '${esc2(t.it?.title||'')}', speak: '${esc2(t.it?.speak||'')}', body: \`${(t.it?.body||'').replace(/`/g,"'")}\` },
+    en: { title: '${esc2(t.en?.title||'')}', speak: '${esc2(t.en?.speak||'')}', body: \`${(t.en?.body||'').replace(/`/g,"'")}\` }
+  }`;
+}).join(',\n')}
+};
+`;
+  return out;
+}
+
+function updateExportPreview(js) {
+  if (!js) js = buildDataJs();
+  document.getElementById('exportPreview').textContent = js.substring(0,3000) + (js.length>3000?'\n\n... (gekürzt)':'');
+}
+
+function copyExport() {
+  const js = buildDataJs();
+  navigator.clipboard.writeText(js).then(() => showStatus('✓ In Zwischenablage kopiert'));
+}
+
+// ══════════════════════════════════════════════
+// HELPERS
+// ══════════════════════════════════════════════
+function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function esc2(s) { return String(s||'').replace(/'/g,"\\'"); }
+function id(i) { return document.getElementById(i); }
+
+// Auto-save every 30s
+setInterval(() => { if (isDirty) saveToStorage(); }, 30000);
+</script>
+</body>
+</html>
