@@ -1,0 +1,1212 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<title>RaumScanner Pro</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#080e1a;--surface:#0d1624;--card:#111d2e;--border:rgba(0,180,216,.18);
+  --aqua:#00b4d8;--mint:#06d6a0;--gold:#f4c533;--red:#e63946;--gray:#8899aa;
+  --text:#e8f0f8;--text2:rgba(232,240,248,.62);
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{height:100%;background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif}
+.app{display:flex;flex-direction:column;min-height:100vh;max-width:900px;margin:0 auto;padding:0 16px 80px}
+header{padding:18px 0 12px;display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--border);margin-bottom:20px;flex-wrap:wrap}
+.logo{font-size:1.3rem;font-weight:800;letter-spacing:-.02em}
+.logo span{color:var(--aqua)}
+.logo small{font-size:.65rem;color:var(--gray);letter-spacing:.12em;text-transform:uppercase;display:block;font-weight:400;margin-top:-2px}
+.lang-sw{display:flex;gap:4px}
+.lang-btn{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);color:var(--gray);border-radius:7px;padding:4px 9px;cursor:pointer;font-size:.72rem;font-weight:600;letter-spacing:.04em;transition:all .2s}
+.lang-btn:hover{background:rgba(255,255,255,.15);color:var(--text)}
+.lang-btn.active{background:rgba(0,180,216,.18);border-color:var(--aqua);color:var(--aqua)}
+.hdr-prop{margin-left:auto;text-align:right;cursor:pointer}
+.hdr-prop-name{font-size:.82rem;font-weight:600;color:var(--mint)}
+.hdr-prop-sub{font-size:.68rem;color:var(--gray)}
+
+.setup-card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:24px;margin-bottom:20px;display:none}
+.setup-card.show{display:block}
+.setup-title{font-size:.72rem;letter-spacing:.12em;text-transform:uppercase;color:var(--aqua);margin-bottom:14px;font-weight:600}
+.setup-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px}
+@media(max-width:500px){.setup-row{grid-template-columns:1fr}}
+.inp-wrap{display:flex;flex-direction:column;gap:5px}
+.inp-wrap label{font-size:.72rem;color:var(--gray);letter-spacing:.06em}
+.inp-wrap input{background:rgba(255,255,255,.05);border:1px solid var(--border);border-radius:8px;padding:9px 12px;color:var(--text);font-family:inherit;font-size:.85rem;outline:none;transition:border .2s}
+.inp-wrap input:focus{border-color:var(--aqua)}
+.btn-mic{background:rgba(230,57,70,.15);border:1px solid rgba(230,57,70,.4);color:var(--red);border-radius:8px;padding:7px 14px;cursor:pointer;font-size:.78rem;font-weight:600;display:flex;align-items:center;gap:6px;transition:all .2s;white-space:nowrap}
+.btn-mic:hover{background:rgba(230,57,70,.25)}
+.btn-mic.listening{background:var(--red);color:#fff;animation:pulse-mic .8s infinite}
+@keyframes pulse-mic{0%,100%{box-shadow:0 0 0 0 rgba(230,57,70,.5)}50%{box-shadow:0 0 0 8px rgba(230,57,70,0)}}
+.btn-primary{background:linear-gradient(135deg,var(--aqua),#0077b6);border:none;color:#fff;border-radius:8px;padding:10px 22px;cursor:pointer;font-family:inherit;font-size:.88rem;font-weight:700;transition:opacity .2s,transform .1s;display:inline-flex;align-items:center;gap:6px}
+.btn-primary:hover{opacity:.88;transform:scale(1.02)}
+.btn-ghost{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.15);color:var(--text2);border-radius:8px;padding:8px 16px;cursor:pointer;font-family:inherit;font-size:.82rem;transition:all .2s}
+.btn-ghost:hover{background:rgba(255,255,255,.13);color:var(--text)}
+.voice-status{background:rgba(0,180,216,.07);border:1px solid rgba(0,180,216,.2);border-radius:8px;padding:8px 14px;font-size:.78rem;color:var(--aqua);margin-top:8px;display:none;align-items:center;gap:8px}
+.voice-status.show{display:flex}
+.v-dot{width:7px;height:7px;background:var(--red);border-radius:50%;animation:pulse-mic .8s infinite;flex-shrink:0}
+.location-row{display:flex;gap:8px;margin-top:8px;flex-wrap:wrap;align-items:center}
+.gmap-btn{background:rgba(66,133,244,.1);border:1px solid rgba(66,133,244,.3);color:#4285f4;border-radius:8px;padding:7px 13px;cursor:pointer;font-size:.78rem;display:flex;align-items:center;gap:5px;transition:all .2s;text-decoration:none}
+.gmap-btn:hover{background:rgba(66,133,244,.2)}
+.gps-status{font-size:.72rem;color:var(--gray)}
+
+.section-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;margin-top:20px}
+.section-title{font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;color:var(--gray);font-weight:600}
+.rooms-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px}
+@media(max-width:500px){.rooms-grid{grid-template-columns:1fr}}
+.room-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:14px 16px;cursor:pointer;transition:all .2s;position:relative;overflow:hidden}
+.room-card::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--aqua);opacity:.4;transition:opacity .2s}
+.room-card:hover{border-color:rgba(0,180,216,.4);transform:translateY(-1px)}
+.room-card:hover::before,.room-card.active::before{opacity:1}
+.room-card.active{border-color:var(--aqua);background:#0d1e33}
+.rc-name{font-weight:600;font-size:.9rem;margin-bottom:4px;display:flex;align-items:center;gap:6px}
+.rc-dims{font-family:'JetBrains Mono',monospace;font-size:.75rem;color:var(--mint);letter-spacing:.05em}
+.rc-sqm{font-size:.7rem;color:var(--gray);margin-top:2px}
+.rc-del{position:absolute;top:8px;right:10px;background:none;border:none;color:rgba(230,57,70,.4);cursor:pointer;font-size:.85rem;padding:2px;transition:color .2s}
+.rc-del:hover{color:var(--red)}
+.btn-add-room{background:rgba(6,214,160,.08);border:1px dashed rgba(6,214,160,.35);color:var(--mint);border-radius:12px;padding:14px;cursor:pointer;font-family:inherit;font-size:.85rem;font-weight:500;width:100%;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:8px}
+.btn-add-room:hover{background:rgba(6,214,160,.15)}
+
+.editor{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:20px;margin-bottom:20px;margin-top:16px;display:none}
+.editor.show{display:block}
+.ed-title{font-size:1rem;font-weight:700;margin-bottom:16px;display:flex;align-items:center;gap:8px}
+.ed-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:14px}
+@media(max-width:500px){.ed-grid{grid-template-columns:1fr 1fr}}
+.dim-box{background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:10px;padding:10px 12px;text-align:center}
+.dim-box label{font-size:.65rem;letter-spacing:.1em;color:var(--gray);text-transform:uppercase;display:block;margin-bottom:5px}
+.dim-edit{background:transparent;border:none;color:var(--aqua);font-family:'JetBrains Mono',monospace;font-size:1rem;width:70px;text-align:center;outline:none}
+.dim-unit{font-size:.7rem;color:var(--gray);margin-top:2px}
+.ed-btn-row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px;align-items:center}
+.btn-cam{background:linear-gradient(135deg,var(--red),#c1121f);border:none;color:#fff;border-radius:10px;padding:9px 16px;cursor:pointer;font-family:inherit;font-size:.8rem;font-weight:600;display:flex;align-items:center;gap:6px;transition:opacity .2s,transform .1s}
+.btn-cam:hover{opacity:.88;transform:scale(1.02)}
+.btn-file{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);color:var(--text2);border-radius:10px;padding:9px 16px;cursor:pointer;font-family:inherit;font-size:.8rem;font-weight:500;display:flex;align-items:center;gap:6px;transition:all .2s}
+.btn-file:hover{background:rgba(255,255,255,.17)}
+input[type=file]{display:none}
+
+.photo-strip{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;margin-bottom:4px}
+.ph-thumb{position:relative;width:72px;height:54px;border-radius:6px;overflow:hidden;flex-shrink:0;cursor:pointer}
+.ph-thumb img{width:100%;height:100%;object-fit:cover}
+.ph-thumb-del{position:absolute;top:2px;right:2px;background:rgba(0,0,0,.65);border:none;color:#fff;border-radius:50%;width:18px;height:18px;cursor:pointer;font-size:.6rem;display:flex;align-items:center;justify-content:center;padding:0;line-height:1}
+.ph-thumb.active{outline:2px solid var(--aqua)}
+.photo-result{display:none;margin-top:10px;background:rgba(6,214,160,.05);border:1px solid rgba(6,214,160,.2);border-radius:10px;padding:14px;gap:12px;flex-wrap:wrap;align-items:flex-start}
+.photo-result.show{display:flex}
+.ph-img{width:110px;height:82px;object-fit:cover;border-radius:7px;flex-shrink:0;border:1px solid rgba(0,180,216,.3)}
+.ph-text-area{flex:1;min-width:160px}
+.ph-status{font-size:.78rem;color:var(--aqua);display:flex;align-items:center;gap:6px;margin-bottom:6px}
+.ph-result-txt{font-size:.78rem;color:var(--text2);line-height:1.7;display:none}
+.ph-result-txt.show{display:block}
+.btn-tts{background:rgba(0,180,216,.12);border:1px solid rgba(0,180,216,.3);color:var(--aqua);border-radius:7px;padding:5px 10px;cursor:pointer;font-size:.72rem;margin-top:6px;display:none;align-items:center;gap:5px;transition:all .2s}
+.btn-tts.show{display:flex}
+.btn-tts:hover{background:rgba(0,180,216,.22)}
+
+.floorplan-wrap{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:20px;margin-bottom:20px}
+.fp-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:8px}
+canvas#fpCanvas{width:100%;border-radius:10px;display:block}
+
+.export-bar{position:fixed;bottom:0;left:0;right:0;background:rgba(8,14,26,.96);border-top:1px solid var(--border);backdrop-filter:blur(16px);padding:10px 16px;display:flex;gap:8px;justify-content:center;flex-wrap:wrap;z-index:100}
+.exp-btn{background:var(--card);border:1px solid var(--border);color:var(--text2);border-radius:10px;padding:8px 16px;cursor:pointer;font-family:inherit;font-size:.8rem;font-weight:500;display:flex;align-items:center;gap:5px;transition:all .2s}
+.exp-btn:hover{border-color:var(--aqua);color:var(--text)}
+.exp-btn.wa{border-color:rgba(37,211,102,.4);color:#25d366}
+.exp-btn.wa:hover{background:rgba(37,211,102,.1)}
+.exp-btn.green{border-color:rgba(6,214,160,.4);color:var(--mint)}
+.exp-btn.green:hover{background:rgba(6,214,160,.1)}
+
+.spinner{display:inline-block;width:12px;height:12px;border:2px solid rgba(255,255,255,.25);border-top-color:currentColor;border-radius:50%;animation:spin .7s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+@media print{
+  .export-bar,.btn-mic,.btn-add-room,.ed-btn-row,.rc-del{display:none!important}
+  .app{max-width:100%;padding:10px}
+  body{background:#fff;color:#000}
+  .room-card,.editor,.floorplan-wrap,.setup-card{border:1px solid #ccc;background:#fff}
+  canvas#fpCanvas{background:#f5f0e8}
+}
+
+/* TOAST */
+.rs-toast{position:fixed;top:16px;left:50%;transform:translateX(-50%);background:#1a2a3a;border:1px solid rgba(0,180,216,.4);color:var(--text);border-radius:10px;padding:10px 18px;font-size:.82rem;z-index:9999;max-width:90vw;text-align:center;box-shadow:0 4px 20px rgba(0,0,0,.4);transition:opacity .3s;pointer-events:none}
+.rs-toast.error{border-color:rgba(230,57,70,.6);background:#2a1a1a}
+.rs-toast.ok{border-color:rgba(6,214,160,.5);background:#0a2a1a}
+</style>
+</head>
+<body>
+<div class="app">
+
+  <header>
+    <div class="logo">Raum<span>Scanner</span><small id="logoSubTxt">Pro · KI-Vermessung</small></div>
+    <div class="lang-sw">
+      <button class="lang-btn active" onclick="setLang('de')">DE</button>
+      <button class="lang-btn" onclick="setLang('it')">IT</button>
+      <button class="lang-btn" onclick="setLang('en')">EN</button>
+    </div>
+    <div class="hdr-prop" onclick="showSetup()">
+      <div class="hdr-prop-name" id="hdrPropName">Objekt auswählen ▸</div>
+      <div class="hdr-prop-sub" id="hdrPropSub">Tippen oder Mikrofon</div>
+    </div>
+  </header>
+
+  <!-- SETUP -->
+  <div class="setup-card show" id="setupCard">
+    <div class="setup-title" id="setupTitleTxt">🏠 Objekt einrichten</div>
+    <div class="setup-row">
+      <div class="inp-wrap">
+        <label id="propLabelTxt">Objektbezeichnung</label>
+        <div style="display:flex;gap:6px">
+          <input type="text" id="propName" placeholder="z.B. Villa Burano">
+          <button class="btn-mic" onclick="micSetup('name')" id="mic-name">🎙</button>
+        </div>
+      </div>
+      <div class="inp-wrap">
+        <label id="addrLabelTxt">Adresse / Beschreibung</label>
+        <div style="display:flex;gap:6px">
+          <input type="text" id="propAddr" placeholder="z.B. Via Laguna 5, Burano">
+          <button class="btn-mic" onclick="micSetup('addr')" id="mic-addr">🎙</button>
+        </div>
+      </div>
+    </div>
+    <div class="location-row">
+      <button class="gmap-btn" onclick="getGPS()" id="gpsBtnTxt">📍 GPS-Position</button>
+      <span class="gps-status" id="gpsStatus"></span>
+    </div>
+    <div class="voice-status" id="setupVS"><span class="v-dot"></span><span id="setupVSTxt">Sprechen…</span></div>
+    <div style="margin-top:16px">
+      <button class="btn-primary" onclick="saveSetup()" id="continueBtnEl">Weiter →</button>
+    </div>
+  </div>
+
+  <!-- MAIN PANEL -->
+  <div id="mainPanel" style="display:none">
+
+    <!-- QUICK SCAN -->
+    <div class="setup-card show" style="padding:18px 20px">
+      <div class="setup-title" id="quickScanTitleTxt">📷 Schnell-Scan</div>
+      <p style="font-size:.82rem;color:var(--text2);margin-bottom:14px" id="quickScanSubTxt">Einfach ein Foto vom Raum aufnehmen — Claude KI analysiert sofort.</p>
+      <div style="display:flex;gap:10px;flex-wrap:wrap">
+        <button class="btn-cam" onclick="quickCam()" id="takePhotoQTxt">📷 Foto aufnehmen</button>
+        <button class="btn-file" onclick="quickFile()" id="fromFileQTxt">🗂 Aus Datei laden</button>
+      </div>
+      <input type="file" id="quickCamInput" accept="image/*" capture="environment" onchange="handleQuickPhoto(this)">
+      <input type="file" id="quickFileInput" accept="image/*" onchange="handleQuickPhoto(this)">
+      <div class="photo-result" id="quickPhotoResult" style="margin-top:14px">
+        <img id="quickPhImg" class="ph-img" alt="Vorschau">
+        <div class="ph-text-area">
+          <div class="ph-status" id="quickPhStatus"><span class="spinner"></span> <span id="analyzingQTxt">Claude analysiert…</span></div>
+          <div class="ph-result-txt" id="quickPhResultTxt"></div>
+          <button class="btn-tts" id="btnQuickTTS" onclick="readQuickResult()">🔊 Vorlesen</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ROOMS -->
+    <div class="section-hdr">
+      <div class="section-title" id="roomsTitleTxt">Räume</div>
+      <button class="btn-mic" onclick="micAddRoom()" id="mic-room">🎙 Raum per Sprache</button>
+    </div>
+    <div class="voice-status" id="roomVS"><span class="v-dot"></span><span id="roomVSTxt">Sprechen Sie Raumname und Maße…</span></div>
+    <div class="rooms-grid" id="roomsGrid"></div>
+    <button class="btn-add-room" onclick="addRoomManual()" id="addRoomTxt">＋ Raum hinzufügen</button>
+
+    <!-- ROOM EDITOR -->
+    <div class="editor" id="editor">
+      <div class="ed-title"><span id="edRoomIcon">📐</span><span id="edRoomName">Raum</span></div>
+      <div class="ed-grid">
+        <div class="dim-box">
+          <label id="lengthLblTxt">Länge</label>
+          <input class="dim-edit" id="dimL" type="number" step="0.01" min="0" placeholder="0.00" onchange="updateDim()">
+          <div class="dim-unit" id="metersLTxt">Meter</div>
+        </div>
+        <div class="dim-box">
+          <label id="widthLblTxt">Breite</label>
+          <input class="dim-edit" id="dimB" type="number" step="0.01" min="0" placeholder="0.00" onchange="updateDim()">
+          <div class="dim-unit" id="metersBTxt">Meter</div>
+        </div>
+        <div class="dim-box">
+          <label id="heightLblTxt">Höhe</label>
+          <input class="dim-edit" id="dimH" type="number" step="0.01" min="0" placeholder="0.00" onchange="updateDim()">
+          <div class="dim-unit" id="metersHTxt">Meter</div>
+        </div>
+      </div>
+      <div class="ed-btn-row">
+        <button class="btn-mic" onclick="micMeasure()" id="mic-meas">🎙 Maße sprechen</button>
+        <button class="btn-cam" onclick="camCapture()" id="takePhotoTxt">📷 Foto aufnehmen</button>
+        <button class="btn-file" onclick="fileCapture()" id="fromFileTxt">🗂 Aus Datei</button>
+        <button class="btn-tts show" id="btnTTS" onclick="readResult()" style="margin-left:auto">🔊 Vorlesen</button>
+      </div>
+      <!-- Back camera only, no selfie -->
+      <input type="file" id="camInput" accept="image/*" capture="environment" onchange="handlePhoto(this)">
+      <input type="file" id="fileInput" accept="image/*" onchange="handlePhoto(this)">
+      <div class="voice-status" id="measVS"><span class="v-dot"></span><span id="measVSTxt">Sprechen Sie die Maße…</span></div>
+      <div class="photo-strip" id="photoStrip"></div>
+      <div class="photo-result" id="photoResult">
+        <img id="phImg" class="ph-img" alt="Raum-Foto">
+        <div class="ph-text-area">
+          <div class="ph-status" id="phStatus"><span class="spinner"></span> <span id="analyzingTxt">Claude analysiert…</span></div>
+          <div class="ph-result-txt" id="phResultTxt"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- FLOOR PLAN -->
+    <div class="floorplan-wrap" id="fpWrap">
+      <div class="fp-hdr">
+        <div class="section-title" id="floorPlanTitleTxt">Grundriss-Übersicht</div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <button class="btn-ghost" style="font-size:.75rem" id="btnFurniture" onclick="toggleFurniture()">🪑 Möbel einzeichnen</button>
+          <button class="btn-ghost" style="font-size:.75rem" onclick="drawFloorPlan()" id="redrawTxt">↻ Neu zeichnen</button>
+        </div>
+      </div>
+      <canvas id="fpCanvas" height="420"></canvas>
+    </div>
+  </div>
+</div>
+
+<!-- EXPORT BAR -->
+<div class="export-bar" id="exportBar" style="display:none">
+  <button class="exp-btn" onclick="doPrint()" id="printTxt">🖨️ Drucken</button>
+  <button class="exp-btn wa" onclick="doWhatsApp()" id="whatsappTxt">📱 WhatsApp</button>
+  <button class="exp-btn" onclick="doEmail()" id="emailTxt">✉️ E-Mail</button>
+  <button class="exp-btn green" onclick="doMaps()" id="mapsTxt">📍 Google Maps</button>
+</div>
+
+<script>
+const PROXY = 'https://blue-lagune-proxy.friesh.workers.dev';
+
+/* ── API KEY HELPER ── */
+function getApiKey() { return localStorage.getItem('bl_api_key') || ''; }
+function getApiHeaders() {
+  const h = {'Content-Type':'application/json'};
+  const k = getApiKey();
+  if (k) h['x-api-key'] = k;
+  return h;
+}
+function checkApiKey() {
+  if (!getApiKey()) {
+    const k = prompt('🔑 Anthropic API Key eingeben (sk-ant-...):', '');
+    if (k && k.startsWith('sk-')) {
+      localStorage.setItem('bl_api_key', k.trim());
+      toast('✓ API Key gespeichert', 'ok');
+    }
+  }
+}
+let state = { propName:'', propAddr:'', lat:null, lng:null, rooms:[], activeRoom:-1, lang:'de' };
+
+/* ── TOAST ── */
+let _toastTimer = null;
+function toast(msg, type='', ms=3500) {
+  let el = document.getElementById('rsToast');
+  if(!el){ el=document.createElement('div'); el.id='rsToast'; el.className='rs-toast'; document.body.appendChild(el); }
+  el.textContent = msg;
+  el.className = 'rs-toast '+(type||'');
+  el.style.opacity='1';
+  clearTimeout(_toastTimer);
+  _toastTimer = setTimeout(()=>{ el.style.opacity='0'; }, ms);
+}
+
+/* ── PROXY TEST ── */
+async function testProxy() {
+  try {
+    const r = await fetch(PROXY,{method:'POST',headers:getApiHeaders(),
+      body:JSON.stringify({model:'claude-sonnet-4-5',max_tokens:5,messages:[{role:'user',content:'hi'}]})});
+    const d = await r.json();
+    if (d.content) { /* ok */ }
+    else if (d.error) {
+      const msg = d.error.message || '';
+      if (msg.toLowerCase().includes('api_key') || msg.toLowerCase().includes('auth')) {
+        toast('🔑 API Key ungültig — bitte neu eingeben', 'error', 7000);
+        setTimeout(() => checkApiKey(), 1000);
+      } else {
+        toast('⚠️ API: ' + msg, 'error', 5000);
+      }
+    }
+  } catch(e) { toast('⚠️ Proxy nicht erreichbar. Bitte VPN prüfen.','error',6000); }
+}
+
+/* ── BROWSER SPEECH CHECK ── */
+const SpeechRec = window.SpeechRecognition||window.webkitSpeechRecognition;
+const isSpeechSupported = !!SpeechRec;
+// iOS Chrome doesn't support speech — detect it
+const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
+const isChrome = /chrome/i.test(navigator.userAgent)&&!/edg/i.test(navigator.userAgent);
+const micOK = isSpeechSupported && !(isIOS && isChrome);
+
+function checkMic() {
+  if(!micOK) {
+    const msg = isIOS
+      ? '🎙 Mikrofon nur in Safari verfügbar (nicht Chrome/iOS)'
+      : '🎙 Spracherkennung nicht unterstützt. Bitte Chrome Desktop verwenden.';
+    toast(msg,'error',6000);
+    return false;
+  }
+  return true;
+}
+
+
+/* ══════════════════════════════════════
+   i18n — all strings per language
+══════════════════════════════════════ */
+const I18N = {
+  de: {
+    logoSub:'Pro · KI-Vermessung',
+    selectProp:'Objekt auswählen ▸', tapOrMic:'Tippen oder Mikrofon',
+    setupTitle:'🏠 Objekt einrichten', propLabel:'Objektbezeichnung', propPh:'z.B. Villa Burano, Apt 3B',
+    addrLabel:'Adresse / Beschreibung', addrPh:'z.B. Via Laguna 5, Burano',
+    gpsBtn:'📍 GPS-Position', speaking:'Sprechen…', continueBtn:'Weiter →',
+    quickScanTitle:'📷 Schnell-Scan',
+    quickScanSub:'Einfach ein Foto aufnehmen — Claude KI analysiert sofort.',
+    takePhoto:'📷 Foto aufnehmen', fromFile:'🗂 Aus Datei laden',
+    analyzing:'Claude analysiert…', readAloud:'🔊 Vorlesen',
+    roomsTitle:'Räume', roomByVoice:'🎙 Raum per Sprache',
+    speakRoomHint:'Raumname und Maße sprechen…', addRoom:'＋ Raum hinzufügen',
+    length:'Länge', width:'Breite', height:'Höhe', meters:'Meter',
+    speakMeasure:'🎙 Maße sprechen', speakMeasureHint:'Maße sprechen…',
+    floorPlanTitle:'Grundriss-Übersicht', redraw:'↻ Neu zeichnen',
+    furnitureOn:'🪑 Möbel einzeichnen', furnitureOff:'🪑 Möbel ausblenden',
+    print:'🖨️ Drucken', whatsapp:'📱 WhatsApp', email:'✉️ E-Mail', maps:'📍 Google Maps',
+    srLang:'de-DE', ttsLang:'de-DE',
+    nameHint:'Objektname sprechen…', addrHint:'Adresse sprechen…',
+    roomAddedMsg:' hinzugefügt.', dimsMsg:'Maße: ', onMsg:' mal ', meterUnit:' Meter.',
+    gpsSearching:'…ermittle Position', gpsDenied:'⚠️ Zugriff verweigert',
+    analysisError:'⚠️ Fehler. Bitte erneut versuchen.',
+    confirmDelete:'Raum löschen?', addRoomPrompt:'Raumbezeichnung:',
+    defaultRoom:'Raum ', noRoomSelected:'Bitte zuerst einen Raum auswählen.',
+    srNotSupported:'Spracherkennung nicht unterstützt. Bitte Chrome verwenden.',
+    noLocation:'Bitte GPS-Position oder Adresse eingeben.',
+    emailSubj:'Raumvermessung: ', totalArea:'Gesamtfläche: ',
+    missingDims:'Maße fehlen',
+    analyzePrompt: 'Du bist ein professioneller Raumvermesser. Analysiere dieses Raumfoto. Antworte auf Deutsch, ohne Markdown-Formatierung (keine **, keine # Überschriften). Beschreibe: Raumtyp, geschätzte Abmessungen (Länge x Breite), Fenster, Türen, Besonderheiten wie Kamin, Raumhöhe falls erkennbar, Nutzungsempfehlung. Maximal 200 Wörter. Danach füge exakt diesen Block ein:\n[ELEMENTS]\n{"windows":[{"wall":"N","pos":0.5,"width":1.2}],"doors":[{"wall":"S","pos":0.3,"width":0.9,"side":"inside"}],"features":[]}\n[/ELEMENTS]\nDabei: wall=N/S/E/W, pos=0.0-1.0 Position entlang der Wand, width in Meter. features kann Einträge wie {"type":"kamin","wall":"N","pos":0.8} enthalten.',
+    analyzeRoomPrompt: 'Du bist ein professioneller Raumvermesser. Analysiere alle Fotos des Raumes "{name}". Antworte auf Deutsch, ohne Markdown-Formatierung (keine **, keine # Überschriften). Beschreibe: Raumtyp, Abmessungen (Länge x Breite, falls erkennbar), Fenster, Türen, Besonderheiten wie Kamin oder Nischen, Zustand, Nutzungsempfehlung. Max 200 Wörter. Danach füge exakt diesen Block ein:\n[ELEMENTS]\n{"windows":[{"wall":"N","pos":0.5,"width":1.2}],"doors":[{"wall":"S","pos":0.3,"width":0.9,"side":"inside"}],"features":[]}\n[/ELEMENTS]'
+  },
+  it: {
+    logoSub:'Pro · Rilievo IA',
+    selectProp:'Seleziona immobile ▸', tapOrMic:'Digita o microfono',
+    setupTitle:'🏠 Configura immobile', propLabel:'Nome immobile', propPh:'es. Villa Burano, Apt 3B',
+    addrLabel:'Indirizzo / Descrizione', addrPh:'es. Via Laguna 5, Burano',
+    gpsBtn:'📍 Posizione GPS', speaking:'Parla…', continueBtn:'Avanti →',
+    quickScanTitle:'📷 Scansione rapida',
+    quickScanSub:'Scatta una foto del locale — Claude IA analizza subito.',
+    takePhoto:'📷 Scatta foto', fromFile:'🗂 Carica file',
+    analyzing:'Claude analizza…', readAloud:'🔊 Leggi ad alta voce',
+    roomsTitle:'Locali', roomByVoice:'🎙 Locale via voce',
+    speakRoomHint:'Dire nome e misure del locale…', addRoom:'＋ Aggiungi locale',
+    length:'Lunghezza', width:'Larghezza', height:'Altezza', meters:'Metri',
+    speakMeasure:'🎙 Dire le misure', speakMeasureHint:'Dire le misure…',
+    floorPlanTitle:'Planimetria', redraw:'↻ Ridisegna',
+    furnitureOn:'🪑 Disegna mobili', furnitureOff:'🪑 Nascondi mobili',
+    print:'🖨️ Stampa', whatsapp:'📱 WhatsApp', email:'✉️ E-Mail', maps:'📍 Google Maps',
+    srLang:'it-IT', ttsLang:'it-IT',
+    nameHint:'Dire il nome…', addrHint:'Dire l\'indirizzo…',
+    roomAddedMsg:' aggiunto.', dimsMsg:'Misure: ', onMsg:' per ', meterUnit:' metri.',
+    gpsSearching:'…rilevamento posizione', gpsDenied:'⚠️ Accesso negato',
+    analysisError:'⚠️ Errore. Riprovare.',
+    confirmDelete:'Eliminare il locale?', addRoomPrompt:'Nome locale:',
+    defaultRoom:'Locale ', noRoomSelected:'Selezionare prima un locale.',
+    srNotSupported:'Riconoscimento vocale non supportato. Usare Chrome.',
+    noLocation:'Inserire posizione GPS o indirizzo.',
+    emailSubj:'Rilievo: ', totalArea:'Superficie totale: ',
+    missingDims:'Misure mancanti',
+    analyzePrompt: 'Sei un professionista del rilievo immobiliare. Analizza questa foto. Rispondi in italiano senza formattazione Markdown (no **, no # titoli). Descrivi: tipo di locale, misure stimate (L x L), finestre, porte, caratteristiche speciali come camino, altezza se visibile, raccomandazione d\'uso. Max 200 parole. Poi aggiungi esattamente questo blocco:\n[ELEMENTS]\n{"windows":[{"wall":"N","pos":0.5,"width":1.2}],"doors":[{"wall":"S","pos":0.3,"width":0.9,"side":"inside"}],"features":[]}\n[/ELEMENTS]',
+    analyzeRoomPrompt: 'Sei un professionista del rilievo immobiliare. Analizza tutte le foto del locale "{name}". Rispondi in italiano senza Markdown (no **, no # titoli). Descrivi: tipo, misure (L x L se visibili), finestre, porte, caratteristiche speciali, stato, raccomandazione. Max 200 parole. Poi aggiungi esattamente:\n[ELEMENTS]\n{"windows":[{"wall":"N","pos":0.5,"width":1.2}],"doors":[{"wall":"S","pos":0.3,"width":0.9,"side":"inside"}],"features":[]}\n[/ELEMENTS]'
+  },
+  en: {
+    logoSub:'Pro · AI Survey',
+    selectProp:'Select property ▸', tapOrMic:'Type or use microphone',
+    setupTitle:'🏠 Set up property', propLabel:'Property name', propPh:'e.g. Villa Burano, Apt 3B',
+    addrLabel:'Address / Description', addrPh:'e.g. Via Laguna 5, Burano',
+    gpsBtn:'📍 GPS Position', speaking:'Speaking…', continueBtn:'Continue →',
+    quickScanTitle:'📷 Quick Scan',
+    quickScanSub:'Take a photo of any room — Claude AI analyses it instantly.',
+    takePhoto:'📷 Take photo', fromFile:'🗂 Load from file',
+    analyzing:'Claude analysing…', readAloud:'🔊 Read aloud',
+    roomsTitle:'Rooms', roomByVoice:'🎙 Add room by voice',
+    speakRoomHint:'Say room name and dimensions…', addRoom:'＋ Add room',
+    length:'Length', width:'Width', height:'Height', meters:'Metres',
+    speakMeasure:'🎙 Say measurements', speakMeasureHint:'Say the measurements…',
+    floorPlanTitle:'Floor Plan Overview', redraw:'↻ Redraw',
+    furnitureOn:'🪑 Draw furniture', furnitureOff:'🪑 Hide furniture',
+    print:'🖨️ Print', whatsapp:'📱 WhatsApp', email:'✉️ E-Mail', maps:'📍 Google Maps',
+    srLang:'en-GB', ttsLang:'en-GB',
+    nameHint:'Say the property name…', addrHint:'Say the address…',
+    roomAddedMsg:' added.', dimsMsg:'Dimensions: ', onMsg:' by ', meterUnit:' metres.',
+    gpsSearching:'…getting position', gpsDenied:'⚠️ Access denied',
+    analysisError:'⚠️ Analysis error. Please try again.',
+    confirmDelete:'Delete room?', addRoomPrompt:'Room name:',
+    defaultRoom:'Room ', noRoomSelected:'Please select a room first.',
+    srNotSupported:'Speech recognition not supported. Please use Chrome.',
+    noLocation:'Please enter a GPS position or address first.',
+    emailSubj:'Room survey: ', totalArea:'Total area: ',
+    missingDims:'Dimensions missing',
+    analyzePrompt: 'You are a professional room surveyor. Analyse this room photo. Reply in English without Markdown formatting (no **, no # headings). Describe: room type, estimated dimensions (L x W), windows, doors, special features like fireplace, ceiling height if visible, usage recommendation. Max 200 words. Then append exactly this block:\n[ELEMENTS]\n{"windows":[{"wall":"N","pos":0.5,"width":1.2}],"doors":[{"wall":"S","pos":0.3,"width":0.9,"side":"inside"}],"features":[]}\n[/ELEMENTS]',
+    analyzeRoomPrompt: 'You are a professional room surveyor. Analyse all photos of the room "{name}". Reply in English without Markdown (no **, no # headings). Describe: type, dimensions (L x W if visible), windows, doors, special features like fireplace or niches, condition, usage recommendation. Max 200 words. Then append exactly:\n[ELEMENTS]\n{"windows":[{"wall":"N","pos":0.5,"width":1.2}],"doors":[{"wall":"S","pos":0.3,"width":0.9,"side":"inside"}],"features":[]}\n[/ELEMENTS]'
+  }
+};
+
+function T(key){ return (I18N[state.lang]||I18N.de)[key] || key; }
+
+/* ── APPLY TRANSLATIONS to DOM ── */
+const TXT_MAP = {
+  'logoSubTxt':'logoSub', 'setupTitleTxt':'setupTitle', 'propLabelTxt':'propLabel',
+  'addrLabelTxt':'addrLabel', 'gpsBtnTxt':'gpsBtn', 'setupVSTxt':'speaking',
+  'continueBtnEl':'continueBtn', 'quickScanTitleTxt':'quickScanTitle',
+  'quickScanSubTxt':'quickScanSub', 'takePhotoQTxt':'takePhoto', 'fromFileQTxt':'fromFile',
+  'analyzingQTxt':'analyzing', 'readAloudQTxt':'readAloud',
+  'roomsTitleTxt':'roomsTitle', 'roomVSTxt':'speakRoomHint', 'addRoomTxt':'addRoom',
+  'lengthLblTxt':'length', 'widthLblTxt':'width', 'heightLblTxt':'height',
+  'metersLTxt':'meters', 'metersBTxt':'meters', 'metersHTxt':'meters',
+  'measVSTxt':'speakMeasureHint', 'analyzingTxt':'analyzing',
+  'floorPlanTitleTxt':'floorPlanTitle', 'redrawTxt':'redraw',
+  'printTxt':'print', 'whatsappTxt':'whatsapp', 'emailTxt':'email', 'mapsTxt':'maps'
+};
+const PH_MAP = {
+  'propName':'propPh', 'propAddr':'addrPh'
+};
+const BTN_TXT = {
+  'takePhotoTxt':'takePhoto', 'fromFileTxt':'fromFile',
+  'speakMeasureTxt':'speakMeasure', 'readAloudTxt':'readAloud',
+  'roomByVoiceTxt':'roomByVoice'
+};
+
+function setLang(lang) {
+  state.lang = lang;
+  document.documentElement.lang = lang;
+  document.querySelectorAll('.lang-btn').forEach(b=>{
+    b.classList.toggle('active', b.textContent.trim().toLowerCase()===lang);
+  });
+  // Apply text content
+  Object.entries(TXT_MAP).forEach(([id,key])=>{
+    const el = document.getElementById(id);
+    if(el) el.textContent = T(key);
+  });
+  // Button texts (have children spans, use innerHTML carefully or textContent)
+  // For buttons with only text, set textContent
+  Object.entries(BTN_TXT).forEach(([id,key])=>{
+    const el = document.getElementById(id);
+    if(el) el.textContent = T(key);
+  });
+  // mic-room button
+  const micRoom = document.getElementById('mic-room');
+  if(micRoom) micRoom.textContent = T('roomByVoice');
+  // mic-meas button
+  const micMeas = document.getElementById('mic-meas');
+  if(micMeas) micMeas.textContent = T('speakMeasure');
+  // Furniture button
+  const btnF = document.getElementById('btnFurniture');
+  if(btnF) btnF.textContent = showFurniture ? T('furnitureOff') : T('furnitureOn');
+  // Placeholders
+  Object.entries(PH_MAP).forEach(([id,key])=>{
+    const el = document.getElementById(id);
+    if(el) el.placeholder = T(key);
+  });
+  // Header
+  if(!state.propName) {
+    document.getElementById('hdrPropName').textContent = T('selectProp');
+    document.getElementById('hdrPropSub').textContent = T('tapOrMic');
+  }
+}
+setLang('de');
+
+/* ── ROOM ICONS ── */
+const ROOM_ICONS = {
+  'küche':'🍳','bad':'🚿','badezimmer':'🚿','wc':'🚽','schlafzimmer':'🛏️',
+  'wohnzimmer':'🛋️','kinderzimmer':'🧸','arbeitszimmer':'💼','flur':'🚪',
+  'terrasse':'🌿','balkon':'🌿','keller':'🏚️','dachboden':'🏠','garage':'🚗',
+  'esszimmer':'🍽️','eingang':'🚪','abstellraum':'📦','hauswirtschaft':'🧺',
+  'cucina':'🍳','bagno':'🚿','camera':'🛏️','soggiorno':'🛋️','corridoio':'🚪',
+  'kitchen':'🍳','bathroom':'🚿','bedroom':'🛏️','living':'🛋️','hallway':'🚪',
+  'corridor':'🚪','office':'💼','terrace':'🌿','balcony':'🌿'
+};
+function roomIcon(name) {
+  if(!name) return '📐';
+  const low = name.toLowerCase();
+  for(const k of Object.keys(ROOM_ICONS)) if(low.includes(k)) return ROOM_ICONS[k];
+  return '📐';
+}
+
+/* ── TEXT CLEANUP ── */
+function cleanText(txt) {
+  if(!txt) return '';
+  return txt
+    .replace(/\*\*(.*?)\*\*/g,'$1')
+    .replace(/\*(.*?)\*/g,'$1')
+    .replace(/^#{1,3}\s+/gm,'')
+    .replace(/\[ELEMENTS\][\s\S]*?\[\/ELEMENTS\]/g,'')
+    .trim();
+}
+function parseElements(txt) {
+  try {
+    const m = txt.match(/\[ELEMENTS\]([\s\S]*?)\[\/ELEMENTS\]/);
+    if(m) return JSON.parse(m[1].trim());
+  } catch(e){}
+  return null;
+}
+
+/* ══════════════════════════════════════
+   SETUP
+══════════════════════════════════════ */
+function showSetup() {
+  document.getElementById('setupCard').classList.add('show');
+  document.getElementById('propName').value = state.propName;
+  document.getElementById('propAddr').value = state.propAddr;
+}
+function saveSetup() {
+  const name = document.getElementById('propName').value.trim();
+  const addr = document.getElementById('propAddr').value.trim();
+  state.propName = name || T('defaultRoom')+'1';
+  state.propAddr = addr;
+  document.getElementById('hdrPropName').textContent = state.propName;
+  document.getElementById('hdrPropSub').textContent = state.propAddr || T('tapOrMic');
+  document.getElementById('setupCard').classList.remove('show');
+  document.getElementById('mainPanel').style.display = 'block';
+  document.getElementById('exportBar').style.display = 'flex';
+  renderRooms();
+  // Test proxy and mic on first use
+  checkApiKey();
+testProxy();
+  if(!micOK) {
+    setTimeout(()=>{
+      const msg = isIOS
+        ? '🎙 Mikrofon: Bitte Safari verwenden (iOS Chrome unterstützt kein Mikrofon)'
+        : '🎙 Spracherkennung: Bitte Chrome oder Edge Desktop verwenden';
+      toast(msg,'error',7000);
+    }, 800);
+  }
+}
+function getGPS() {
+  document.getElementById('gpsStatus').textContent = T('gpsSearching');
+  navigator.geolocation.getCurrentPosition(pos=>{
+    state.lat = pos.coords.latitude.toFixed(6);
+    state.lng = pos.coords.longitude.toFixed(6);
+    document.getElementById('gpsStatus').textContent = '📍 '+state.lat+', '+state.lng;
+  }, ()=>{
+    document.getElementById('gpsStatus').textContent = T('gpsDenied');
+  });
+}
+
+/* ══════════════════════════════════════
+   ROOMS
+══════════════════════════════════════ */
+function renderRooms() {
+  const grid = document.getElementById('roomsGrid');
+  grid.innerHTML = '';
+  state.rooms.forEach((r,i)=>{
+    const sqm = (r.l&&r.b) ? (r.l*r.b).toFixed(1)+' m²' : '';
+    const dims = (r.l&&r.b) ? r.l+'m × '+r.b+'m'+(r.h?' × '+r.h+'m':'') : T('missingDims');
+    const card = document.createElement('div');
+    card.className = 'room-card'+(i===state.activeRoom?' active':'');
+    card.innerHTML =
+      '<div class="rc-name"><span class="rc-icon">'+roomIcon(r.name)+'</span>'+r.name+'</div>'+
+      '<div class="rc-dims">'+dims+'</div>'+
+      (sqm?'<div class="rc-sqm">'+sqm+'</div>':'')+
+      '<button class="rc-del" onclick="delRoom('+i+',event)">✕</button>';
+    card.onclick = ()=>openEditor(i);
+    grid.appendChild(card);
+  });
+  drawFloorPlan();
+}
+function addRoomManual() {
+  const name = prompt(T('addRoomPrompt'), T('defaultRoom')+(state.rooms.length+1));
+  if(!name) return;
+  state.rooms.push({name, l:0, b:0, h:0, photos:[], activePhoto:0, analysis:'', elements:null, furniture:null});
+  state.activeRoom = state.rooms.length-1;
+  renderRooms();
+  openEditor(state.activeRoom);
+}
+function delRoom(i, e) {
+  e.stopPropagation();
+  if(!confirm(T('confirmDelete'))) return;
+  state.rooms.splice(i,1);
+  if(state.activeRoom >= state.rooms.length) state.activeRoom = -1;
+  renderRooms();
+  if(state.activeRoom < 0) document.getElementById('editor').classList.remove('show');
+}
+function openEditor(i) {
+  state.activeRoom = i;
+  const r = state.rooms[i];
+  if(!r.photos) r.photos = [];
+  document.getElementById('edRoomIcon').textContent = roomIcon(r.name);
+  document.getElementById('edRoomName').textContent = r.name;
+  document.getElementById('dimL').value = r.l||'';
+  document.getElementById('dimB').value = r.b||'';
+  document.getElementById('dimH').value = r.h||'';
+  const pr = document.getElementById('photoResult');
+  if(r.photos.length) {
+    const idx = r.activePhoto||0;
+    document.getElementById('phImg').src = r.photos[idx].src;
+    const txt = r.photos[idx].analysis||'';
+    document.getElementById('phResultTxt').innerHTML = txt.replace(/\n/g,'<br>');
+    document.getElementById('phResultTxt').classList.toggle('show', !!txt);
+    document.getElementById('phStatus').style.display = 'none';
+    pr.classList.add('show');
+    document.getElementById('btnTTS').classList.toggle('show', !!r.analysis);
+  } else {
+    pr.classList.remove('show');
+    document.getElementById('btnTTS').classList.remove('show');
+  }
+  renderPhotoStrip();
+  document.getElementById('editor').classList.add('show');
+  renderRooms();
+  document.getElementById('editor').scrollIntoView({behavior:'smooth',block:'nearest'});
+}
+function updateDim() {
+  if(state.activeRoom<0) return;
+  const r = state.rooms[state.activeRoom];
+  r.l = parseFloat(document.getElementById('dimL').value)||0;
+  r.b = parseFloat(document.getElementById('dimB').value)||0;
+  r.h = parseFloat(document.getElementById('dimH').value)||0;
+  if(r.l&&r.b&&r.analysis) {
+    const note = '\n[Gemessene Maße: '+r.l+' × '+r.b+' m'+(r.h?' × '+r.h+' m Höhe':'')+']';
+    const base = r.analysis.replace(/\n?\[Gemessene Maße:.*?\]/g,'');
+    r.analysis = base+note;
+    const el = document.getElementById('phResultTxt');
+    if(el) el.innerHTML = r.analysis.replace(/\n/g,'<br>');
+  }
+  renderRooms();
+  drawFloorPlan();
+}
+
+/* ══════════════════════════════════════
+   PHOTO STRIP
+══════════════════════════════════════ */
+function renderPhotoStrip() {
+  if(state.activeRoom<0) return;
+  const r = state.rooms[state.activeRoom];
+  const strip = document.getElementById('photoStrip');
+  strip.innerHTML = '';
+  (r.photos||[]).forEach((p,i)=>{
+    const wrap = document.createElement('div');
+    wrap.className = 'ph-thumb'+(i===(r.activePhoto||0)?' active':'');
+    const img = document.createElement('img'); img.src = p.src;
+    const del = document.createElement('button');
+    del.className = 'ph-thumb-del'; del.textContent = '✕';
+    del.onclick = (e)=>{ e.stopPropagation(); delPhoto(i); };
+    wrap.appendChild(img); wrap.appendChild(del);
+    wrap.onclick = ()=>showPhotoAt(i);
+    strip.appendChild(wrap);
+  });
+}
+function showPhotoAt(i) {
+  if(state.activeRoom<0) return;
+  const r = state.rooms[state.activeRoom];
+  r.activePhoto = i;
+  const p = r.photos[i];
+  document.getElementById('phImg').src = p.src;
+  document.getElementById('photoResult').classList.add('show');
+  document.getElementById('phStatus').style.display = 'none';
+  const txt = p.analysis||'';
+  document.getElementById('phResultTxt').innerHTML = txt.replace(/\n/g,'<br>');
+  document.getElementById('phResultTxt').classList.toggle('show', !!txt);
+  document.getElementById('btnTTS').classList.toggle('show', !!r.analysis);
+  renderPhotoStrip();
+}
+function delPhoto(i) {
+  const r = state.rooms[state.activeRoom];
+  r.photos.splice(i,1);
+  if(!r.photos.length) {
+    document.getElementById('photoResult').classList.remove('show');
+    document.getElementById('btnTTS').classList.remove('show');
+    r.analysis = ''; r.elements = null;
+  } else {
+    r.activePhoto = Math.min(r.activePhoto||0, r.photos.length-1);
+    showPhotoAt(r.activePhoto);
+    r.analysis = r.photos.map(p=>p.analysis||'').filter(Boolean).join('\n\n');
+  }
+  renderPhotoStrip();
+  drawFloorPlan();
+}
+
+/* ══════════════════════════════════════
+   QUICK SCAN
+══════════════════════════════════════ */
+let quickAnalysis = '';
+function quickCam(){ document.getElementById('quickCamInput').click(); }
+function quickFile(){ document.getElementById('quickFileInput').click(); }
+async function handleQuickPhoto(inp) {
+  if(!inp.files||!inp.files[0]) return;
+  const file = inp.files[0];
+  const pr = document.getElementById('quickPhotoResult');
+  pr.classList.add('show');
+  document.getElementById('quickPhStatus').style.display='flex';
+  document.getElementById('quickPhResultTxt').classList.remove('show');
+  document.getElementById('btnQuickTTS').classList.remove('show');
+  const reader = new FileReader();
+  reader.onload = async e => {
+    const src = e.target.result;
+    const b64 = src.split(',')[1];
+    const mime = file.type||'image/jpeg';
+    document.getElementById('quickPhImg').src = src;
+    inp.value = '';
+    try {
+      const res = await fetch(PROXY,{method:'POST',headers:getApiHeaders(),
+        body:JSON.stringify({model:'claude-sonnet-4-5',max_tokens:700,
+          messages:[{role:'user',content:[
+            {type:'image',source:{type:'base64',media_type:mime,data:b64}},
+            {type:'text',text:T('analyzePrompt')}
+          ]}]})});
+      const d = await res.json();
+      const raw = d.content&&d.content[0]&&d.content[0].text ? d.content[0].text : T('analyzing');
+      quickAnalysis = cleanText(raw);
+      document.getElementById('quickPhStatus').style.display='none';
+      document.getElementById('quickPhResultTxt').innerHTML = quickAnalysis.replace(/\n/g,'<br>');
+      document.getElementById('quickPhResultTxt').classList.add('show');
+      document.getElementById('btnQuickTTS').classList.add('show');
+    } catch(err) {
+      document.getElementById('quickPhStatus').innerHTML = T('analysisError');
+      toast('⚠️ KI-Analyse fehlgeschlagen: '+err.message,'error',6000);
+    }
+  };
+  reader.readAsDataURL(file);
+}
+function readQuickResult(){ speak(quickAnalysis); }
+
+/* ══════════════════════════════════════
+   ROOM PHOTO — MULTI PHOTO
+══════════════════════════════════════ */
+function camCapture(){ document.getElementById('camInput').click(); }
+function fileCapture(){ document.getElementById('fileInput').click(); }
+
+async function handlePhoto(inp) {
+  if(!inp.files||!inp.files[0]) return;
+  if(state.activeRoom<0) return;
+  const file = inp.files[0];
+  const r = state.rooms[state.activeRoom];
+  if(!r.photos) r.photos = [];
+  const scrollY = window.scrollY;
+
+  const pr = document.getElementById('photoResult');
+  pr.classList.add('show');
+  document.getElementById('phStatus').style.display = 'flex';
+  document.getElementById('phStatus').innerHTML = '<span class="spinner"></span> <span>'+T('analyzing')+'</span>';
+  document.getElementById('phResultTxt').classList.remove('show');
+  document.getElementById('btnTTS').classList.remove('show');
+
+  const reader = new FileReader();
+  reader.onload = async e => {
+    const src = e.target.result;
+    const b64 = src.split(',')[1];
+    const mime = file.type||'image/jpeg';
+    inp.value = '';
+
+    // Add to strip immediately
+    const photoIdx = r.photos.length;
+    r.photos.push({src, b64, mime, analysis:''});
+    r.activePhoto = photoIdx;
+    document.getElementById('phImg').src = src;
+    renderPhotoStrip();
+    window.scrollTo(0, scrollY);
+
+    try {
+      // Send ALL photos together for comprehensive analysis
+      const content = [];
+      r.photos.forEach(p => {
+        if(p.b64) content.push({type:'image',source:{type:'base64',media_type:p.mime,data:p.b64}});
+      });
+      const promptTxt = T('analyzeRoomPrompt').replace('{name}', r.name)
+        + (r.photos.length > 1 ? ' ('+r.photos.length+' Fotos)' : '');
+      content.push({type:'text', text: promptTxt});
+
+      const res = await fetch(PROXY,{method:'POST',headers:getApiHeaders(),
+        body:JSON.stringify({model:'claude-sonnet-4-5',max_tokens:900,
+          messages:[{role:'user',content}]})});
+      const d = await res.json();
+      const raw = d.content&&d.content[0]&&d.content[0].text ? d.content[0].text : T('analyzing');
+
+      // Parse structural elements for floor plan
+      const el = parseElements(raw);
+      if(el) r.elements = el;
+      const cleanTxt = cleanText(raw);
+
+      // Store on current photo AND room
+      r.photos[photoIdx].analysis = cleanTxt;
+      r.analysis = cleanTxt;
+      // Update analysis on all photos (combined view)
+      if(r.photos.length > 1) r.photos.forEach(p=>{ p.analysis = cleanTxt; });
+
+      document.getElementById('phStatus').style.display = 'none';
+      document.getElementById('phResultTxt').innerHTML = cleanTxt.replace(/\n/g,'<br>');
+      document.getElementById('phResultTxt').classList.add('show');
+      document.getElementById('btnTTS').classList.add('show');
+      renderPhotoStrip();
+      drawFloorPlan();
+      window.scrollTo(0, scrollY);
+    } catch(err) {
+      document.getElementById('phStatus').innerHTML = T('analysisError');
+      toast('⚠️ KI-Analyse fehlgeschlagen: '+err.message,'error',6000);
+    }
+  };
+  reader.readAsDataURL(file);
+}
+function readResult() {
+  if(state.activeRoom<0) return;
+  const txt = state.rooms[state.activeRoom].analysis;
+  if(!txt) return;
+  speechSynthesis.cancel();
+  const u = new SpeechSynthesisUtterance(txt);
+  u.lang = T('ttsLang'); u.rate=0.95;
+  const voices = speechSynthesis.getVoices();
+  const v = voices.find(x=>x.lang.startsWith(state.lang))||null;
+  if(v) u.voice = v;
+  speechSynthesis.speak(u);
+}
+
+/* ══════════════════════════════════════
+   SPEECH RECOGNITION
+══════════════════════════════════════ */
+let activeSR = null;
+function stopSR(){ if(activeSR){try{activeSR.stop();}catch(e){} activeSR=null;} }
+
+function startSR(onResult, statusEl, statusTxtEl, btnEl, hint) {
+  stopSR();
+  if(!checkMic()) return;
+  const sr = new SpeechRec();
+  sr.lang = T('srLang'); sr.continuous=false; sr.interimResults=false;
+  activeSR = sr;
+  const seEl = document.getElementById(statusEl);
+  const stEl = document.getElementById(statusTxtEl);
+  const btn = document.getElementById(btnEl);
+  if(seEl) seEl.classList.add('show');
+  if(stEl) stEl.textContent = hint||T('speaking');
+  if(btn) btn.classList.add('listening');
+  sr.onresult = e => {
+    const txt = e.results[0][0].transcript;
+    if(stEl) stEl.textContent = '✓ '+txt;
+    onResult(txt);
+  };
+  sr.onerror = ev => {
+    if(seEl) seEl.classList.remove('show');
+    if(btn) btn.classList.remove('listening');
+    const errMap = {
+      'not-allowed':'Mikrofon-Zugriff verweigert. Bitte Berechtigung erlauben.',
+      'no-speech':'Kein Ton erkannt. Bitte erneut versuchen.',
+      'network':'Netzwerkfehler bei der Spracherkennung.',
+      'audio-capture':'Mikrofon nicht gefunden.'
+    };
+    toast('🎙 '+(errMap[ev.error]||'Sprachfehler: '+ev.error),'error',5000);
+    activeSR = null;
+  };
+  sr.onend = () => {
+    if(btn) btn.classList.remove('listening');
+    setTimeout(()=>{ if(seEl) seEl.classList.remove('show'); }, 2500);
+    activeSR = null;
+  };
+  try { sr.start(); }
+  catch(e){ toast('🎙 Mikrofon-Start fehlgeschlagen: '+e.message,'error',5000); }
+}
+
+function micSetup(field) {
+  const btnId = field==='name'?'mic-name':'mic-addr';
+  startSR(txt=>{
+    if(field==='name'){
+      state.propName = txt;
+      document.getElementById('propName').value = txt;
+    } else {
+      state.propAddr = txt;
+      document.getElementById('propAddr').value = txt;
+    }
+  }, 'setupVS', 'setupVSTxt', btnId, field==='name'?T('nameHint'):T('addrHint'));
+}
+function micAddRoom() {
+  startSR(txt=>{
+    const parsed = parseVoiceRoom(txt);
+    state.rooms.push({name:parsed.name,l:parsed.l||0,b:parsed.b||0,h:parsed.h||0,photos:[],activePhoto:0,analysis:'',elements:null,furniture:null});
+    state.activeRoom = state.rooms.length-1;
+    renderRooms();
+    openEditor(state.activeRoom);
+    speak(parsed.name+T('roomAddedMsg')+(parsed.l?T('dimsMsg')+parsed.l+T('onMsg')+parsed.b+T('meterUnit'):''));
+  }, 'roomVS', 'roomVSTxt', 'mic-room', T('speakRoomHint'));
+}
+function micMeasure() {
+  if(state.activeRoom<0){ alert(T('noRoomSelected')); return; }
+  startSR(txt=>{
+    const m = parseMeasures(txt);
+    if(m.l){ state.rooms[state.activeRoom].l=m.l; document.getElementById('dimL').value=m.l; }
+    if(m.b){ state.rooms[state.activeRoom].b=m.b; document.getElementById('dimB').value=m.b; }
+    if(m.h){ state.rooms[state.activeRoom].h=m.h; document.getElementById('dimH').value=m.h; }
+    updateDim();
+    let msg='';
+    if(m.l&&m.b) msg=T('dimsMsg')+m.l+T('onMsg')+m.b+T('meterUnit');
+    else if(m.l) msg=T('length')+': '+m.l+T('meterUnit');
+    if(msg) speak(msg);
+  }, 'measVS', 'measVSTxt', 'mic-meas', T('speakMeasureHint'));
+}
+
+/* ── PARSING ── */
+const NUM_DE = {'null':0,'ein':1,'eine':1,'zwei':2,'drei':3,'vier':4,'fünf':5,'sechs':6,'sieben':7,'acht':8,'neun':9,'zehn':10,'elf':11,'zwölf':12,'dreizehn':13,'vierzehn':14,'fünfzehn':15,'sechzehn':16,'siebzehn':17,'achtzehn':18,'neunzehn':19,'zwanzig':20};
+function parseMeasures(txt) {
+  txt = txt.toLowerCase().replace(/komma/g,'.').replace(/,/g,'.').replace(/meter|metri|metres/g,'m').replace(/und|and|e /g,' ');
+  let l=null,b=null,h=null;
+  const onAuf = txt.match(/(\d+[\.\d]*)\s*m?\s*(?:auf|mal|x|×|per|by)\s*(\d+[\.\d]*)/i);
+  if(onAuf){l=parseFloat(onAuf[1]);b=parseFloat(onAuf[2]);}
+  const hMatch = txt.match(/(?:h[öo]he?|hoch|alt[oa]|ceiling|height)\s*(\d+[\.\d]*)/i);
+  if(hMatch) h=parseFloat(hMatch[1]);
+  if(!l) {
+    const nums=[...txt.matchAll(/(\d+[,.]?\d*)/g)].map(m=>parseFloat(m[1].replace(',','.')));
+    if(nums.length>=2){l=nums[0];b=nums[1];}
+    if(nums.length>=3&&!h) h=nums[2];
+  }
+  return {l,b,h};
+}
+function parseVoiceRoom(txt) {
+  const lower = txt.toLowerCase();
+  const roomNames = ['küche','badezimmer','bad','wc','schlafzimmer','wohnzimmer','kinderzimmer','arbeitszimmer','flur','terrasse','balkon','keller','dachboden','garage','esszimmer','abstellraum','eingang','cucina','bagno','camera','soggiorno','corridoio','kitchen','bathroom','bedroom','living','office','hallway'];
+  let name = '';
+  for(const rn of roomNames){ if(lower.includes(rn)){name=rn.charAt(0).toUpperCase()+rn.slice(1);break;} }
+  if(!name){
+    const words = txt.split(' ');
+    name = words.slice(0,3).join(' ');
+    name = name.charAt(0).toUpperCase()+name.slice(1);
+  }
+  const m = parseMeasures(txt);
+  return {name,...m};
+}
+
+/* ── TTS ── */
+function speak(txt) {
+  if(!txt) return;
+  speechSynthesis.cancel();
+  const u = new SpeechSynthesisUtterance(txt);
+  u.lang=T('ttsLang'); u.rate=1; u.pitch=1;
+  const v = speechSynthesis.getVoices().find(x=>x.lang.startsWith(state.lang))||null;
+  if(v) u.voice=v;
+  speechSynthesis.speak(u);
+}
+speechSynthesis.getVoices();
+window.speechSynthesis&&speechSynthesis.addEventListener('voiceschanged',()=>{});
+
+/* ══════════════════════════════════════
+   FLOOR PLAN — ARCHITECTURAL DRAWING
+══════════════════════════════════════ */
+let showFurniture = false;
+
+function drawFloorPlan() {
+  const canvas = document.getElementById('fpCanvas');
+  if(!canvas) return;
+  const ctx = canvas.getContext('2d');
+  const dpr = window.devicePixelRatio||1;
+  const W = canvas.offsetWidth||800;
+  const H = 420;
+  canvas.width = W*dpr; canvas.height = H*dpr; canvas.style.height = H+'px';
+  ctx.scale(dpr,dpr);
+
+  // Paper background
+  ctx.fillStyle='#f5f0e8'; ctx.fillRect(0,0,W,H);
+
+  const rooms = state.rooms.filter(r=>r.l>0&&r.b>0);
+  if(!rooms.length){
+    ctx.fillStyle='rgba(80,80,100,.4)'; ctx.font='13px Outfit,sans-serif'; ctx.textAlign='center';
+    ctx.fillText(T('addRoomsHint')||'Räume mit Maßen hinzufügen', W/2, H/2);
+    return;
+  }
+
+  const PAD=30, WALL=10;
+  const totalL = rooms.reduce((s,r)=>s+r.l,0)+(rooms.length-1)*0.3;
+  const maxB = Math.max(...rooms.map(r=>r.b));
+  const sc = Math.min((W-PAD*2)/totalL, (H-PAD*2-36)/maxB, 65);
+
+  const FILLS=['#e8f4f8','#e8f8f0','#fff8e8','#f8e8e8','#f0e8f8','#e8f0f0','#f8f0e8'];
+  const WALLS=['#1a6080','#1a8060','#806020','#802020','#602080','#206060','#806040'];
+
+  let cx = PAD;
+  const baseY = PAD+14;
+
+  rooms.forEach((room,i)=>{
+    const rw=room.l*sc, rh=room.b*sc;
+    const rx=cx, ry=baseY+(maxB*sc-rh)/2;
+    const fill=FILLS[i%FILLS.length], wallCol=WALLS[i%WALLS.length];
+
+    ctx.fillStyle=fill; ctx.fillRect(rx+WALL,ry+WALL,rw-WALL*2,rh-WALL*2);
+
+    const el = room.elements||{};
+    const wins = el.windows||[], doors = el.doors||[], feats = el.features||[];
+
+    // Build gaps for each wall from windows+doors
+    function gaps(wallId) {
+      const wallLen = (wallId==='N'||wallId==='S') ? room.l : room.b;
+      const g=[];
+      wins.filter(w=>w.wall===wallId).forEach(w=>{
+        const wr=(w.width||1.0)/wallLen, c=w.pos||0.5;
+        g.push({start:Math.max(0,c-wr/2),end:Math.min(1,c+wr/2),type:'window'});
+      });
+      doors.filter(d=>d.wall===wallId).forEach(d=>{
+        const dr=(d.width||0.9)/wallLen, c=d.pos||0.5;
+        g.push({start:Math.max(0,c-dr/2),end:Math.min(1,c+dr/2),type:'door',side:d.side||'inside'});
+      });
+      return g.sort((a,b)=>a.start-b.start);
+    }
+
+    function drawWall(x1,y1,x2,y2,glist) {
+      ctx.strokeStyle=wallCol; ctx.lineWidth=WALL; ctx.lineCap='square';
+      if(!glist.length){ctx.beginPath();ctx.moveTo(x1,y1);ctx.lineTo(x2,y2);ctx.stroke();return;}
+      let pos=0;
+      glist.forEach(g=>{
+        if(g.start>pos){
+          ctx.beginPath();ctx.moveTo(x1+(x2-x1)*pos,y1+(y2-y1)*pos);ctx.lineTo(x1+(x2-x1)*g.start,y1+(y2-y1)*g.start);ctx.stroke();
+        }
+        pos=g.end;
+      });
+      if(pos<1){ctx.beginPath();ctx.moveTo(x1+(x2-x1)*pos,y1+(y2-y1)*pos);ctx.lineTo(x2,y2);ctx.stroke();}
+    }
+
+    const wc={N:[rx,ry,rx+rw,ry],S:[rx,ry+rh,rx+rw,ry+rh],W:[rx,ry,rx,ry+rh],E:[rx+rw,ry,rx+rw,ry+rh]};
+    ['N','S','W','E'].forEach(w=>drawWall(...wc[w], gaps(w)));
+
+    // Window symbols
+    function drawWin(x1,y1,x2,y2,g) {
+      const lx1=x1+(x2-x1)*g.start,ly1=y1+(y2-y1)*g.start;
+      const lx2=x1+(x2-x1)*g.end,ly2=y1+(y2-y1)*g.end;
+      const len=Math.hypot(lx2-lx1,ly2-ly1)||1;
+      const nx=(ly2-ly1)/len*4.5, ny=(lx2-lx1)/len*4.5;
+      ctx.strokeStyle='#3080c0'; ctx.lineWidth=1.5;
+      [[0,0],[nx,-ny],[-nx,ny]].forEach(([dx,dy])=>{
+        ctx.beginPath();ctx.moveTo(lx1+dx,ly1-dy);ctx.lineTo(lx2+dx,ly2-dy);ctx.stroke();
+      });
+    }
+    // Door arc symbol
+    function drawDoor(x1,y1,x2,y2,g) {
+      const lx1=x1+(x2-x1)*g.start,ly1=y1+(y2-y1)*g.start;
+      const lx2=x1+(x2-x1)*g.end,ly2=y1+(y2-y1)*g.end;
+      const dlen=Math.hypot(lx2-lx1,ly2-ly1)||1;
+      const inside = g.side==='inside'?1:-1;
+      const nx=(ly2-ly1)/dlen, ny=(lx2-lx1)/dlen;
+      const endAngle=Math.atan2(inside*nx*dlen, inside*ny*dlen);
+      ctx.strokeStyle='#8b5e3c'; ctx.lineWidth=1.3;
+      ctx.beginPath(); ctx.moveTo(lx1,ly1);
+      ctx.lineTo(lx2,ly2); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(lx1,ly1);
+      const startAngle=Math.atan2(ly2-ly1,lx2-lx1);
+      ctx.arc(lx1,ly1,dlen,startAngle,endAngle,inside<0);
+      ctx.stroke();
+    }
+
+    ['N','S','W','E'].forEach(w=>{
+      const [wx1,wy1,wx2,wy2]=wc[w];
+      gaps(w).forEach(g=>{
+        if(g.type==='window') drawWin(wx1,wy1,wx2,wy2,g);
+        else drawDoor(wx1,wy1,wx2,wy2,g);
+      });
+    });
+
+    // Fireplace / features
+    feats.forEach(f=>{
+      if(!f.type||!f.wall) return;
+      const [fx1,fy1,fx2,fy2]=wc[f.wall]||wc['N'];
+      const p=f.pos||0.5;
+      const mx=fx1+(fx2-fx1)*p, my=fy1+(fy2-fy1)*p;
+      const fw=Math.min(sc*0.7,28);
+      const wallLen=Math.hypot(fx2-fx1,fy2-fy1)||1;
+      const nx=(fy2-fy1)/wallLen*8, ny=(fx2-fx1)/wallLen*8;
+      // Draw fireplace box inward
+      ctx.fillStyle='#8b3a3a';
+      ctx.fillRect(mx-fw/2, my-4, fw, 14);
+      ctx.fillStyle='#3a1a1a';
+      ctx.fillRect(mx-fw/4, my, fw/2, 9);
+      ctx.font='9px Arial'; ctx.textAlign='center'; ctx.fillStyle='rgba(0,0,0,.6)';
+      ctx.fillText('🔥', mx, my+22);
+    });
+
+    // Furniture
+    if(showFurniture&&room.furniture&&room.furniture.length) {
+      room.furniture.forEach(furn=>{
+        const fw=(furn.w||1)*sc, fl=(furn.l||1)*sc;
+        const fx=rx+WALL+(furn.x||0.05)*(rw-WALL*2);
+        const fy=ry+WALL+(furn.y||0.05)*(rh-WALL*2);
+        ctx.fillStyle='rgba(100,80,60,.2)'; ctx.strokeStyle='rgba(100,80,60,.55)'; ctx.lineWidth=1;
+        ctx.fillRect(fx,fy,fw,fl); ctx.strokeRect(fx,fy,fw,fl);
+        ctx.fillStyle='rgba(60,40,20,.65)'; ctx.textAlign='center';
+        ctx.font=Math.max(7,Math.min(10,fw/3))+'px Outfit';
+        ctx.fillText(furn.icon||'▭', fx+fw/2, fy+fl/2+3);
+        if(fw>28){ ctx.font='6px Outfit'; ctx.fillText(furn.name||'', fx+fw/2, fy+fl/2+13); }
+      });
+    }
+
+    // Room label
+    ctx.fillStyle=wallCol; ctx.textAlign='center';
+    ctx.font='bold '+Math.max(9,Math.min(11,rw/9))+'px Outfit,sans-serif';
+    ctx.fillText(roomIcon(room.name)+' '+room.name, rx+rw/2, ry+rh/2-6);
+    ctx.fillStyle='rgba(0,0,0,.5)';
+    ctx.font=Math.max(7,Math.min(9,rw/13))+'px JetBrains Mono,monospace';
+    if(room.l&&room.b) ctx.fillText(room.l+'×'+room.b+'m', rx+rw/2, ry+rh/2+7);
+    if(room.l&&room.b) ctx.fillText((room.l*room.b).toFixed(1)+'m²', rx+rw/2, ry+rh/2+17);
+
+    // Dimension annotations
+    ctx.fillStyle='rgba(0,0,0,.3)'; ctx.font='7px JetBrains Mono';
+    if(rw>35){ ctx.textAlign='center'; ctx.fillText(room.l+'m', rx+rw/2, ry-5); }
+    if(rh>25){ ctx.save(); ctx.translate(rx-7,ry+rh/2); ctx.rotate(-Math.PI/2); ctx.textAlign='center'; ctx.fillText(room.b+'m',0,0); ctx.restore(); }
+
+    cx += rw+0.3*sc;
+  });
+
+  // Footer
+  const total=rooms.reduce((s,r)=>s+(r.l*r.b),0);
+  ctx.fillStyle='rgba(0,0,0,.3)'; ctx.font='10px Outfit'; ctx.textAlign='left';
+  ctx.fillText((T('totalArea')||'Gesamt: ')+total.toFixed(1)+' m² · '+rooms.length+' '+(T('roomsLabel')||'Räume'), PAD, H-9);
+  ctx.textAlign='right'; ctx.fillText(state.propName||'', W-PAD, H-9);
+}
+window.addEventListener('resize',()=>drawFloorPlan());
+// I18N key used in drawFloorPlan:
+// T('addRoomsHint'), T('totalArea'), T('roomsLabel')
+// Add these to I18N:
+I18N.de.addRoomsHint='Räume mit Maßen hinzufügen'; I18N.de.roomsLabel='Räume';
+I18N.it.addRoomsHint='Aggiungere locali con misure'; I18N.it.roomsLabel='locali';
+I18N.en.addRoomsHint='Add rooms with dimensions'; I18N.en.roomsLabel='rooms';
+
+/* ══════════════════════════════════════
+   FURNITURE
+══════════════════════════════════════ */
+async function toggleFurniture() {
+  const btn = document.getElementById('btnFurniture');
+  if(showFurniture){ showFurniture=false; btn.textContent=T('furnitureOn'); drawFloorPlan(); return; }
+  btn.textContent='⏳ …'; btn.disabled=true;
+  const rooms = state.rooms.filter(r=>r.l>0&&r.b>0);
+  for(const r of rooms) {
+    if(r.furniture&&r.furniture.length) continue;
+    try {
+      const res = await fetch(PROXY,{method:'POST',headers:getApiHeaders(),
+        body:JSON.stringify({model:'claude-sonnet-4-5',max_tokens:400,
+          messages:[{role:'user',content:'Room: '+r.name+', '+r.l+'m × '+r.b+'m. Suggest typical furniture as JSON array. Format: [{"name":"Bed","icon":"🛏","w":1.6,"l":2.0,"x":0.05,"y":0.05},...] x/y are relative position 0-1 within room. Only JSON, no text.'}]})});
+      const d = await res.json();
+      let txt=(d.content&&d.content[0]&&d.content[0].text)||'[]';
+      txt=txt.replace(/```json|```/g,'').trim();
+      r.furniture=JSON.parse(txt);
+    } catch(e){ r.furniture=[]; }
+  }
+  showFurniture=true; btn.textContent=T('furnitureOff'); btn.disabled=false;
+  drawFloorPlan();
+}
+
+/* ══════════════════════════════════════
+   EXPORT
+══════════════════════════════════════ */
+function buildSummaryText() {
+  let txt=(state.propName||'')+'\n';
+  if(state.propAddr) txt+='📍 '+state.propAddr+'\n';
+  if(state.lat) txt+='GPS: '+state.lat+', '+state.lng+'\n';
+  txt+='\n';
+  state.rooms.forEach(r=>{
+    txt+=roomIcon(r.name)+' '+r.name;
+    if(r.l&&r.b) txt+=' — '+r.l+'m × '+r.b+'m ('+((r.l*r.b).toFixed(1))+' m²)';
+    if(r.h) txt+=' × '+r.h+'m';
+    txt+='\n';
+    if(r.analysis) txt+='   '+r.analysis.substring(0,150)+'…\n';
+  });
+  const total=state.rooms.filter(r=>r.l&&r.b).reduce((s,r)=>s+(r.l*r.b),0);
+  if(total>0) txt+='\n'+T('totalArea')+total.toFixed(1)+' m²';
+  return txt;
+}
+function doPrint(){ window.print(); }
+function doWhatsApp(){
+  const tel='393774128760';
+  const txt=encodeURIComponent(buildSummaryText()+(state.lat?'\n\nhttps://maps.google.com/?q='+state.lat+','+state.lng:''));
+  window.open('https://wa.me/'+tel+'?text='+txt,'_blank');
+}
+function doEmail(){
+  const subj=encodeURIComponent(T('emailSubj')+state.propName);
+  const body=encodeURIComponent(buildSummaryText()+(state.lat?'\n\nhttps://maps.google.com/?q='+state.lat+','+state.lng:''));
+  window.location.href='mailto:?subject='+subj+'&body='+body;
+}
+function doMaps(){
+  if(state.lat) window.open('https://maps.google.com/?q='+state.lat+','+state.lng,'_blank');
+  else if(state.propAddr) window.open('https://maps.google.com/?q='+encodeURIComponent(state.propAddr),'_blank');
+  else alert(T('noLocation'));
+}
+</script>
+</body>
+</html>
