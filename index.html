@@ -1232,6 +1232,7 @@ function ppGo(item, amount) {
 
 // AI CHAT
 function toggleChat() {
+  unlockTTS(); // Android TTS entsperren beim ersten Tippen
   var c=document.getElementById("aichat");
   c.classList.toggle("open");
   if(c.classList.contains("open") && aiHist.length===0) initAI();
@@ -1267,6 +1268,17 @@ function getBestVoice(langCode) {
   return null;
 }
 
+// Android: speechSynthesis braucht user-gesture
+var ttsUnlocked = false;
+
+function unlockTTS() {
+  // Einmalig einen leeren Utterance sprechen um TTS zu entsperren
+  if(ttsUnlocked || !window.speechSynthesis) return;
+  var u = new SpeechSynthesisUtterance("");
+  window.speechSynthesis.speak(u);
+  ttsUnlocked = true;
+}
+
 function speak(text, onEnd) {
   if(!window.speechSynthesis) { if(onEnd) onEnd(); return; }
   if(!voiceReady) { pendingSpeak = text; if(onEnd) setTimeout(onEnd, 2000); return; }
@@ -1278,9 +1290,12 @@ function speak(text, onEnd) {
   utt.pitch = 1.0;
   var voice = getBestVoice(langCode);
   if(voice) utt.voice = voice;
-  if(onEnd) utt.onend = onEnd;
-  // iOS Safari Fix: kurze Verzoegerung noetig
-  setTimeout(function(){ window.speechSynthesis.speak(utt); }, 100);
+  if(onEnd) { utt.onend = onEnd; utt.onerror = onEnd; }
+  // Android/iOS: Verzoegerung + resume() falls paused
+  setTimeout(function(){
+    if(window.speechSynthesis.paused) window.speechSynthesis.resume();
+    window.speechSynthesis.speak(utt);
+  }, 150);
 }
 
 function stopSpeak() {
@@ -1393,8 +1408,14 @@ function startMic() {
   };
   micRecognition.onerror = function(e) {
     stopMic();
-    if(e.error === "not-allowed") {
-      addMsg("Mikrofon-Zugriff verweigert. Bitte in Browser-Einstellungen erlauben.", "bot", false);
+    if(e.error === "not-allowed" || e.error === "permission-denied") {
+      addMsg("Mikrofon gesperrt. Android: Chrome-Einstellungen → Website-Einstellungen → Mikrofon → shop.myburano.com → Erlauben.", "bot", false);
+    } else if(e.error === "network") {
+      addMsg("Netzwerkfehler bei Spracherkennung. WLAN/Mobile-Daten pruefen.", "bot", false);
+    } else if(e.error === "no-speech") {
+      addMsg("Keine Sprache erkannt. Bitte nochmal versuchen.", "bot", false);
+    } else {
+      addMsg("Mikrofon-Fehler: " + e.error + ". Bitte Text eingeben.", "bot", false);
     }
   };
   micRecognition.onend = function() { stopMic(); };
