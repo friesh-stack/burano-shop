@@ -676,12 +676,14 @@ footer strong{color:var(--gold);}
           <div style="font-weight:800;font-size:.9rem;margin-bottom:8px;color:var(--gold)">Standard 16s</div>
           <div id="vid1_thumb" style="height:80px;background:#1A1A2E;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:1.5rem;margin-bottom:8px;cursor:pointer" onclick="document.getElementById('vid1_file').click()">&#127909;</div>
           <input type="file" id="vid1_file" accept="video/*,image/*" style="display:none" onchange="loadVideoThumb(this,'vid1')">
+          <div id="vid1_name" style="font-size:.7rem;opacity:.55;margin-top:4px;text-align:center;overflow:hidden;white-space:nowrap;text-overflow:ellipsis"></div>
           <input type="number" class="ainput" id="vid1_price" placeholder="Preis EUR" value="3.99" step=".01" style="margin-bottom:0">
         </div>
         <div style="background:rgba(255,255,255,.05);border-radius:12px;padding:14px">
           <div style="font-weight:800;font-size:.9rem;margin-bottom:8px;color:var(--gold)">Premium 20s</div>
           <div id="vid2_thumb" style="height:80px;background:#1A1A2E;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:1.5rem;margin-bottom:8px;cursor:pointer" onclick="document.getElementById('vid2_file').click()">&#127909;</div>
           <input type="file" id="vid2_file" accept="video/*,image/*" style="display:none" onchange="loadVideoThumb(this,'vid2')">
+          <div id="vid2_name" style="font-size:.7rem;opacity:.55;margin-top:4px;text-align:center;overflow:hidden;white-space:nowrap;text-overflow:ellipsis"></div>
           <input type="number" class="ainput" id="vid2_price" placeholder="Preis EUR" value="5.99" step=".01" style="margin-bottom:0">
         </div>
       </div>
@@ -790,6 +792,10 @@ if("serviceWorker" in navigator){
 }
 </script>
 <script>
+
+
+
+
 
 
 
@@ -1987,32 +1993,19 @@ function showUploadFeedback(previewEl, saveBtnId, file, labelText) {
 }
 
 // ── VIDEO-UPLOAD ──
-function loadVideoThumb(input, vidId) {
-  if(!input.files || !input.files[0]) return;
-  var file = input.files[0];
-  var thumb = document.getElementById(vidId+"_thumb");
-  var reader = new FileReader();
-  reader.onload = function(e) {
-    var data = e.target.result;
-    if(file.type.startsWith("image/")) {
-      if(thumb) {
-        thumb.innerHTML = "";
-        var img = document.createElement("img");
-        img.src = data;
-        img.style.cssText = "width:100%;height:100%;object-fit:cover;border-radius:8px";
-        thumb.appendChild(img);
-      }
-      localStorage.setItem("bl_"+vidId+"_thumb", data);
-    } else if(file.type.startsWith("video/")) {
-      if(thumb) thumb.innerHTML = "&#127909; Video gewaehlt: "+file.name;
-      localStorage.setItem("bl_"+vidId+"_file", data);
-    }
-    // Speichern-Button anzeigen
-    var saveBtn = document.getElementById("videos_save_btn");
-    if(saveBtn) { saveBtn.style.display="block"; saveBtn.style.visibility="visible"; }
-    updateVideoThumbs();
-  };
-  reader.readAsDataURL(file);
+// Gespeicherte Video-Dateien (nur Referenz, nicht Base64)
+var pendingVideos = {};
+
+// loadVideoThumb -> neu definiert
+
+function showVideoSaveBtn(vidId, filename) {
+  // Dateiname unter Thumbnail anzeigen
+  var nameEl = document.getElementById(vidId+"_name");
+  if(nameEl) nameEl.textContent = filename;
+  // Globalen Speichern-Button zeigen
+  var saveBtn = document.getElementById("videos_save_btn");
+  if(saveBtn) { saveBtn.style.display="block"; saveBtn.style.visibility="visible"; }
+  updateVideoThumbs();
 }
 
 // ── INSEL-FOTO UPLOAD (Mazzorbo / Torcello) ──
@@ -2068,10 +2061,11 @@ function saveVideos() {
   var p1=document.getElementById("vid1_price"), p2=document.getElementById("vid2_price");
   if(p1) localStorage.setItem("bl_vid1_price", p1.value);
   if(p2) localStorage.setItem("bl_vid2_price", p2.value);
+  // Thumbnails sind bereits in localStorage gespeichert (in loadVideoThumb)
   var btn=document.getElementById("videos_save_btn");
   if(btn) btn.style.display="none";
   updateVideoThumbs();
-  alert("Videos gespeichert!");
+  alert("Video-Thumbnails und Preise gespeichert!");
 }
 
 // ── PARTNER-FOTO UPLOAD ──
@@ -2093,6 +2087,64 @@ function loadPartnerPhoto(input, idx) {
   reader.readAsDataURL(file);
 }
 
+
+function loadVideoThumb(input, vidId) {
+  if(!input.files || !input.files[0]) return;
+  var file = input.files[0];
+  var thumb = document.getElementById(vidId+"_thumb");
+
+  if(file.type.startsWith("image/")) {
+    var reader = new FileReader();
+    reader.onload = function(e) {
+      if(thumb) {
+        thumb.innerHTML="";
+        var img=document.createElement("img");
+        img.src=e.target.result;
+        img.style.cssText="width:100%;height:100%;object-fit:cover;border-radius:8px";
+        thumb.appendChild(img);
+      }
+      localStorage.setItem("bl_"+vidId+"_thumb", e.target.result);
+      showVidSaveBtn(vidId, file.name);
+    };
+    reader.readAsDataURL(file);
+
+  } else if(file.type.startsWith("video/")) {
+    // Vorschau-Frame per Canvas extrahieren - kein Video-Player!
+    var objUrl = URL.createObjectURL(file);
+    var vid = document.createElement("video");
+    vid.muted=true; vid.playsInline=true; vid.style.display="none";
+    document.body.appendChild(vid);
+    vid.src = objUrl;
+    vid.addEventListener("loadeddata", function(){ vid.currentTime=1; });
+    vid.addEventListener("seeked", function(){
+      var cv=document.createElement("canvas"); cv.width=200; cv.height=120;
+      cv.getContext("2d").drawImage(vid,0,0,200,120);
+      var td=cv.toDataURL("image/jpeg",0.8);
+      localStorage.setItem("bl_"+vidId+"_thumb", td);
+      if(thumb){
+        thumb.innerHTML="";
+        thumb.style.position="relative";
+        var img=document.createElement("img");
+        img.src=td; img.style.cssText="width:100%;height:100%;object-fit:cover;border-radius:8px";
+        thumb.appendChild(img);
+        var ov=document.createElement("div");
+        ov.style.cssText="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:2rem;pointer-events:none;text-shadow:0 2px 8px rgba(0,0,0,.8)";
+        ov.textContent="\u25b6"; thumb.appendChild(ov);
+      }
+      URL.revokeObjectURL(objUrl); vid.remove();
+    });
+    vid.load();
+    localStorage.setItem("bl_"+vidId+"_name", file.name);
+    showVidSaveBtn(vidId, file.name);
+  }
+}
+
+function showVidSaveBtn(vidId, name) {
+  var el=document.getElementById(vidId+"_name");
+  if(el) el.textContent=name;
+  var btn=document.getElementById("videos_save_btn");
+  if(btn){ btn.style.display="block"; btn.style.visibility="visible"; }
+}
 
 window.addEventListener("load", function() {
   // Aktiven Sprachbutton setzen
@@ -2143,6 +2195,10 @@ window.addEventListener("load", function() {
   genQR();
   setTimeout(renderPC, 300);
 });
+
+
+
+
 
 
 
