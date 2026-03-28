@@ -1,0 +1,2074 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>my-burano.com - Terra Nova 112</title>
+<!-- PWA -->
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#0A1628">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Burano Shop">
+<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="apple-touch-icon" sizes="512x512" href="icon-512.png">
+<!-- Fonts -->
+<link href="https://fonts.googleapis.com/css2?family=Pacifico&family=Nunito:wght@400;700;800;900&display=swap" rel="stylesheet">
+<script src="photos.js"></script>
+<style>
+:root{--bd:#0A1628;--bm:#0D2B5E;--bv:#1565C0;--gold:#FFD23F;--org:#FF6B35;--teal:#00C2C7;--grn:#4CAF50;--wh:#fff;}
+*{margin:0;padding:0;box-sizing:border-box;}html{scroll-behavior:smooth;}
+body{font-family:'Nunito',sans-serif;background:var(--bd);color:var(--wh);overflow-x:hidden;}
+/* LANG BAR */
+#lbar{background:var(--bd);border-bottom:2px solid rgba(255,255,255,.1);padding:7px 14px;display:flex;align-items:center;gap:6px;flex-wrap:wrap;position:sticky;top:0;z-index:200;}
+.logo{font-family:'Pacifico',cursive;color:var(--gold);font-size:.95rem;margin-right:6px;}
+.lb{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);color:rgba(255,255,255,.8);border-radius:20px;padding:3px 11px;font-size:.75rem;font-weight:700;cursor:pointer;font-family:'Nunito',sans-serif;transition:all .2s;}
+.lb:hover,.lb.on{background:var(--gold);color:var(--bd);border-color:var(--gold);}
+/* COLOR STRIP */
+.cstrip{display:flex;height:6px;}
+.cstrip span{flex:1;}
+/* HERO */
+.hero{position:relative;height:100svh;min-height:480px;overflow:hidden;display:flex;align-items:center;justify-content:center;}
+.hslides{position:absolute;inset:0;}
+.hslide{position:absolute;inset:0;background-size:cover;background-position:center;opacity:0;transition:opacity 1.5s ease;}
+.hslide.on{opacity:1;}
+.hfallback{background:linear-gradient(135deg,#1565C0 0%,#0D2B5E 50%,#0A1628 100%);}
+.hovl{position:absolute;inset:0;background:linear-gradient(to bottom,rgba(10,22,40,.45) 0%,rgba(10,22,40,.15) 40%,rgba(10,22,40,.65) 100%);}
+.hcnt{position:relative;z-index:2;text-align:center;padding:20px;}
+.hcnt h1{font-family:'Pacifico',cursive;font-size:clamp(2.4rem,8vw,5rem);text-shadow:0 4px 20px rgba(0,0,0,.5);margin-bottom:8px;line-height:1.1;}
+.hsub{font-size:clamp(.85rem,2.5vw,1.1rem);color:rgba(255,255,255,.9);font-weight:700;letter-spacing:2px;text-transform:uppercase;margin-bottom:18px;}
+.hadr{display:inline-block;background:rgba(255,255,255,.15);backdrop-filter:blur(12px);border:1px solid rgba(255,255,255,.3);border-radius:50px;padding:7px 20px;font-weight:800;font-size:.88rem;margin-bottom:22px;color:var(--gold);}
+.hbtns{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;}
+.btnH{background:var(--gold);color:var(--bd);border:none;border-radius:50px;padding:11px 26px;font-size:.9rem;font-weight:900;cursor:pointer;font-family:'Nunito',sans-serif;transition:transform .2s;box-shadow:0 4px 16px rgba(255,210,63,.4);}
+.btnH:hover{transform:scale(1.05);}
+.btnH.out{background:transparent;color:var(--wh);border:2px solid rgba(255,255,255,.6);box-shadow:none;}
+.btnH.out:hover{background:rgba(255,255,255,.12);}
+.hscrl{position:absolute;bottom:26px;left:50%;transform:translateX(-50%);z-index:2;animation:bob 2s infinite;color:rgba(255,255,255,.7);font-size:1.4rem;cursor:pointer;background:none;border:none;}
+@keyframes bob{0%,100%{transform:translateX(-50%) translateY(0)}50%{transform:translateX(-50%) translateY(8px)}}
+/* SECTIONS */
+.sec{max-width:960px;margin:0 auto;padding:50px 18px;}
+.stit{font-family:'Pacifico',cursive;font-size:clamp(1.7rem,4vw,2.6rem);margin-bottom:6px;display:flex;align-items:center;gap:10px;color:var(--gold);}
+.ssub{color:rgba(255,255,255,.55);margin-bottom:28px;font-size:.9rem;font-weight:600;}
+.b1{background:var(--bd);}
+.b2{background:var(--bm);}
+.b3{background:#060e1a;}
+/* HISTORY */
+.hcard{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:20px;padding:28px;line-height:1.8;font-size:.95rem;color:rgba(255,255,255,.85);}
+/* PRODUCT CARDS */
+.cgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(185px,1fr));gap:14px;}
+.pc{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:18px;padding:22px 16px;text-align:center;cursor:pointer;transition:transform .2s,border-color .2s;}
+.pc:hover{transform:translateY(-5px);border-color:var(--gold);}
+.pc .ico{font-size:2.4rem;margin-bottom:10px;display:block;}
+.pc .nm{font-weight:900;font-size:.95rem;margin-bottom:5px;}
+.pc .ds{font-size:.78rem;color:rgba(255,255,255,.55);margin-bottom:12px;line-height:1.4;}
+.pc .pr{display:inline-block;background:var(--gold);color:var(--bd);border-radius:30px;padding:4px 14px;font-weight:900;font-size:.9rem;}
+/* PACK */
+.pack{background:linear-gradient(135deg,var(--bv),#0D47A1);border-radius:20px;padding:26px;margin-top:18px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:18px;}
+.pack h3{font-size:1.3rem;font-weight:900;margin-bottom:4px;}
+.pack-p{font-family:'Pacifico',cursive;font-size:2.3rem;color:var(--gold);}
+.pack-o{text-decoration:line-through;opacity:.5;font-size:.95rem;}
+/* PAYPAL BTN */
+.btnPP{display:inline-block;background:linear-gradient(135deg,#009CDE,#003087);color:#fff;border:none;border-radius:50px;padding:12px 26px;font-size:.9rem;font-weight:800;cursor:pointer;font-family:'Nunito',sans-serif;box-shadow:0 4px 16px rgba(0,144,222,.35);transition:transform .2s;}
+.btnPP:hover{transform:scale(1.05);}
+/* GALLERY */
+.ggrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:14px;}
+.gi{border-radius:14px;overflow:hidden;position:relative;cursor:pointer;aspect-ratio:4/3;border:3px solid transparent;transition:border-color .2s,transform .2s;background:var(--bm);}
+.gi{position:relative;overflow:hidden;border-radius:14px;cursor:pointer;border:3px solid transparent;transition:border-color .2s,transform .2s;background:var(--bm);width:100%;}
+.gi img,.gi video{position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;display:block;}
+.gi:hover{border-color:var(--gold);transform:scale(1.02);}
+.gi img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;}
+.gi .lbl{position:absolute;bottom:8px;right:8px;background:rgba(0,0,0,.7);color:var(--gold);font-size:.68rem;font-weight:900;padding:3px 9px;border-radius:10px;}
+/* POSTCARD */
+.pcc{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);border-radius:20px;padding:24px;}
+.pcprev{display:flex;justify-content:center;margin-bottom:18px;}
+#pcanv{border-radius:10px;box-shadow:0 10px 36px rgba(0,0,0,.5);max-width:100%;cursor:pointer;}
+.pcctrl{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px;}
+@media(max-width:520px){.pcctrl{grid-template-columns:1fr;}}
+.pcsel,.pcinp{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.2);border-radius:10px;padding:9px 12px;color:var(--wh);font-family:'Nunito',sans-serif;font-size:.88rem;outline:none;width:100%;}
+.pcsel:focus,.pcinp:focus{border-color:var(--gold);}
+.pcsel option{background:var(--bd);color:var(--wh);}
+.pcinp{grid-column:1/-1;}
+.btnDL{background:linear-gradient(135deg,var(--gold),var(--org));color:var(--bd);border:none;border-radius:50px;padding:12px 26px;font-size:.95rem;font-weight:900;cursor:pointer;font-family:'Nunito',sans-serif;width:100%;margin-top:4px;}
+/* VIDEO */
+.vcard{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:18px;padding:26px;display:flex;gap:18px;margin-bottom:12px;flex-wrap:wrap;}
+.vico{font-size:2.8rem;flex-shrink:0;}
+.vcard h3{font-size:1.1rem;font-weight:900;margin-bottom:5px;}
+.vcard p{opacity:.72;font-size:.85rem;line-height:1.5;}
+.stag{display:inline-block;background:rgba(255,255,255,.1);border-radius:18px;padding:3px 11px;font-size:.75rem;font-weight:700;margin:3px 2px 0;}
+/* PARTNER */
+.pgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:14px;}
+.ptcard{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);border-top:4px solid var(--gold);border-radius:16px;padding:22px 18px;}
+.ptcard h3{font-weight:900;font-size:.95rem;margin-bottom:4px;}
+.ptcard p{font-size:.8rem;color:rgba(255,255,255,.55);line-height:1.4;}
+.cpn{margin-top:10px;border:2px dashed var(--gold);border-radius:9px;padding:7px 11px;font-size:.8rem;font-weight:800;color:var(--gold);text-align:center;}
+/* RENTAL */
+.rgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:18px;}
+.rcard{border-radius:18px;overflow:hidden;position:relative;min-height:190px;cursor:pointer;transition:transform .2s;}
+.rcard:hover{transform:scale(1.02);}
+.rbg{position:absolute;inset:0;background-size:cover;background-position:center;background-color:var(--bv);}
+.rovl{position:absolute;inset:0;background:linear-gradient(to top,rgba(10,22,40,.9) 0%,rgba(10,22,40,.2) 70%,transparent 100%);}
+.rinfo{position:absolute;bottom:0;left:0;right:0;padding:18px;}
+.rinfo h3{font-size:1.3rem;font-weight:900;margin-bottom:4px;}
+.rinfo p{font-size:.82rem;opacity:.8;margin-bottom:10px;}
+/* QR */
+.qrbox{background:#fff;border-radius:18px;padding:18px;display:inline-block;}
+.qrlbl{font-family:'Pacifico',cursive;color:var(--bv);text-align:center;margin-top:7px;font-size:.85rem;}
+/* AI WIDGET */
+#aiwid{position:fixed;bottom:18px;right:18px;z-index:500;}
+.aibub{width:58px;height:58px;background:linear-gradient(135deg,var(--bv),var(--teal));border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.5rem;cursor:pointer;box-shadow:0 4px 18px rgba(21,101,192,.5);border:none;}
+#aichat{display:none;position:fixed;bottom:86px;right:18px;width:min(360px,calc(100vw - 36px));height:440px;background:var(--bd);border:1px solid rgba(255,255,255,.15);border-radius:18px;box-shadow:0 18px 56px rgba(0,0,0,.5);flex-direction:column;overflow:hidden;z-index:500;}
+#aichat.open{display:flex;}
+.aihdr{background:linear-gradient(135deg,var(--bv),var(--teal));padding:13px 16px;display:flex;align-items:center;gap:9px;}
+.ainm{font-weight:900;font-size:.95rem;}
+.aist{font-size:.72rem;opacity:.8;}
+.aiclose{margin-left:auto;background:none;border:none;color:#fff;font-size:1.2rem;cursor:pointer;line-height:1;}
+.aimsg{flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:10px;}
+.msg{max-width:85%;padding:9px 13px;border-radius:14px;font-size:.85rem;line-height:1.5;}
+.msg.bot{background:rgba(255,255,255,.1);border-bottom-left-radius:3px;align-self:flex-start;white-space:pre-wrap;}
+.msg.usr{background:var(--bv);border-bottom-right-radius:3px;align-self:flex-end;}
+.aiinpr{padding:10px;border-top:1px solid rgba(255,255,255,.08);display:flex;gap:7px;}
+#aiinp{flex:1;background:rgba(255,255,255,.09);border:1px solid rgba(255,255,255,.18);border-radius:10px;padding:9px 12px;color:#fff;font-family:'Nunito',sans-serif;font-size:.85rem;outline:none;}
+.aisend{background:linear-gradient(135deg,var(--bv),var(--teal));border:none;border-radius:10px;padding:9px 13px;color:#fff;cursor:pointer;font-size:.95rem;}
+.aikey{padding:8px 10px;border-top:1px solid rgba(255,255,255,.08);display:none;gap:6px;}
+.aikey input{flex:1;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);border-radius:8px;padding:6px 10px;color:#fff;font-size:.75rem;font-family:'Nunito',sans-serif;outline:none;}
+.aikey button{background:var(--grn);border:none;border-radius:8px;padding:6px 12px;color:#fff;font-size:.75rem;font-weight:700;cursor:pointer;font-family:'Nunito',sans-serif;}
+/* MODAL */
+.ovl{display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:800;align-items:center;justify-content:center;padding:18px;}
+.ovl.open{display:flex;}
+.mdl{background:var(--bm);border:1px solid rgba(255,255,255,.12);border-radius:20px;padding:28px;max-width:400px;width:100%;position:relative;animation:mIn .3s ease;}
+@keyframes mIn{from{transform:scale(.85);opacity:0}to{transform:scale(1);opacity:1}}
+.mclose{position:absolute;top:12px;right:14px;font-size:1.2rem;background:none;border:none;color:rgba(255,255,255,.5);cursor:pointer;line-height:1;}
+.mdl h2{font-family:'Pacifico',cursive;color:var(--gold);margin-bottom:7px;}
+.mdl p{opacity:.7;font-size:.88rem;margin-bottom:14px;}
+.qrow{display:flex;align-items:center;gap:10px;margin-bottom:14px;}
+.qbtn{width:36px;height:36px;border-radius:50%;border:2px solid rgba(255,255,255,.3);background:none;color:#fff;font-size:1.2rem;cursor:pointer;font-weight:900;}
+#qdis{font-size:1.2rem;font-weight:900;min-width:28px;text-align:center;}
+.totl{font-size:1.05rem;font-weight:900;margin-bottom:14px;}
+.totl span{color:var(--gold);font-size:1.3rem;}
+/* ADMIN */
+.atog{display:block;margin:14px auto;background:none;border:1px solid rgba(255,255,255,.1);border-radius:28px;padding:6px 16px;color:rgba(255,255,255,.25);font-size:.75rem;cursor:pointer;font-family:'Nunito',sans-serif;}
+#admpnl{display:none;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:20px;padding:24px;max-width:960px;margin:0 auto 32px;}
+.atmx{font-family:'Pacifico',cursive;font-size:1.5rem;color:var(--gold);margin-bottom:14px;}
+.agrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px;margin-bottom:16px;}
+.astat{background:rgba(255,255,255,.05);border-radius:12px;padding:14px;text-align:center;}
+.astat .n{font-family:'Pacifico',cursive;font-size:1.5rem;color:var(--gold);}
+.astat .l{font-size:.72rem;opacity:.5;margin-top:2px;}
+.asec{margin-top:16px;}
+.asec h4{font-weight:900;color:var(--teal);text-transform:uppercase;font-size:.72rem;letter-spacing:1px;margin-bottom:9px;}
+.ainput{width:100%;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.14);border-radius:9px;padding:9px 12px;color:#fff;font-family:'Nunito',sans-serif;font-size:.85rem;margin-bottom:7px;outline:none;}
+.ainput:focus{border-color:var(--gold);}
+.arow{display:grid;grid-template-columns:1fr 1fr;gap:7px;}
+@media(max-width:460px){.arow{grid-template-columns:1fr;}}
+.abtn{background:linear-gradient(135deg,var(--gold),var(--org));color:var(--bd);border:none;border-radius:9px;padding:9px 18px;font-weight:900;font-size:.88rem;cursor:pointer;font-family:'Nunito',sans-serif;width:100%;margin-top:3px;}
+.plist{background:rgba(255,255,255,.04);border-radius:10px;padding:10px;}
+.pitem{display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid rgba(255,255,255,.06);font-size:.82rem;}
+.pitem:last-child{border:none;}
+.pnm{font-weight:700;}.ptp{opacity:.4;font-size:.72rem;}
+.prv{color:var(--grn);font-weight:900;}
+.xbtn{background:#E53935;color:#fff;border:none;border-radius:6px;padding:3px 8px;font-size:.72rem;cursor:pointer;}
+/* FOOTER */
+footer{background:#040b14;text-align:center;padding:30px 16px;color:rgba(255,255,255,.4);font-size:.85rem;border-top:1px solid rgba(255,255,255,.06);}
+footer strong{color:var(--gold);}
+/* REVEAL */
+.rev{opacity:0;transform:translateY(20px);transition:opacity .5s,transform .5s;}
+.rev.vis{opacity:1;transform:none;}
+/* TYPING ANIMATION */
+.typing-dots span{animation:typingBlink 1.2s infinite;display:inline-block;font-size:1.4rem;line-height:1;}
+.typing-dots span:nth-child(2){animation-delay:.2s;}
+.typing-dots span:nth-child(3){animation-delay:.4s;}
+@keyframes typingBlink{0%,80%,100%{opacity:.2}40%{opacity:1}}
+
+/* GROSSES MIKROFON */
+.mic-big{
+  display:flex;flex-direction:column;align-items:center;gap:10px;
+  padding:16px 0 8px;border-top:1px solid rgba(255,255,255,.08);
+}
+.mic-big-btn{
+  width:70px;height:70px;border-radius:50%;
+  background:linear-gradient(135deg,var(--teal),#0097A7);
+  border:none;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  font-size:2rem;color:#fff;
+  box-shadow:0 4px 20px rgba(0,200,200,.35);
+  transition:transform .15s, box-shadow .15s;
+  position:relative;
+}
+.mic-big-btn:active{transform:scale(.94);}
+.mic-big-btn.active{
+  background:linear-gradient(135deg,#E53935,#C62828);
+  box-shadow:0 4px 20px rgba(229,57,53,.5);
+  animation:micPulse 1s infinite;
+}
+@keyframes micPulse{
+  0%,100%{box-shadow:0 4px 20px rgba(229,57,53,.5),0 0 0 0 rgba(229,57,53,.4);}
+  50%{box-shadow:0 4px 20px rgba(229,57,53,.5),0 0 0 16px rgba(229,57,53,0);}
+}
+.mic-timer{
+  font-size:.78rem;font-weight:700;color:var(--gold);
+  min-height:1.2rem;text-align:center;
+}
+.mic-hint{
+  font-size:.72rem;opacity:.55;text-align:center;
+}
+@media(max-width:540px){.sec{padding:36px 14px;}.pack{flex-direction:column;}.vcard{flex-direction:column;}}
+</style>
+<!-- Leaflet im Head geladen -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+</head>
+<body>
+
+<!-- LANG BAR -->
+<div id="lbar">
+  <div class="logo">my-burano.com</div>
+  <button class="lb" id="lb_de" onclick="setLang('de')">Deutsch</button>
+  <button class="lb" id="lb_en" onclick="setLang('en')">English</button>
+  <button class="lb" id="lb_it" onclick="setLang('it')">Italiano</button>
+  <button class="lb" id="lb_fr" onclick="setLang('fr')">Français</button>
+  <button class="lb" id="lb_es" onclick="setLang('es')">Español</button>
+  <button class="lb" id="lb_ja" onclick="setLang('ja')">日本語</button>
+  <button class="lb" id="lb_zh" onclick="setLang('zh')">中文</button>
+  <button class="lb" id="lb_pl" onclick="setLang('pl')">Polski</button>
+</div>
+
+<!-- COLOR STRIP -->
+<div class="cstrip">
+  <span style="background:#FF6B35"></span><span style="background:#FFD23F"></span>
+  <span style="background:#4CAF50"></span><span style="background:#2196F3"></span>
+  <span style="background:#FF4D8D"></span><span style="background:#00C2C7"></span>
+  <span style="background:#9C27B0"></span><span style="background:#FF6B35"></span>
+  <span style="background:#FFD23F"></span><span style="background:#4CAF50"></span>
+</div>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hslides" id="hslides">
+    <div class="hslide hfallback on"></div>
+  </div>
+  <div class="hovl"></div>
+  <div class="hcnt">
+    <div style="font-size:2.8rem;margin-bottom:6px">&#127965;</div>
+    <h1>Burano Shop</h1>
+    <p class="hsub" id="t_hero_sub">Fotos - Postkarten - Videos - Souvenirs</p>
+    <div class="hadr">&#128205; Terra Nova 112 &middot; Burano, Venezia</div>
+    <div class="hbtns">
+      <button class="btnH" onclick="document.getElementById('shop').scrollIntoView({behavior:'smooth'})">&#128722; <span id="t_btn_shop">Jetzt kaufen</span></button>
+      <button class="btnH out" onclick="openChat()">&#129302; <span id="t_btn_guide">KI-Reiseleiter</span></button>
+    </div>
+  </div>
+  <button class="hscrl" onclick="document.getElementById('hist').scrollIntoView({behavior:'smooth'})">&#8595;</button>
+</section>
+
+<!-- HISTORY -->
+<div class="b2" id="hist">
+<div class="sec rev">
+  <h2 class="stit">&#127963; <span id="t_hist_title">Geschichte von Burano</span></h2>
+  <p class="ssub">La Perla della Laguna Veneta</p>
+  <div class="hcard">
+    <p id="t_hist_body">Burano ist eine malerische Insel in der Lagune von Venedig, etwa 7 km noerdlich der Stadt. Die Insel ist beruehmt fuer ihre leuchtend bunten Haeuser - eine jahrhundertealte Tradition. Fischer haben ihre Haeuser bunt bemalt, damit die Familie das Boot auch im dichten Nebel der Lagune erkennen konnte. Seit dem 16. Jahrhundert ist Burano das Zentrum der venezianischen Spitzenkunst. Die Insel empfaengt taeglich bis zu 2.000 Besucher. An der Terra Nova 112 fliessen taeglich Hunderte vorbei.</p>
+    <br><div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:14px">
+    <button class="btnH" onclick="openChat()" id="t_btn_listen">&#129302; KI-Reiseleiter</button>
+    <button class="btnH out" onclick="speakHistory()" id="hist_speak_btn">&#9654; Geschichte vorlesen</button>
+  </div>
+  </div>
+</div></div>
+
+<!-- SHOP FOTOS -->
+<div class="b1" id="shop">
+<div class="sec rev">
+  <h2 class="stit">&#128248; <span id="t_foto_title">Deine Burano-Fotos</span></h2>
+  <p class="ssub" id="t_foto_sub">Sofort-Download nach PayPal-Zahlung</p>
+  <div class="cgrid">
+    <div class="pc" onclick="openMdl('1 Foto',0.99)">
+      <span class="ico">&#128444;</span>
+      <div class="nm" id="t_prod1">1 Foto Download</div>
+      <div class="ds" id="t_prod1d">Hochaufloesungsfoto sofort verfuegbar</div>
+      <div class="pr">0,99 EUR</div>
+    </div>
+
+
+    <div class="pc" onclick="document.getElementById('postcard').scrollIntoView({behavior:'smooth'})">
+      <span class="ico">&#128206;</span>
+      <div class="nm" id="t_prod4">Postkarte</div>
+      <div class="ds" id="t_prod4d">Personalisierte Postkarte</div>
+      <div class="pr">1,99 EUR</div>
+    </div>
+  </div>
+  <div class="pack rev">
+    <div>
+      <h3 id="t_pack_title">&#127881; 10er Foto-Paket</h3>
+      <p id="t_pack_desc">10 Fotos - Sofort - Spare 50%!</p>
+    </div>
+    <div style="text-align:center">
+      <div><span class="pack-o">9,90 EUR</span></div>
+      <div class="pack-p">4,99 EUR</div><br>
+      <button class="btnPP" onclick="ppGo('10 Burano Fotos',4.99)" id="pack_buy_btn">&#128153; <span id="t_btn_buy">Kaufen via PayPal</span></button>
+    </div>
+  </div>
+</div></div>
+
+<!-- GALLERY -->
+<div class="b3">
+<div class="sec rev">
+  <h2 class="stit">&#127752; <span id="t_gal_title">Unsere Burano-Aufnahmen</span></h2>
+  <p class="ssub" id="t_gal_sub">Aufgenommen direkt vor Ort - Terra Nova 112</p>
+  <div id="sec_f1" style="margin-bottom:28px">
+    <h3 style="font-family:Pacifico,cursive;font-size:1.1rem;color:var(--teal);margin-bottom:8px">Format 1 &mdash; 4:3</h3>
+    <div class="ggrid" id="ggrid_f1"></div>
+  </div>
+  <div id="sec_f2" style="margin-bottom:28px;display:none">
+    <h3 style="font-family:Pacifico,cursive;font-size:1.1rem;color:var(--gold);margin-bottom:8px">Format 2 &mdash; 16:9</h3>
+    <div class="ggrid" id="ggrid_f2"></div>
+  </div>
+  <div id="sec_f3" style="margin-bottom:28px;display:none">
+    <h3 style="font-family:Pacifico,cursive;font-size:1.1rem;color:var(--pink);margin-bottom:8px">Format 3 &mdash; 3:4</h3>
+    <div class="ggrid" id="ggrid_f3"></div>
+  </div>
+  <div id="sec_f4" style="display:none">
+    <h3 style="font-family:Pacifico,cursive;font-size:1.1rem;color:var(--org);margin-bottom:8px">Format 4 &mdash; 9:16</h3>
+    <div class="ggrid" id="ggrid_f4"></div>
+  </div>
+
+
+<!-- POSTCARD GENERATOR -->
+<div class="b2" id="postcard">
+<div class="sec rev">
+  <h2 class="stit">&#128206; <span id="t_pc_title">Postkarten-Generator</span></h2>
+  <div style="background:rgba(255,210,63,.1);border:1px solid rgba(255,210,63,.3);border-radius:12px;padding:12px 16px;margin-bottom:16px;font-size:.88rem;text-align:center;line-height:1.7">
+    &#127881; Sie koennen die Postkarte <b style="color:var(--gold)">mit Wasserzeichen gratis versenden</b>
+    oder <b style="color:var(--teal)">ohne Wasserzeichen fuer 0,99 EUR kaufen</b>
+  </div>
+  <!-- Foto-Laufband -->
+  <p style="font-size:.8rem;opacity:.65;margin-bottom:8px">&#128247; Foto auswaehlen:</p>
+  <div style="overflow-x:auto;white-space:nowrap;padding-bottom:8px;-webkit-overflow-scrolling:touch;margin-bottom:14px">
+    <div id="pc_thumb_row" style="display:inline-flex;gap:8px;padding:2px 0"></div>
+  </div>
+  <!-- Canvas -->
+  <div style="display:flex;justify-content:center;margin-bottom:14px">
+    <canvas id="pcanv" width="600" height="800"
+      style="border-radius:12px;box-shadow:0 10px 36px rgba(0,0,0,.5);max-width:100%;max-height:70vh"></canvas>
+  </div>
+  <!-- Text-Position -->
+  <div style="display:flex;gap:8px;margin-bottom:10px">
+    <button onclick="setPcPos('sky')"    id="pcpos_sky"
+      style="flex:1;padding:9px;border:2px solid rgba(255,255,255,.2);background:rgba(255,255,255,.06);color:#fff;border-radius:10px;font-size:.8rem;font-weight:900;cursor:pointer;font-family:Nunito,sans-serif">
+      &#9728; Himmel</button>
+    <button onclick="setPcPos('middle')" id="pcpos_middle"
+      style="flex:1;padding:9px;border:2px solid rgba(255,255,255,.2);background:rgba(255,255,255,.06);color:#fff;border-radius:10px;font-size:.8rem;font-weight:900;cursor:pointer;font-family:Nunito,sans-serif">
+      &#11835; Mitte</button>
+    <button onclick="setPcPos('water')"  id="pcpos_water"
+      style="flex:1;padding:9px;border:2px solid var(--gold);background:var(--gold);color:#0A1628;border-radius:10px;font-size:.8rem;font-weight:900;cursor:pointer;font-family:Nunito,sans-serif">
+      &#127754; Wasser</button>
+  </div>
+  <!-- Gruss + Sprache + Name -->
+  <div style="display:grid;gap:8px;margin-bottom:12px">
+    <select class="pcsel" id="pclang" onchange="updateGreetingSelect();renderPC(true)">
+      <option value="de">&#127465;&#127466; Deutsch</option>
+      <option value="en">&#127468;&#127463; English</option>
+      <option value="it">&#127470;&#127481; Italiano</option>
+      <option value="fr">&#127467;&#127479; Francais</option>
+      <option value="es">&#127466;&#127480; Espanol</option>
+      <option value="ja">&#127471;&#127477; Japanese</option>
+      <option value="zh">&#127464;&#127475; Chinese</option>
+      <option value="pl">&#127477;&#127473; Polski</option>
+    </select>
+    <select class="pcsel" id="pcgreeting" onchange="renderPC(true)">
+      <option value="0">Herzliche Gruesse von der Insel Burano</option>
+    </select>
+    <input class="pcinp" id="pc_customer_name" type="text"
+      placeholder="Ihr Name fuer die gestrichelte Linie..." oninput="renderPC(true)">
+  </div>
+  <!-- Share-Buttons -->
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px">
+    <button onclick="shareWhatsApp()" class="btnH out"
+      style="padding:11px 6px;font-size:.8rem;display:flex;flex-direction:column;align-items:center;gap:2px">
+      &#128172; WhatsApp<small style="font-size:.66rem;opacity:.75;font-weight:400">mit Wasserzeichen - gratis</small>
+    </button>
+    <button onclick="shareEmail()" class="btnH out"
+      style="padding:11px 6px;font-size:.8rem;display:flex;flex-direction:column;align-items:center;gap:2px">
+      &#9993; E-Mail<small style="font-size:.66rem;opacity:.75;font-weight:400">mit Wasserzeichen - gratis</small>
+    </button>
+  </div>
+  <button onclick="buyAndDownload()" class="btnDL">
+    &#128153; 0,99 EUR &mdash; OHNE Wasserzeichen downloaden
+  </button>
+  <p style="text-align:center;font-size:.72rem;opacity:.4;margin-top:6px">
+    10 Postkarten 4,99 EUR &nbsp;|&nbsp; Jede weitere 0,45 EUR
+  </p>
+</div>
+</div>
+
+<!-- VIDEOS -->
+<div class="b1">
+<div class="sec rev">
+  <h2 class="stit">&#127916; <span id="t_vid_title">Burano Video-Clips</span></h2>
+  <p class="ssub" id="t_vid_sub">Full HD mit persoenlichem Text - Perfekt fuer Social Media</p>
+  <div class="vcard">
+    <div style="flex-shrink:0;width:120px">
+      <div id="vico1_img"></div>
+      <div class="vico" id="vico1_fallback">&#127909;</div>
+    </div>
+    <div style="flex:1">
+      <h3 id="t_v1">Standard Clip - 16 Sekunden</h3>
+      <p id="t_v1d">Atmosphaerisches Burano-Video mit eingeblendetem Text. Perfekt fuer Instagram Reels und WhatsApp Status.</p>
+      <div style="margin-top:8px"><span class="stag">1920x1080</span><span class="stag">16 Sek</span><span class="stag">Text</span></div>
+      <br><button class="btnPP" onclick="openVMdl('Standard 16s',3.99)">&#128153; 3,99 EUR</button>
+    </div>
+  </div>
+  <div class="vcard">
+    <div style="flex-shrink:0;width:120px">
+      <div id="vico2_img"></div>
+      <div class="vico">&#127902;</div>
+    </div>
+    <div style="flex:1">
+      <h3 id="t_v2">Premium Clip - 20 Sekunden</h3>
+      <p id="t_v2d">Mehrere Burano-Szenen, Musik und personalisierten Text. Das ultimative Souvenir!</p>
+      <div style="margin-top:8px"><span class="stag">1920x1080</span><span class="stag">20 Sek</span><span class="stag">Musik</span></div>
+      <br><button class="btnPP" onclick="openVMdl('Premium 20s',5.99)">&#128153; 5,99 EUR</button>
+    </div>
+  </div>
+</div></div>
+
+
+<!-- MAP & WETTER -->
+<div class="b3" id="map_section">
+<div class="sec rev">
+  <h2 class="stit">&#127968; <span id="t_map_title">Karte & Wetter</span></h2>
+  <p class="ssub" id="t_map_sub">Burano, Mazzorbo und Torcello - dein Standort auf der Karte</p>
+
+  <!-- WETTER -->
+  <div id="weather_box" style="background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:18px;padding:20px;margin-bottom:20px;display:flex;align-items:center;gap:18px;flex-wrap:wrap">
+    <div style="font-size:3rem" id="wx_icon">&#9728;&#65039;</div>
+    <div style="flex:1">
+      <div style="font-weight:900;font-size:1.1rem" id="wx_temp">Lade Wetter...</div>
+      <div style="font-size:.85rem;opacity:.7" id="wx_desc">Burano, Venezia</div>
+      <div style="font-size:.8rem;opacity:.55;margin-top:4px" id="wx_extra"></div>
+    </div>
+    <div style="text-align:right">
+      <div style="font-size:.75rem;opacity:.5" id="wx_time">Aktualisiert gerade</div>
+      <button onclick="loadWeather()" style="background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);border-radius:8px;padding:5px 12px;color:#fff;font-size:.75rem;cursor:pointer;margin-top:6px;font-family:Nunito,sans-serif">&#8635; Neu laden</button>
+    </div>
+  </div>
+
+  <!-- LEAFLET MAP -->
+  <!-- Leaflet geladen im Head -->
+  <div id="map" style="height:380px;border-radius:18px;overflow:hidden;border:1px solid rgba(255,255,255,.1);margin-bottom:12px"></div>
+  <div style="display:flex;gap:10px;flex-wrap:wrap">
+    <button onclick="locateUser()" class="btnH" style="flex:1">&#128205; Mein Standort anzeigen</button>
+    <button onclick="showRoute()" class="btnH out" id="route_btn" style="flex:1;display:none">&#128506; Route zu Terra Nova 112</button>
+  </div>
+  <div id="route_info" style="margin-top:12px;display:none;background:rgba(255,255,255,.06);border-radius:12px;padding:14px;font-size:.88rem"></div>
+</div>
+</div>
+
+<!-- PARTNER -->
+<div class="b3">
+<div class="sec rev">
+  <h2 class="stit">&#129309; <span id="t_part_title">Partner in Burano</span></h2>
+  <p class="ssub" id="t_part_sub">Exklusive Gutscheine fuer Burano-Shop-Kunden</p>
+  <div class="pgrid" id="pgrid"></div>
+  <br>
+  <a href="mailto:info@myburano.com?subject=Partnership" class="btnH out" style="text-decoration:none;display:inline-block;padding:11px 26px" id="t_btn_partner">&#9993; Jetzt Partner werden</a>
+</div></div>
+
+<!-- MAZZORBO & TORCELLO -->
+<div class="b2">
+<div class="sec rev">
+  <h2 class="stit">&#127754; <span id="t_isles_title">Mazzorbo &amp; Torcello</span></h2>
+  <p class="ssub" id="t_isles_sub">Die Nachbarinseln - Geschichte und Natur pur</p>
+  <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:20px">
+    <div style="background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:18px;overflow:hidden">
+      <div id="mazz_photo" onclick="if(document.getElementById('mazz_file').click)" style="height:160px;background:linear-gradient(135deg,#0D2B5E,#1565C0);display:flex;align-items:center;justify-content:center;cursor:pointer;position:relative">
+        <span style="font-size:2.5rem;opacity:.5">&#127747;</span>
+        <span style="position:absolute;bottom:8px;right:8px;background:rgba(0,0,0,.5);color:#fff;font-size:.7rem;padding:3px 8px;border-radius:8px">Foto laden</span>
+      </div>
+      <div style="padding:20px">
+      <h3 style="color:var(--gold);font-size:1.2rem;margin-bottom:10px">&#127747; Mazzorbo</h3>
+        <div style="overflow-x:auto;white-space:nowrap;padding:8px 0 4px;-webkit-overflow-scrolling:touch"><div id="mazz_strip" style="display:inline-flex;gap:8px"></div></div>
+      <p style="opacity:.8;font-size:.9rem;line-height:1.7">Mazzorbo ist mit Burano durch eine Holzbruecke verbunden. Die ruhige Insel ist bekannt fuer ihren historischen Weinanbau - hier waechst der seltene <strong style="color:var(--gold)">Dorona-Wein</strong>, eine fast ausgestorbene venezianische Rebsorte. Mazzorbo war einst dichter besiedelt als heute und beherbergt die gotische Kirche Santa Caterina aus dem 14. Jahrhundert.</p>
+      </div>
+    </div>
+    <div style="background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:18px;overflow:hidden">
+      <div id="torc_photo" style="height:160px;background:linear-gradient(135deg,#2E7D32,#1B5E20);display:flex;align-items:center;justify-content:center;cursor:pointer;position:relative">
+        <span style="font-size:2.5rem;opacity:.5">&#127963;</span>
+        <span style="position:absolute;bottom:8px;right:8px;background:rgba(0,0,0,.5);color:#fff;font-size:.7rem;padding:3px 8px;border-radius:8px">Foto laden</span>
+      </div>
+      <div style="padding:20px">
+      <h3 style="color:var(--gold);font-size:1.2rem;margin-bottom:10px">&#127963; Torcello</h3>
+        <div style="overflow-x:auto;white-space:nowrap;padding:8px 0 4px;-webkit-overflow-scrolling:touch"><div id="torc_strip" style="display:inline-flex;gap:8px"></div></div>
+      <p style="opacity:.8;font-size:.9rem;line-height:1.7">Torcello war einst die <strong style="color:var(--gold)">mächtigste Stadt der Lagune</strong> mit über 20.000 Einwohnern. Heute leben dort nur noch etwa 20 Menschen. Der Dom Santa Maria Assunta aus dem Jahr 639 n.Chr. ist einer der aeltesten Sakralbauten Venedigs. Der geheimnisvolle <strong style="color:var(--gold)">"Thron des Attila"</strong> - ein steinerner Sessel auf dem Platz - zieht Besucher aus aller Welt an.</p>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- RENTAL -->
+<div class="b2">
+<div class="sec rev">
+  <h2 class="stit">&#127968; <span id="t_rent_title">Uebernachte in Burano</span></h2>
+  <p class="ssub" id="t_rent_sub">Direkt beim Fotografen - unvergessliche Erfahrung</p>
+  <div class="rgrid">
+    <div class="rcard" onclick="window.open('https://myburano.com','_blank')">
+      <div class="rbg" id="rbg1"></div><div class="rovl"></div>
+      <div class="rinfo"><h3>Blue Lagune</h3><p id="t_r1">Traumhafte Ferienwohnung mit Blick auf die bunten Kanaele</p>
+      <button class="btnH" id="t_btn_book">Jetzt buchen</button></div>
+    </div>
+    <div class="rcard" onclick="window.open('https://myburano.com','_blank')">
+      <div class="rbg" id="rbg2"></div><div class="rovl"></div>
+      <div class="rinfo"><h3>Vista Laguna</h3><p id="t_r2">Lagunenpanorama - das beste Burano-Erlebnis</p>
+      <button class="btnH">Jetzt buchen</button></div>
+    </div>
+  </div>
+</div></div>
+
+<!-- QR -->
+<div class="b1">
+<div class="sec rev" style="text-align:center">
+  <h2 class="stit" style="justify-content:center">&#128241; <span id="t_qr_title">QR-Code fuer Gaeste</span></h2>
+  <p class="ssub" id="t_qr_sub">Einfach scannen - direkt zum Shop!</p>
+  <div style="display:flex;justify-content:center">
+    <div class="qrbox"><div id="qrcode"></div><div class="qrlbl">my-burano.com - Terra Nova 112</div></div>
+  </div>
+</div></div>
+
+<!-- FOOTER -->
+<footer>
+  <p><strong>Burano Shop</strong> &middot; Terra Nova 112 &middot; 30142 Venezia VE, Italia</p>
+  <p style="margin-top:6px">Copyright Burano Shop &middot; Sicher bezahlen via PayPal &middot; <a href="https://myburano.com" style="color:var(--gold);text-decoration:none">myburano.com</a></p>
+  <button class="atog" onclick="toggleAdmin()">Admin</button>
+</footer>
+
+<!-- ADMIN -->
+<div id="admpnl">
+  <div id="apwscr" style="text-align:center">
+    <div class="atmx">Admin Login</div>
+    <input type="password" class="ainput" id="apw" placeholder="Passwort..." style="max-width:240px;display:block;margin:0 auto 9px" onkeydown="if(event.key==='Enter')chkPw()">
+    <button class="abtn" onclick="chkPw()" style="max-width:160px;margin:0 auto">Einloggen</button>
+    <div id="pwerr" style="color:#f44;margin-top:7px;display:none">Falsches Passwort</div>
+  </div>
+  <div id="acnt" style="display:none">
+    <div class="atmx">Admin - Terra Nova 112</div>
+
+    <!-- TEST-MODUS -->
+    <div style="background:rgba(255,210,63,.15);border:2px solid var(--gold);border-radius:14px;padding:16px;margin-bottom:18px">
+      <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px">
+        <div>
+          <div style="font-weight:900;font-size:1.1rem;color:var(--gold)">&#127381; Test-Modus</div>
+          <div style="font-size:.82rem;opacity:.7;margin-top:3px">EIN = Download ohne PayPal (nur zum Testen)</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px">
+          <span id="tm_lbl" style="font-weight:900;font-size:1rem">AUS</span>
+          <label style="position:relative;display:inline-block;width:52px;height:28px">
+            <input type="checkbox" id="testmode" style="opacity:0;width:0;height:0" onchange="
+              var on=this.checked;
+              localStorage.setItem('bl_testmode',on?'1':'0');
+              document.getElementById('tm_lbl').textContent=on?'EIN':'AUS';
+              document.getElementById('tm_lbl').style.color=on?'#4CAF50':'rgba(255,255,255,.7)';
+            ">
+            <span style="position:absolute;cursor:pointer;top:0;left:0;right:0;bottom:0;background:rgba(255,255,255,.2);border-radius:28px;transition:.3s" id="tm_slider"></span>
+            <span id="tm_knob" style="position:absolute;content:'';height:20px;width:20px;left:4px;bottom:4px;background:white;border-radius:50%;transition:.3s"></span>
+          </label>
+        </div>
+      </div>
+    </div>
+
+    <div class="agrid">
+      <div class="astat"><div class="n" id="ss">0</div><div class="l">Verkaeufe</div></div>
+      <div class="astat"><div class="n" id="sr">0</div><div class="l">Umsatz EUR</div></div>
+      <div class="astat"><div class="n" id="sp">0</div><div class="l">Partner</div></div>
+    </div>
+    <div class="asec"><h4>Preise</h4>
+      <div class="arow">
+        <input type="number" class="ainput" id="p1" placeholder="1 Foto" step=".01" value="0.99">
+        <input type="number" class="ainput" id="p10" placeholder="10er-Pack" step=".01" value="4.99">
+      </div>
+      <div class="arow">
+        <input type="number" class="ainput" id="pvs" placeholder="Standard Video" step=".01" value="3.99">
+        <input type="number" class="ainput" id="pvp" placeholder="Premium Video" step=".01" value="5.99">
+      </div>
+      <button class="abtn" onclick="svPrices()">Preise speichern</button>
+    </div>
+    <div class="asec"><h4>Partner</h4>
+      <div class="plist" id="aplst"></div><br>
+      <h4 style="margin-bottom:8px">Partner hinzufuegen</h4>
+      <input type="text" class="ainput" id="npn" placeholder="Partnername...">
+      <div class="arow">
+        <select class="ainput" id="npt">
+          <option value="apotheke">Apotheke</option>
+          <option value="restaurant">Restaurant</option>
+          <option value="hotel">Unterkunft</option>
+          <option value="shop">Shop</option>
+        </select>
+        <input type="number" class="ainput" id="npp" placeholder="Provision %" value="5">
+      </div>
+      <div class="arow">
+        <input type="number" class="ainput" id="npc" placeholder="Gutschein %" value="10">
+        <input type="text" class="ainput" id="npcd" placeholder="Code">
+      </div>
+      <button class="abtn" onclick="addPart()">Hinzufuegen</button>
+    </div>
+    <div class="asec"><h4>PayPal E-Mail</h4>
+      <input type="email" class="ainput" id="ppem" placeholder="PayPal E-Mail...">
+      <button class="abtn" onclick="svPP()">Speichern</button>
+    </div>
+    <div class="asec"><h4>🔑 Anthropic API-Key (für KI-Chat)</h4>
+      <input type="password" class="ainput" id="apiinp" placeholder="sk-ant-...">
+      <button class="abtn" onclick="svKey()">Speichern</button>
+    </div>
+
+    <div class="asec">
+      <h4>Format waehlen</h4>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px">
+        <button onclick="selectFmt('4:3')"  id="fbtn_43"  style="padding:10px;border:2px solid var(--gold);background:var(--gold);color:#0A1628;border-radius:10px;font-size:.82rem;font-weight:900;cursor:pointer;font-family:Nunito,sans-serif">Format 1<br><span style="font-size:.68rem;font-weight:400">4:3 Querformat</span></button>
+        <button onclick="selectFmt('16:9')" id="fbtn_169" style="padding:10px;border:2px solid rgba(255,255,255,.2);background:rgba(255,255,255,.06);color:#fff;border-radius:10px;font-size:.82rem;font-weight:900;cursor:pointer;font-family:Nunito,sans-serif">Format 2<br><span style="font-size:.68rem;font-weight:400">16:9 Breitbild</span></button>
+        <button onclick="selectFmt('3:4')"  id="fbtn_34"  style="padding:10px;border:2px solid rgba(255,255,255,.2);background:rgba(255,255,255,.06);color:#fff;border-radius:10px;font-size:.82rem;font-weight:900;cursor:pointer;font-family:Nunito,sans-serif">Format 3<br><span style="font-size:.68rem;font-weight:400">3:4 Hochformat</span></button>
+        <button onclick="selectFmt('9:16')" id="fbtn_916" style="padding:10px;border:2px solid rgba(255,255,255,.2);background:rgba(255,255,255,.06);color:#fff;border-radius:10px;font-size:.82rem;font-weight:900;cursor:pointer;font-family:Nunito,sans-serif">Format 4<br><span style="font-size:.68rem;font-weight:400">9:16 Stories</span></button>
+      </div>
+      <div id="fmt_info" style="font-size:.78rem;color:var(--gold);font-weight:700;text-align:center;margin-bottom:4px">Aktiv: Format 1 (4:3)</div>
+    </div>
+
+    <div class="asec">
+      <h4>📮 Postkarten-Foto hochladen</h4>
+      <p style="font-size:.8rem;opacity:.65;margin-bottom:12px">Lade dein fertiges Foto (bereits mit Briefmarke) hoch. Der Kunde wählt nur noch den Grußtext und seinen Namen.</p>
+      <div id="pc_upload_area" style="border:2px dashed rgba(255,210,63,.4);border-radius:12px;padding:20px;text-align:center;cursor:pointer;margin-bottom:10px;transition:border-color .2s" onclick="document.getElementById('pc_file_input').click()" ondragover="event.preventDefault();this.style.borderColor='var(--gold)'" ondrop="handlePcDrop(event)">
+        <div id="pc_upload_preview" style="margin-bottom:8px">
+          <div style="font-size:2rem">🖼️</div>
+          <div style="font-size:.85rem;opacity:.6">Foto hier reinziehen oder klicken</div>
+          <div style="font-size:.75rem;opacity:.4;margin-top:4px">JPG, PNG – empfohlen 4:3 Querformat</div>
+        </div>
+        <input type="file" id="pc_file_input" accept="image/*" style="display:none" onchange="loadPcPhoto(this)">
+      </div>
+      <div style="display:flex;gap:8px;margin-bottom:8px">
+        <div style="flex:1">
+          <label style="font-size:.75rem;opacity:.6;display:block;margin-bottom:4px">Text-Position</label>
+          <select id="pc_text_pos" onchange="updatePcPreview()" style="width:100%;background:#0D2B5E;border:1px solid #FFD23F;border-radius:10px;padding:9px 12px;color:#fff;font-family:Nunito,sans-serif;font-size:.88rem;outline:none;cursor:pointer;margin:0">
+            <option value="sky" style="background:#0D2B5E;color:#fff">Oben (Himmel)</option>
+            <option value="water" style="background:#0D2B5E;color:#fff">Unten (Wasser)</option>
+            <option value="middle" style="background:#0D2B5E;color:#fff">Mitte</option>
+          </select>
+        </div>
+        <div style="flex:1">
+          <label style="font-size:.75rem;opacity:.6;display:block;margin-bottom:4px">Textfarbe</label>
+          <select id="pc_text_color" onchange="updatePcPreview()" style="width:100%;background:#0D2B5E;border:1px solid #FFD23F;border-radius:10px;padding:9px 12px;color:#fff;font-family:Nunito,sans-serif;font-size:.88rem;outline:none;cursor:pointer;margin:0">
+            <option value="white" style="background:#0D2B5E;color:#fff">Weiß</option>
+            <option value="gold" style="background:#0D2B5E;color:#fff">Gold (#FFD23F)</option>
+            <option value="dark" style="background:#0D2B5E;color:#fff">Dunkel</option>
+          </select>
+        </div>
+      </div>
+      <canvas id="pc_admin_preview" width="600" height="800" style="width:100%;border-radius:10px;display:none;margin-bottom:8px"></canvas>
+      <button class="abtn" onclick="savePcPhoto()" id="pc_save_btn" style="display:none">Foto speichern</button>
+      <div style="margin-top:14px"><h4 style="color:var(--teal);font-size:.75rem;font-weight:900;letter-spacing:1px;text-transform:uppercase;margin-bottom:8px">Gespeicherte Fotos</h4><div id="admin_photo_list" style="background:rgba(255,255,255,.04);border-radius:10px;padding:10px;min-height:40px"></div></div>
+    </div>
+    <!-- GALERIE REIHENFOLGE -->
+    <div class="asec">
+      <h4>Foto-Reihenfolge in der Galerie</h4>
+      <p style="font-size:.78rem;opacity:.55;margin-bottom:10px">Pfeile nutzen um Reihenfolge zu aendern. Wird auf der Seite sofort uebernommen.</p>
+      <div id="gallery_order_list" style="background:rgba(255,255,255,.04);border-radius:10px;padding:8px"></div>
+      <button class="abtn" onclick="resetGalleryOrder()" style="margin-top:8px;background:rgba(255,255,255,.1);color:#fff">Reihenfolge zuruecksetzen</button>
+    </div>
+
+    <!-- VIDEO UPLOAD -->
+    <div class="asec">
+      <h4>Video-Clips verwalten</h4>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px">
+        <div style="background:rgba(255,255,255,.05);border-radius:12px;padding:14px">
+          <div style="font-weight:800;font-size:.9rem;margin-bottom:8px;color:var(--gold)">Standard 16s</div>
+          <div id="vid1_thumb" style="height:80px;background:#1A1A2E;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:1.5rem;margin-bottom:8px;cursor:pointer" onclick="document.getElementById('vid1_file').click()">&#127909;</div>
+          <input type="file" id="vid1_file" accept="video/*,image/*" style="display:none" onchange="loadVideoThumb(this,'vid1')">
+          <input type="number" class="ainput" id="vid1_price" placeholder="Preis EUR" value="3.99" step=".01" style="margin-bottom:0">
+        </div>
+        <div style="background:rgba(255,255,255,.05);border-radius:12px;padding:14px">
+          <div style="font-weight:800;font-size:.9rem;margin-bottom:8px;color:var(--gold)">Premium 20s</div>
+          <div id="vid2_thumb" style="height:80px;background:#1A1A2E;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:1.5rem;margin-bottom:8px;cursor:pointer" onclick="document.getElementById('vid2_file').click()">&#127909;</div>
+          <input type="file" id="vid2_file" accept="video/*,image/*" style="display:none" onchange="loadVideoThumb(this,'vid2')">
+          <input type="number" class="ainput" id="vid2_price" placeholder="Preis EUR" value="5.99" step=".01" style="margin-bottom:0">
+        </div>
+      </div>
+      <button class="abtn" onclick="saveVideos()">Videos speichern</button>
+    </div>
+
+    <!-- PARTNER FOTO + LOCATION -->
+    <div class="asec">
+      <h4>Partner-Fotos & Standort</h4>
+      <div id="admin_partner_ext" style="background:rgba(255,255,255,.04);border-radius:12px;padding:12px"></div>
+    </div>
+
+    <!-- MAZZORBO / TORCELLO FOTOS -->
+    <div class="asec">
+      <h4>Mazzorbo & Torcello Fotos</h4>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+        <div>
+          <div style="font-size:.8rem;opacity:.6;margin-bottom:6px">Mazzorbo</div>
+          <div id="mazz_prev" style="height:80px;background:#0D2B5E;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:1.5rem;cursor:pointer" onclick="document.getElementById('mazz_file').click()">&#127747;</div>
+          <input type="file" id="mazz_file" accept="image/*" style="display:none" onchange="loadIslandPhoto(this,'mazz')">
+        </div>
+        <div>
+          <div style="font-size:.8rem;opacity:.6;margin-bottom:6px">Torcello</div>
+          <div id="torc_prev" style="height:80px;background:#1B5E20;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:1.5rem;cursor:pointer" onclick="document.getElementById('torc_file').click()">&#127963;</div>
+          <input type="file" id="torc_file" accept="image/*" style="display:none" onchange="loadIslandPhoto(this,'torc')">
+        </div>
+      </div>
+      <button class="abtn" onclick="saveIslandPhotos()" style="margin-top:10px">Fotos speichern</button>
+    </div>
+
+    <div style="margin-top:14px;text-align:right">
+      <button class="abtn" onclick="lgout()" style="background:rgba(255,255,255,.1);color:#fff;max-width:120px">Abmelden</button>
+    </div>
+  </div>
+</div>
+
+<!-- AI WIDGET -->
+<div id="aiwid">
+  <button class="aibub" onclick="toggleChat()" id="ai_fab_btn" title="">&#129302;</button>
+</div>
+<div id="aichat">
+  <div class="aihdr">
+    <span style="font-size:1.3rem">&#129302;</span>
+    <div><div class="ainm">Marco - KI-Reiseleiter</div><div class="aist" id="t_ai_status">Ihr Burano-Guide</div></div>
+    <button onclick="stopSpeak()" id="ai_stop_btn" title="Stopp" style="background:none;border:none;color:#fff;font-size:1rem;cursor:pointer;margin-right:4px">&#9209;</button>
+    <button class="aiclose" onclick="toggleChat()">&#10005;</button>
+  </div>
+  <div class="aimsg" id="aimsgs"></div>
+  <div class="aikey" id="aikey">
+    <input type="password" id="aikeyfld" placeholder="Anthropic API Key (sk-ant-...)">
+    <button onclick="svKeyW()">OK</button>
+  </div>
+  <!-- Grosses Mikrofon -->
+  <div class="mic-big" id="mic_big_area">
+    <button id="mic_big_btn" class="mic-big-btn" onclick="toggleMic()" title="Mikrofon aktivieren">
+      &#127908;
+    </button>
+    <div class="mic-timer" id="mic_timer"></div>
+    <div class="mic-hint" id="mic_hint">Tippen um Marco zu fragen</div>
+  </div>
+  <!-- Text-Eingabe -->
+  <div class="aiinpr">
+    <input type="text" id="aiinp" placeholder="Oder Frage hier eintippen..." onkeydown="if(event.key==='Enter')sendAI()">
+    <button class="aisend" onclick="sendAI()">&#10148;</button>
+  </div>
+</div>
+
+<!-- BUY MODAL -->
+<div class="ovl" id="bmdl">
+  <div class="mdl">
+    <button class="mclose" onclick="document.getElementById('bmdl').classList.remove('open')">&#10005;</button>
+    <h2 id="mt">Kaufen</h2>
+    <p id="md">Burano-Foto - sofort verfuegbar</p>
+    <div class="qrow">
+      <button class="qbtn" onclick="chgQ(-1)">&#8722;</button>
+      <span id="qdis">1</span>
+      <button class="qbtn" onclick="chgQ(1)">+</button>
+      <span style="opacity:.6;font-size:.82rem">Stueck</span>
+    </div>
+    <div class="totl">Gesamt: <span id="mtot">0,99 EUR</span></div>
+    <button class="btnPP" id="mpaybtn" style="width:100%">&#128153; Kaufen via PayPal</button>
+    <p style="text-align:center;font-size:.7rem;opacity:.4;margin-top:7px">Sicher - Download nach Zahlung</p>
+  </div>
+</div>
+
+<!-- VIDEO MODAL -->
+<div class="ovl" id="vmdl">
+  <div class="mdl">
+    <button class="mclose" onclick="document.getElementById('vmdl').classList.remove('open')">&#10005;</button>
+    <h2 id="vmt" style="color:var(--teal)">Video kaufen</h2>
+    <p>Dein Text fuer den Video-Clip:</p>
+    <textarea class="ainput" id="vtxt" rows="3" placeholder="z.B. Ciao Burano! Mai 2025" style="resize:vertical;margin-bottom:10px"></textarea>
+    <div class="totl">Preis: <span id="vmpr" style="color:var(--gold)">3,99 EUR</span></div>
+    <button class="btnPP" id="vmpaybtn" style="width:100%">&#128153; Kaufen via PayPal</button>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<!-- SW wird nur registriert wenn sw.js vorhanden -->
+<script>
+if("serviceWorker" in navigator){
+  // Pruefen ob sw.js erreichbar ist bevor registrieren
+  fetch("sw.js",{method:"HEAD"}).then(function(r){
+    if(r.ok) navigator.serviceWorker.register("sw.js");
+  }).catch(function(){});
+}
+</script>
+<script>
+
+
+
+
+
+
+// Translations - nur ASCII, keine Sonderzeichen im JS
+var TXT = {
+  de: {
+    hero_sub:"Fotos - Postkarten - Videos - Souvenirs",
+    btn_shop:"Jetzt kaufen", btn_guide:"KI-Reiseleiter", btn_listen:"KI-Reiseleiter befragen",
+    hist_title:"Geschichte von Burano",
+    hist_body:"Burano ist eine malerische Insel in der Lagune von Venedig, etwa 7 km noerdlich der Stadt. Die Insel ist beruehmt fuer ihre leuchtend bunten Haeuser - eine jahrhundertealte Tradition. Fischer bemalten ihre Haeuser, damit die Familie das Boot auch im Nebel erkennt. Seit dem 16. Jahrhundert ist Burano das Zentrum der venezianischen Spitzenkunst. Die Insel empfaengt taeglich bis zu 2.000 Besucher aus aller Welt. An der Terra Nova 112 fliessen taeglich Hunderte vorbei.",
+    foto_title:"Deine Burano-Fotos", foto_sub:"Sofort-Download nach PayPal-Zahlung",
+    prod1:"1 Foto Download", prod1d:"Hochaufloesungsfoto sofort verfuegbar",
+    prod2:"Tages-Stempel", prod2d:"Burano-Stempel mit heutigem Datum",
+    prod3:"Briefmarke digital", prod3d:"Vintage-Briefmarke Burano-Motiv",
+    prod4:"Postkarte", prod4d:"Personalisierte Postkarte mit deinem Text",
+    pack_title:"10er Foto-Paket", pack_desc:"10 Fotos - Sofort - Spare 50%!",
+    btn_buy:"Kaufen via PayPal",
+    gal_title:"Unsere Burano-Aufnahmen", gal_sub:"Aufgenommen direkt vor Ort - Terra Nova 112",
+    pc_title:"Postkarten-Generator", pc_sub:"Mit Briefmarke, Stempel und persoenlichem Gruss",
+    pc_buy:"1 Postkarte 0,99 EUR - 10 Postkarten 4,99 EUR",
+    vid_title:"Burano Video-Clips", vid_sub:"Full HD mit persoenlichem Text",
+    v1:"Standard Clip - 16 Sekunden", v1d:"Atmosphaerisches Burano-Video mit Text. Perfekt fuer Instagram Reels und WhatsApp Status.",
+    v2:"Premium Clip - 20 Sekunden", v2d:"Mehrere Burano-Szenen, Musik und Text. Das ultimative Souvenir!",
+    part_title:"Partner in Burano", part_sub:"Exklusive Gutscheine fuer Kunden",
+    btn_partner:"Jetzt Partner werden",
+    rent_title:"Uebernachte in Burano", rent_sub:"Direkt beim Fotografen",
+    r1:"Traumhafte Wohnung mit Blick auf die bunten Kanaele", r2:"Lagunenpanorama - das beste Burano-Erlebnis",
+    btn_book:"Jetzt buchen",
+    qr_title:"QR-Code fuer Gaeste", qr_sub:"Einfach scannen - direkt zum Shop!",
+    ai_status:"Ihr persoenlicher Burano-Guide", loading:"Fotos werden geladen...",
+    pc_greeting:"Herzliche Gruesse von der Insel Burano",
+    ai_welcome:"Ciao! Ich bin Marco, dein KI-Reiseleiter fuer Burano! Die Insel ist beruehmt fuer ihre bunten Haeuser und die venezianische Spitzenkunst. Womit kann ich dir helfen?"
+  },
+  en: {
+    hero_sub:"Photos - Postcards - Videos - Souvenirs",
+    btn_shop:"Shop Now", btn_guide:"AI Travel Guide", btn_listen:"Ask the AI Guide",
+    hist_title:"History of Burano",
+    hist_body:"Burano is a picturesque island in the Venice Lagoon, about 7 km north of the city. Famous for its vividly coloured houses - a centuries-old tradition. Fishermen painted their homes so families could spot the boat in dense fog. Since the 16th century Burano has been the centre of Venetian lace-making. The island welcomes up to 2,000 visitors daily from around the world.",
+    foto_title:"Your Burano Photos", foto_sub:"Instant download after PayPal payment",
+    prod1:"1 Photo Download", prod1d:"High-res Burano photo instantly available",
+    prod2:"Daily Stamp", prod2d:"Official Burano stamp with today date",
+    prod3:"Postage Stamp digital", prod3d:"Vintage stamp with Burano motif",
+    prod4:"Postcard", prod4d:"Personalized postcard with your text",
+    pack_title:"10-Photo Package", pack_desc:"10 photos - Instant - Save 50%!",
+    btn_buy:"Buy via PayPal",
+    gal_title:"Our Burano Shots", gal_sub:"Taken on location - Terra Nova 112",
+    pc_title:"Postcard Generator", pc_sub:"With stamp, postmark and greeting",
+    pc_buy:"Download and buy - 1.99 EUR via PayPal",
+    vid_title:"Burano Video Clips", vid_sub:"Full HD with personal text",
+    v1:"Standard Clip - 16 seconds", v1d:"Atmospheric Burano video with text overlay. Perfect for Instagram Reels and WhatsApp Status.",
+    v2:"Premium Clip - 20 seconds", v2d:"Multiple scenes, music and personal text. The ultimate souvenir!",
+    part_title:"Partners in Burano", part_sub:"Exclusive vouchers for customers",
+    btn_partner:"Become a Partner",
+    rent_title:"Stay in Burano", rent_sub:"Directly with the photographer",
+    r1:"Beautiful apartment with colourful canal views", r2:"Lagoon panorama - the best Burano experience",
+    btn_book:"Book now",
+    qr_title:"QR Code for Guests", qr_sub:"Simply scan - directly to the shop!",
+    ai_status:"Your personal Burano guide", loading:"Loading photos...",
+    pc_greeting:"Warm greetings from the island of Burano",
+    ai_welcome:"Ciao! I am Marco, your AI travel guide for Burano! Famous for its colourful houses and Venetian lace. How can I help you?"
+  },
+  it: {
+    hero_sub:"Foto - Cartoline - Video - Souvenir",
+    btn_shop:"Acquista ora", btn_guide:"Guida AI", btn_listen:"Parla con la guida AI",
+    hist_title:"Storia di Burano",
+    hist_body:"Burano e una pittoresca isola nella Laguna di Venezia. Famosa per le case dai colori vivaci - tradizione secolare dei pescatori. Dal XVI secolo centro dell arte merlettaia veneziana. Fino a 2.000 visitatori al giorno.",
+    foto_title:"Le tue Foto di Burano", foto_sub:"Download immediato dopo PayPal",
+    prod1:"1 Foto Download", prod1d:"Foto alta risoluzione subito disponibile",
+    prod2:"Timbro del giorno", prod2d:"Timbro ufficiale con la data di oggi",
+    prod3:"Francobollo digitale", prod3d:"Francobollo vintage Burano",
+    prod4:"Cartolina", prod4d:"Cartolina personalizzata con il tuo testo",
+    pack_title:"Pacchetto 10 Foto", pack_desc:"10 foto - Immediato - Risparmia 50%!",
+    btn_buy:"Acquista via PayPal",
+    gal_title:"Le nostre foto di Burano", gal_sub:"Scattate sul posto - Terra Nova 112",
+    pc_title:"Generatore di Cartoline", pc_sub:"Con francobollo, timbro e saluto",
+    pc_buy:"Scarica e acquista - 1,99 EUR via PayPal",
+    vid_title:"Video Clip di Burano", vid_sub:"Full HD con testo personale",
+    v1:"Clip Standard - 16 secondi", v1d:"Video atmosferico di Burano con testo. Perfetto per Reels e Status.",
+    v2:"Clip Premium - 20 secondi", v2d:"Piu scene, musica e testo personale. Il souvenir definitivo!",
+    part_title:"Partner a Burano", part_sub:"Buoni esclusivi per i clienti",
+    btn_partner:"Diventa partner",
+    rent_title:"Soggiorna a Burano", rent_sub:"Direttamente dal fotografo",
+    r1:"Appartamento con vista sui canali colorati", r2:"Panorama della laguna",
+    btn_book:"Prenota ora",
+    qr_title:"Codice QR per gli ospiti", qr_sub:"Basta scansionare!",
+    ai_status:"La tua guida personale di Burano", loading:"Caricamento foto...",
+    pc_greeting:"Cordiali saluti dalla bellissima isola di Burano",
+    ai_welcome:"Ciao! Sono Marco, la tua guida AI per Burano! Come posso aiutarti?"
+  },
+  fr: {
+    hero_sub:"Photos - Cartes postales - Videos - Souvenirs",
+    btn_shop:"Acheter maintenant", btn_guide:"Guide IA", btn_listen:"Interroger le guide",
+    hist_title:"Histoire de Burano",
+    hist_body:"Burano est une ile pittoresque dans la lagune de Venise. Celebre pour ses maisons aux couleurs vives - tradition seculaire des pecheurs. Jusqu a 2.000 visiteurs par jour.",
+    foto_title:"Vos Photos de Burano", foto_sub:"Telechargement immediat apres PayPal",
+    prod1:"1 Photo a telecharger", prod1d:"Photo haute resolution disponible immediatement",
+    prod2:"Cachet du jour", prod2d:"Cachet officiel avec la date",
+    prod3:"Timbre numerique", prod3d:"Timbre vintage Burano",
+    prod4:"Carte postale", prod4d:"Carte personnalisee avec votre texte",
+    pack_title:"Pack 10 Photos", pack_desc:"10 photos - Immediat - Economisez 50%!",
+    btn_buy:"Acheter via PayPal",
+    gal_title:"Nos photos de Burano", gal_sub:"Prises sur place - Terra Nova 112",
+    pc_title:"Generateur de Cartes postales", pc_sub:"Avec timbre, cachet et message",
+    pc_buy:"Telecharger et acheter - 1,99 EUR via PayPal",
+    vid_title:"Clips Video de Burano", vid_sub:"Full HD avec texte personnel",
+    v1:"Clip Standard - 16 secondes", v1d:"Video de Burano avec texte. Parfait pour Reels et Status.",
+    v2:"Clip Premium - 20 secondes", v2d:"Plusieurs scenes, musique et texte. Le souvenir ultime!",
+    part_title:"Partenaires a Burano", part_sub:"Bons exclusifs pour les clients",
+    btn_partner:"Devenir partenaire",
+    rent_title:"Sejournez a Burano", rent_sub:"Directement chez le photographe",
+    r1:"Appartement avec vue sur les canaux colores", r2:"Panorama pur sur la lagune",
+    btn_book:"Reserver maintenant",
+    qr_title:"Code QR pour les visiteurs", qr_sub:"Scannez simplement!",
+    ai_status:"Votre guide personnel de Burano", loading:"Chargement des photos...",
+    pc_greeting:"Chaleureuses salutations de la belle ile de Burano",
+    ai_welcome:"Ciao! Je suis Marco, votre guide IA pour Burano! Comment puis-je vous aider?"
+  },
+  es: {
+    hero_sub:"Fotos - Postales - Videos - Souvenirs",
+    btn_shop:"Comprar ahora", btn_guide:"Guia IA", btn_listen:"Preguntar a la guia",
+    hist_title:"Historia de Burano",
+    hist_body:"Burano es una pintoresca isla en la laguna de Venecia. Famosa por sus casas de vivos colores - tradicion centenaria de los pescadores. Hasta 2.000 visitantes al dia.",
+    foto_title:"Tus Fotos de Burano", foto_sub:"Descarga inmediata tras PayPal",
+    prod1:"1 Foto Descarga", prod1d:"Foto alta resolucion disponible inmediatamente",
+    prod2:"Sello del dia", prod2d:"Sello oficial con la fecha de hoy",
+    prod3:"Sello de correos", prod3d:"Sello vintage Burano",
+    prod4:"Postal", prod4d:"Postal personalizada con tu texto",
+    pack_title:"Paquete 10 Fotos", pack_desc:"10 fotos - Inmediato - Ahorra 50%!",
+    btn_buy:"Comprar via PayPal",
+    gal_title:"Nuestras fotos de Burano", gal_sub:"Tomadas en el lugar - Terra Nova 112",
+    pc_title:"Generador de Postales", pc_sub:"Con sello, matasellos y saludo",
+    pc_buy:"Descargar y comprar - 1,99 EUR via PayPal",
+    vid_title:"Clips de Video de Burano", vid_sub:"Full HD con texto personal",
+    v1:"Clip Estandar - 16 segundos", v1d:"Video de Burano con texto. Perfecto para Reels y Status.",
+    v2:"Clip Premium - 20 segundos", v2d:"Varias escenas, musica y texto. El souvenir definitivo!",
+    part_title:"Socios en Burano", part_sub:"Cupones exclusivos para clientes",
+    btn_partner:"Convertirse en socio",
+    rent_title:"Alejate en Burano", rent_sub:"Directamente con el fotografo",
+    r1:"Apartamento con vistas a los canales de colores", r2:"Panorama puro de la laguna",
+    btn_book:"Reservar ahora",
+    qr_title:"Codigo QR para visitantes", qr_sub:"Simplemente escanear!",
+    ai_status:"Tu guia personal de Burano", loading:"Cargando fotos...",
+    pc_greeting:"Cordiales saludos desde la hermosa isla de Burano",
+    ai_welcome:"Ciao! Soy Marco, tu guia IA para Burano! Como puedo ayudarte?"
+  },
+  ja: {
+    hero_sub:"Shashin Ehagaki Doga Miyage",
+    btn_shop:"Ima sugu konya", btn_guide:"AI Gaido", btn_listen:"AI Gaido ni shitsumon",
+    hist_title:"Burano-to no Rekishi",
+    hist_body:"Burano-to wa Venezia kara yaku 7km kita ni aru shima desu. Azayaka na iro no ie-ie de yuumei desu. Higoto 2000-nin no kankoukyaku ga otozuremasu.",
+    foto_title:"Burano no Shashin", foto_sub:"PayPal shiharai go sugu download",
+    prod1:"1-mai Shashin DL", prod1d:"Kaizoudo shashin sugu riyou ka",
+    prod2:"Kyou no Sutanpu", prod2d:"Konnichi no hi-zuke iri sutanpu",
+    prod3:"Dejitaru Kitte", prod3d:"Burano motiifu kitte",
+    prod4:"Ehagaki", prod4d:"Kojinka sareta ehagaki",
+    pack_title:"10-mai Shashin Pakku", pack_desc:"10-mai sugu 50% otoku!",
+    btn_buy:"PayPal de konya",
+    gal_title:"Burano no Shashin-shuu", gal_sub:"Genchi satsuei Terra Nova 112",
+    pc_title:"Ehagaki Jenereetaa", pc_sub:"Kitte to keshiin tsuki",
+    pc_buy:"DL and konya 1.99 EUR",
+    vid_title:"Burano Doga Kurippu", vid_sub:"Full HD Kojin tekisuto",
+    v1:"Sutandaado 16 byou", v1d:"Tekisuto iri Burano doga.",
+    v2:"Puremiamu 20 byou", v2d:"Fukusuu shiinzu ongaku tekisuto.",
+    part_title:"Burano no Paatonaa", part_sub:"Senyou kuupon",
+    btn_partner:"Paatonaa ni naru",
+    rent_title:"Burano ni tomaro", rent_sub:"Kameraman no soba de",
+    r1:"Karaikuu kairo no apaato", r2:"Ragoon no panorama",
+    btn_book:"Ima sugu yoyaku",
+    qr_title:"QR Kodo", qr_sub:"Sukyan suru dake!",
+    ai_status:"Anata senyou Burano gaido", loading:"Shashin wo yomikonde imasu...",
+    pc_greeting:"Utsukushii Burano-to kara no aisatsu",
+    ai_welcome:"Ciao! Burano no AI gaido Marco desu! Nani wo otetsudai shimashouka?"
+  },
+  zh: {
+    hero_sub:"Zhao Pian Ming Xin Pian Shi Pin Ji Nian Pin",
+    btn_shop:"Li Ji Gou Mai", btn_guide:"AI Dao You", btn_listen:"Xun Wen AI Dao You",
+    hist_title:"Bu La Nuo Dao de Li Shi",
+    hist_body:"Bu La Nuo Dao shi Wei Ni Si Xie Hu Zhong de Xiao Dao. Yi Se Cai Xian Yan de Fang Wu Zhu Ming. Mei Tian Jie Dai Duo Da 2000 Ming You Ke.",
+    foto_title:"Nin de Bu La Nuo Zhao Pian", foto_sub:"PayPal Fu Kuan Hou Li Ji Xia Zai",
+    prod1:"1 Zhang Zhao Pian Xia Zai", prod1d:"Gao Fen Bian Lu Zhao Pian Li Ji Ke Yong",
+    prod2:"Jin Ri You Chuo", prod2d:"Dai You Jin Ri Ri Qi de You Chuo",
+    prod3:"Shu Zi You Piao", prod3d:"Bu La Nuo Zhu Ti Fu Gu You Piao",
+    prod4:"Ming Xin Pian", prod4d:"Ge Xing Hua Ming Xin Pian",
+    pack_title:"10 Zhang Zhao Pian Tao Can", pack_desc:"10 Zhang Li Ji Jie Sheng 50%!",
+    btn_buy:"PayPal Gou Mai",
+    gal_title:"Wo Men de Bu La Nuo Zhao Pian", gal_sub:"Xian Chang Pai She Terra Nova 112",
+    pc_title:"Ming Xin Pian Sheng Cheng Qi", pc_sub:"Fu You You Piao He You Chuo",
+    pc_buy:"Xia Zai Bing Gou Mai 1.99 EUR",
+    vid_title:"Bu La Nuo Shi Pin Jian Ji", vid_sub:"Quan Gao Qing Ge Ren Wen Zi",
+    v1:"Biao Zhun Jian Ji 16 Miao", v1d:"Dai Wen Zi de Bu La Nuo Shi Pin.",
+    v2:"Gao Ji Jian Ji 20 Miao", v2d:"Duo Ge Chang Jing Yin Yue He Wen Zi.",
+    part_title:"Bu La Nuo He Zuo Huo Ban", part_sub:"Zhuan Shu You Hui Juan",
+    btn_partner:"Cheng Wei He Zuo Huo Ban",
+    rent_title:"Zhu Zai Bu La Nuo", rent_sub:"Zhi Jie Yu She Ying Shi Tong Zhu",
+    r1:"Wu Cai Yun He Mei Jing de Du Jia Gong Yu", r2:"Chun Cui de Xie Hu Quan Jing",
+    btn_book:"Li Ji Yu Ding",
+    qr_title:"Fang Ke Er Wei Ma", qr_sub:"Sao Miao Ji Ke!",
+    ai_status:"Nin de Zhuan Shu Bu La Nuo Xiang Dao", loading:"Jia Zai Zhao Pian...",
+    pc_greeting:"Lai Zi Mei Li Bu La Nuo Dao de Cheng Zhi Wen Hou",
+    ai_welcome:"Ni Hao! Wo Shi Ma Ke Nin de Bu La Nuo AI Dao You! Jin Tian Wo Neng Wei Nin Zuo Shen Me?"
+  },
+  pl: {
+    hero_sub:"Zdjecia Pocztowki Filmy Pamiatki",
+    btn_shop:"Kup teraz", btn_guide:"Przewodnik AI", btn_listen:"Zapytaj przewodnika",
+    hist_title:"Historia Burano",
+    hist_body:"Burano to malownicza wyspa w lagunie weneckiej. Slynna z kolorowych domow - tradycja rybacka od wiekow. Do 2000 odwiedzajacych dziennie.",
+    foto_title:"Twoje zdjecia z Burano", foto_sub:"Natychmiastowe pobieranie po PayPal",
+    prod1:"1 zdjecie do pobrania", prod1d:"Zdjecie wysokiej rozdzielczosci",
+    prod2:"Stempel dzienny", prod2d:"Oficjalny stempel z data",
+    prod3:"Znaczek cyfrowy", prod3d:"Vintage znaczek Burano",
+    prod4:"Pocztowka", prod4d:"Spersonalizowana pocztowka",
+    pack_title:"Pakiet 10 zdjec", pack_desc:"10 zdjec Natychmiast Oszczedz 50%!",
+    btn_buy:"Kup przez PayPal",
+    gal_title:"Nasze zdjecia z Burano", gal_sub:"Zrobione na miejscu Terra Nova 112",
+    pc_title:"Generator Pocztowek", pc_sub:"Ze znaczkiem i stemplem",
+    pc_buy:"Pobierz i kup 1,99 EUR przez PayPal",
+    vid_title:"Klipy wideo z Burano", vid_sub:"Full HD z osobistym tekstem",
+    v1:"Klip standardowy 16 sekund", v1d:"Film z Burano z tekstem.",
+    v2:"Klip premium 20 sekund", v2d:"Wiele scen muzyka i tekst.",
+    part_title:"Partnerzy na Burano", part_sub:"Ekskluzywne vouchery",
+    btn_partner:"Zostac partnerem",
+    rent_title:"Zostac na Burano", rent_sub:"Bezposrednio u fotografa",
+    r1:"Mieszkanie z widokiem na kolorowe kanaly", r2:"Panorama laguny",
+    btn_book:"Zarezerwuj teraz",
+    qr_title:"Kod QR dla gosci", qr_sub:"Wystarczy zeskanowac!",
+    ai_status:"Twoj osobisty przewodnik", loading:"Ladowanie zdjec...",
+    pc_greeting:"Serdeczne pozdrowienia z Burano",
+    ai_welcome:"Ciao! Jestem Marco Twoj przewodnik AI po Burano! Jak moge pomoc?"
+  }
+};
+
+// STATE
+var APWD = "burano2025";
+var curLang = localStorage.getItem("bl_lang") || "de";
+var partners = JSON.parse(localStorage.getItem("bl_partners") || "null") || [
+  {id:1,name:"Farmacia Centrale",type:"apotheke",prov:5,coupon:10,code:"BURA10"},
+  {id:2,name:"Osteria al Pesce",type:"restaurant",prov:4,coupon:5,code:"FISH5"},
+  {id:3,name:"Casa dei Colori",type:"hotel",prov:5,coupon:10,code:"CASA10"}
+];
+var prices = JSON.parse(localStorage.getItem("bl_prices") || "null") || {f1:0.99,f10:4.99,vs:3.99,vp:5.99};
+var stats  = JSON.parse(localStorage.getItem("bl_stats")  || "null") || {s:0,r:0};
+var ppe    = localStorage.getItem("bl_paypal") || "info@myburano.com";
+var apiKey = localStorage.getItem("bl_api_key") || "";
+function getApiKey() { apiKey = localStorage.getItem("bl_api_key") || ""; return apiKey; }
+var aiHist = [], slideIdx = 0, mPrice = 0.99, mQty = 1, mItem = "";
+
+function tx(k) {
+  var l = TXT[curLang] || TXT.de;
+  return l[k] || (TXT.de)[k] || k;
+}
+
+function setLang(l) {
+  curLang = l;
+  localStorage.setItem("bl_lang", l);
+  document.querySelectorAll(".lb").forEach(function(b) { b.classList.remove("on"); });
+  var btn = document.getElementById("lb_" + l);
+  if (btn) btn.classList.add("on");
+  applyTxt();
+  updateGreetingSelect();
+  renderPC();
+}
+
+var TIDS = ["hero_sub","btn_shop","btn_guide","btn_listen","hist_title","hist_body",
+  "foto_title","foto_sub","prod1","prod1d","prod4","prod4d",
+  "pack_title","pack_desc","btn_buy","gal_title","gal_sub","pc_title","pc_sub","pc_buy",
+  "vid_title","vid_sub","v1","v1d","v2","v2d","part_title","part_sub","btn_partner",
+  "rent_title","rent_sub","r1","r2","btn_book","qr_title","qr_sub","ai_status","loading"];
+
+function applyTxt() {
+  TIDS.forEach(function(k) {
+    var el = document.getElementById("t_" + k);
+    if (el) el.textContent = tx(k);
+  });
+  // Dynamische Buttons je Sprache
+  var BT = {
+    de: {buy:"Kaufen via PayPal", book:"Jetzt buchen", guide:"KI-Reiseleiter fragen", stop:"Stopp", read:"Vorlesen"},
+    en: {buy:"Buy via PayPal", book:"Book now", guide:"Ask AI Guide", stop:"Stop", read:"Read aloud"},
+    it: {buy:"Acquista via PayPal", book:"Prenota ora", guide:"Chiedi alla guida AI", stop:"Ferma", read:"Leggi"},
+    fr: {buy:"Acheter via PayPal", book:"Réserver", guide:"Demander au guide IA", stop:"Arrêt", read:"Lire"},
+    es: {buy:"Comprar via PayPal", book:"Reservar", guide:"Preguntar al guía IA", stop:"Parar", read:"Leer"},
+    ja: {buy:"PayPalで購入", book:"今すぐ予約", guide:"AIガイドに質問", stop:"停止", read:"読み上げ"},
+    zh: {buy:"PayPal购买", book:"立即预订", guide:"咨询AI导游", stop:"停止", read:"朗读"},
+    pl: {buy:"Kup przez PayPal", book:"Zarezerwuj", guide:"Zapytaj przewodnika", stop:"Stop", read:"Czytaj"}
+  };
+  var b = BT[curLang] || BT.de;
+  // PayPal Buttons
+  document.querySelectorAll(".btnPP").forEach(function(el){ if(el.id!=="pc_btn1") el.innerHTML="&#128153; "+b.buy; });
+  // Stop/Read Buttons
+  var stopBtn = document.getElementById("ai_stop_btn");
+  if(stopBtn) stopBtn.title = b.stop;
+  var fabBtn = document.getElementById("ai_fab_btn");
+  if(fabBtn) fabBtn.title = b.guide;
+  // Rental book buttons
+  document.querySelectorAll(".rinfo .btnH").forEach(function(el){ el.textContent = b.book; });
+}
+
+// HERO SLIDESHOW
+var HKEYS = ["canal_wide","canal_winter","canal_lagoon","canal_sunset","canal_morning","canal_wide2","waterfront"];
+
+function initHero() {
+  var c = document.getElementById("hslides");
+  // Default fallback slide schon vorhanden, jetzt echte Fotos hinzufuegen falls PHOTOS geladen
+  if (typeof PHOTOS !== "undefined") {
+    c.innerHTML = "";
+    HKEYS.forEach(function(n, i) {
+      var d = document.createElement("div");
+      d.className = "hslide" + (i === 0 ? " on" : "");
+      if (PHOTOS[n]) d.style.backgroundImage = "url(" + PHOTOS[n] + ")";
+      else d.className += " hfallback";
+      c.appendChild(d);
+    });
+  }
+  setInterval(function() {
+    var s = document.querySelectorAll(".hslide");
+    if (s.length < 2) return;
+    s[slideIdx].classList.remove("on");
+    slideIdx = (slideIdx + 1) % s.length;
+    s[slideIdx].classList.add("on");
+  }, 4000);
+}
+
+// GALLERY
+// Null-sicheres getElementById
+function gel(id) { return document.getElementById(id); }
+function setHTML(id, html) { var el=document.getElementById(id); if(el) el.innerHTML=html; }
+function setText(id, txt) { var el=document.getElementById(id); if(el) el.textContent=txt; }
+
+// Stubs falls format.js noch nicht geladen
+var _fmtStubs=["updateGreetingSelect","renderPC","setPcPos","selectFmt",
+  "renderAdminPhotoList","renderFmtGallery","fmtDelPhoto","buildPcThumbs",
+  "buildIslandStrip","getSelectedGreeting","saveIslandPhotos","loadPcPhotoFile",
+  "savePcPhoto","initPosButtons","ensureHeroSlides","setRegion"];
+_fmtStubs.forEach(function(fn){if(typeof window[fn]==="undefined")window[fn]=function(){};});
+
+var GDEFS = [
+  {k:"canal_wide",l:"Burano Canal"},{k:"canal_winter",l:"Winter"},
+  {k:"canal_lagoon",l:"Lagoon"},{k:"canal_sunset",l:"Sunset"},
+  {k:"piazza",l:"Piazza"},{k:"canal_morning",l:"Morning"},
+  {k:"canal_wide2",l:"Promenade"},{k:"waterfront",l:"Waterfront"}
+];
+
+function renderGallery() {
+  if(typeof renderFmtGallery==="function"){ renderFmtGallery(); return; }
+  // Fallback: Standard-Fotos direkt rendern
+  var grid=document.getElementById("ggrid_f1");
+  if(!grid||typeof PHOTOS==="undefined") return;
+  grid.innerHTML="";
+  GDEFS.forEach(function(d){
+    var div=document.createElement("div"); div.className="gi";
+    div.onclick=(function(l){return function(){openMdl(l,0.99);};})(d.l);
+    var img=document.createElement("img"); img.src=PHOTOS[d.k]||""; img.loading="lazy"; img.style.cssText="width:100%;height:100%;object-fit:cover";
+    div.appendChild(img);
+    var lbl=document.createElement("div"); lbl.className="lbl"; lbl.textContent=d.l; div.appendChild(lbl);
+    grid.appendChild(div);
+  });
+  var sec=document.getElementById("sec_f1"); if(sec)sec.style.display="block";
+}
+
+// POSTCARD CANVAS
+function drawCurvedText(ctx, text, cx, cy, radius, startAngle, color, fontSize) {
+  // Geschwungener Text entlang eines Bogens
+  ctx.save();
+  ctx.font = "italic bold " + fontSize + "px 'Brush Script MT', 'Comic Sans MS', cursive";
+  ctx.fillStyle = color;
+  ctx.shadowColor = "rgba(0,0,0,0.6)";
+  ctx.shadowBlur = 6;
+  ctx.textAlign = "center";
+  ctx.textBaseline = "middle";
+  var chars = text.split("");
+  var totalWidth = chars.reduce(function(w,c){ return w + ctx.measureText(c).width; }, 0);
+  var angleStep = (totalWidth / radius) / chars.length;
+  var angle = startAngle - (totalWidth / radius) / 2;
+  chars.forEach(function(ch) {
+    ctx.save();
+    ctx.translate(cx + Math.cos(angle)*radius, cy + Math.sin(angle)*radius);
+    ctx.rotate(angle + Math.PI/2);
+    ctx.fillText(ch, 0, 0);
+    ctx.restore();
+    angle += angleStep;
+  });
+  ctx.restore();
+}
+
+function drawNameLine(ctx, W, H, yPos, color) {
+  // Gestrichelte Linie fuer Kundenname
+  ctx.save();
+  ctx.setLineDash([8,5]);
+  ctx.strokeStyle = color || "rgba(255,255,255,0.6)";
+  ctx.lineWidth = 1.5;
+  var margin = W * 0.12;
+  ctx.beginPath();
+  ctx.moveTo(margin, yPos);
+  ctx.lineTo(W - margin, yPos);
+  ctx.stroke();
+  ctx.setLineDash([]);
+  // Kleiner Hinweis-Text
+  ctx.font = "11px sans-serif";
+  ctx.fillStyle = color || "rgba(255,255,255,0.5)";
+  ctx.textAlign = "center";
+  ctx.fillText("* Ihr Name *", W/2, yPos - 10);
+  ctx.restore();
+}
+
+function drawCurvedText(ctx, text, cx, cy, radius, color, fontSize) {
+  ctx.save();
+  ctx.font = "italic bold " + fontSize + "px 'Brush Script MT','Comic Sans MS',cursive";
+  ctx.fillStyle = color;
+  ctx.shadowColor = "rgba(0,0,0,0.7)";
+  ctx.shadowBlur = 8;
+  ctx.textAlign = "center";
+  ctx.textBaseline = "middle";
+  var chars = text.split("");
+  var totalArc = 0;
+  var widths = chars.map(function(c){
+    var w = ctx.measureText(c).width;
+    totalArc += w / radius;
+    return w;
+  });
+  var angle = -totalArc / 2;
+  chars.forEach(function(ch, i) {
+    ctx.save();
+    ctx.translate(cx + Math.cos(angle) * radius, cy + Math.sin(angle) * radius);
+    ctx.rotate(angle + Math.PI / 2);
+    ctx.fillText(ch, 0, 0);
+    ctx.restore();
+    angle += widths[i] / radius;
+  });
+  ctx.restore();
+}
+
+function drawNameLine(ctx, W, H, yPos, color) {
+  ctx.save();
+  ctx.setLineDash([8, 5]);
+  ctx.strokeStyle = color || "rgba(255,255,255,0.6)";
+  ctx.lineWidth = 1.5;
+  var margin = W * 0.12;
+  ctx.beginPath();
+  ctx.moveTo(margin, yPos);
+  ctx.lineTo(W - margin, yPos);
+  ctx.stroke();
+  ctx.setLineDash([]);
+  ctx.font = "11px sans-serif";
+  ctx.fillStyle = color || "rgba(255,255,255,0.5)";
+  ctx.textAlign = "center";
+  ctx.shadowBlur = 0;
+  ctx.fillText("* Ihr Name *", W/2, yPos - 10);
+  ctx.restore();
+}
+
+// renderPC ist in format.js definiert
+
+// MODAL
+function openMdl(name, price) {
+  mPrice=price; mQty=1; mItem=name;
+  var __el=document.getElementById("mt");if(__el)__el.textContent=name;
+  var __el=document.getElementById("md");if(__el)__el.textContent="Burano - sofort nach Zahlung verfuegbar";
+  var __el=document.getElementById("qdis");if(__el)__el.textContent=1;
+  updTotal();
+  document.getElementById("bmdl").classList.add("open");
+}
+function chgQ(d) { mQty=Math.max(1,mQty+d); var __el=document.getElementById("qdis");if(__el)__el.textContent=mQty; updTotal(); }
+function updTotal() {
+  var tot=(mPrice*mQty).toFixed(2).replace(".",",");
+  var __el=document.getElementById("mtot");if(__el)__el.textContent=tot+" EUR";
+  document.getElementById("mpaybtn").onclick=function(){ppGo(mItem+(mQty>1?" x"+mQty:""),mPrice*mQty);};
+}
+var vmP = 3.99;
+function openVMdl(title, price) {
+  vmP=price;
+  var __el=document.getElementById("vmt");if(__el)__el.textContent=title;
+  var __el=document.getElementById("vmpr");if(__el)__el.textContent=price.toFixed(2).replace(".",",")+' EUR';
+  document.getElementById("vmpaybtn").onclick=function(){
+    var txt=document.getElementById("vtxt").value;
+    ppGo(title+(txt?" - "+txt:""),vmP);
+    document.getElementById("vmdl").classList.remove("open");
+  };
+  document.getElementById("vmdl").classList.add("open");
+}
+
+// PAYPAL
+function ppGo(item, amount) {
+  amount=parseFloat(amount.toFixed(2));
+  var testmode = localStorage.getItem("bl_testmode")==="1";
+  if(testmode){
+    // Test-Modus: kein PayPal, direkt weiter
+    alert("TEST-MODUS aktiv\nKein PayPal - Download startet direkt.\n\nArtikel: "+item+"\nPreis: "+amount+" EUR");
+    document.getElementById("bmdl").classList.remove("open");
+    return;
+  }
+  stats.s++; stats.r=(parseFloat(stats.r)+amount).toFixed(2);
+  localStorage.setItem("bl_stats",JSON.stringify(stats));
+  var note=encodeURIComponent("Burano Shop - "+item);
+  var user=ppe.indexOf("@")>-1?ppe.split("@")[0]:ppe;
+  window.open("https://www.paypal.com/paypalme/"+user+"/"+amount+"EUR?note="+note,"_blank");
+  document.getElementById("bmdl").classList.remove("open");
+}
+
+// AI CHAT
+function toggleChat() {
+  unlockTTS(); // Android TTS entsperren beim ersten Tippen
+  var c=document.getElementById("aichat");
+  c.classList.toggle("open");
+  if(c.classList.contains("open") && aiHist.length===0) initAI();
+}
+function openChat() {
+  document.getElementById("aichat").classList.add("open");
+  if(aiHist.length===0) initAI();
+}
+// == VOICE ENGINE ==
+var LANG_CODES = {
+  de:"de-DE", en:"en-US", it:"it-IT",
+  fr:"fr-FR", es:"es-ES", ja:"ja-JP",
+  zh:"zh-CN", pl:"pl-PL"
+};
+var voiceReady = false;
+var pendingSpeak = null;
+
+// Stimmen laden (iOS braucht onvoiceschanged)
+function initVoices() {
+  if(!window.speechSynthesis) return;
+  var voices = window.speechSynthesis.getVoices();
+  if(voices.length > 0) { voiceReady = true; if(pendingSpeak) { speak(pendingSpeak); pendingSpeak=null; } }
+  else { window.speechSynthesis.onvoiceschanged = function(){ voiceReady=true; if(pendingSpeak){speak(pendingSpeak);pendingSpeak=null;} }; }
+}
+
+function getBestVoice(langCode) {
+  var voices = window.speechSynthesis.getVoices();
+  // Exakter Match
+  for(var i=0;i<voices.length;i++) if(voices[i].lang===langCode) return voices[i];
+  // Prefix Match (z.B. "de" in "de-AT")
+  var prefix = langCode.split("-")[0];
+  for(var i=0;i<voices.length;i++) if(voices[i].lang.startsWith(prefix)) return voices[i];
+  return null;
+}
+
+// Android: speechSynthesis braucht user-gesture
+var ttsUnlocked = false;
+
+function unlockTTS() {
+  // Einmalig einen leeren Utterance sprechen um TTS zu entsperren
+  if(ttsUnlocked || !window.speechSynthesis) return;
+  var u = new SpeechSynthesisUtterance("");
+  window.speechSynthesis.speak(u);
+  ttsUnlocked = true;
+}
+
+function speak(text, onEnd) {
+  if(!window.speechSynthesis) { if(onEnd) onEnd(); return; }
+  if(!voiceReady) { pendingSpeak = text; if(onEnd) setTimeout(onEnd, 2000); return; }
+  window.speechSynthesis.cancel();
+  var utt = new SpeechSynthesisUtterance(text);
+  var langCode = LANG_CODES[curLang] || "de-DE";
+  utt.lang = langCode;
+  utt.rate = curLang==="zh"||curLang==="ja" ? 0.8 : 0.92;
+  utt.pitch = 1.0;
+  var voice = getBestVoice(langCode);
+  if(voice) utt.voice = voice;
+  if(onEnd) { utt.onend = onEnd; utt.onerror = onEnd; }
+  // Android/iOS: Verzoegerung + resume() falls paused
+  setTimeout(function(){
+    if(window.speechSynthesis.paused) window.speechSynthesis.resume();
+    window.speechSynthesis.speak(utt);
+  }, 150);
+}
+
+function stopSpeak() {
+  if(window.speechSynthesis) window.speechSynthesis.cancel();
+}
+
+// Vorlesen-Button Zustand
+var isSpeaking = false;
+function toggleSpeak(text, btn) {
+  if(window.speechSynthesis && window.speechSynthesis.speaking) {
+    stopSpeak(); if(btn) btn.textContent="▶"; return;
+  }
+  speak(text, function(){ if(btn) btn.textContent="▶"; });
+  if(btn) btn.textContent="⏹";
+}
+
+function initAI() {
+  var welcome = tx("ai_welcome");
+  addMsg(welcome, "bot", false); // false = nicht automatisch sprechen, wir steuern selbst
+
+  var followUp = {
+    de:"Was möchtest du über Burano wissen?",
+    en:"What would you like to know about Burano?",
+    it:"Cosa vuoi sapere su Burano?",
+    fr:"Que souhaitez-vous savoir sur Burano?",
+    es:"¿Qué quieres saber sobre Burano?",
+    ja:"ブラーノについて何を知りたいですか？",
+    zh:"您想了解布拉诺的什么？",
+    pl:"Co chcesz wiedzieć o Burano?"
+  };
+
+  // Begruessung vorlesen → dann Folgefrage
+  speak(welcome, function() {
+    setTimeout(function() {
+      var q = followUp[curLang] || followUp.de;
+      addMsg(q, "bot", false);
+      speak(q);
+    }, 600);
+  });
+
+  if(!apiKey){
+    setTimeout(function(){
+      addMsg("💡 API-Key im Admin eintragen für smarte Antworten.", "bot", false);
+      document.getElementById("aikey").style.display="flex";
+    }, 5000);
+  }
+  aiHist=[{role:"user",content:"Greet me and tell me about Burano briefly."},{role:"assistant",content:welcome}];
+}
+function addMsg(txt, who, autoSpeak) {
+  var d = document.createElement("div");
+  d.className = "msg " + who;
+  var span = document.createElement("span");
+  span.textContent = txt;
+  d.appendChild(span);
+
+  if(who === "bot") {
+    // Vorlesen-Button
+    var btn = document.createElement("button");
+    btn.textContent = "▶";
+    btn.title = "Vorlesen";
+    btn.style.cssText = "background:rgba(255,255,255,.15);border:none;border-radius:50%;width:24px;height:24px;cursor:pointer;font-size:.7rem;margin-left:8px;vertical-align:middle;flex-shrink:0;";
+    btn.onclick = function(e) { e.stopPropagation(); toggleSpeak(txt, btn); };
+    d.appendChild(btn);
+
+    // Automatisch vorlesen wenn autoSpeak nicht false
+    if(autoSpeak !== false) {
+      speak(txt);
+    }
+  }
+
+  var c = document.getElementById("aimsgs");
+  c.appendChild(d);
+  c.scrollTop = c.scrollHeight;
+  return d;
+}
+// ════════════════════════════════════════════════════
+// MIKROFON - 10s offen, grosser Button, Timer
+// ════════════════════════════════════════════════════
+var micRecognition = null;
+var micActive      = false;
+var micTimer       = null;
+var micSeconds     = 0;
+var MIC_DURATION   = 12; // Sekunden offen
+
+var MIC_HINTS = {
+  de: ["Tippen um Marco zu fragen","Mikrofon: Frage sprechen","Hoere zu..."],
+  en: ["Tap to ask Marco","Microphone: ask your question","Listening..."],
+  it: ["Tocca per chiedere a Marco","Microfono: parla","Ascolto..."],
+  fr: ["Appuyez pour demander","Microphone: posez votre question","Ecoute..."],
+  es: ["Toca para preguntar","Microfono: haz tu pregunta","Escuchando..."],
+  ja: ["タップしてマルコに質問","マイク: 話してください","聞いています..."],
+  zh: ["点击向Marco提问","麦克风: 请说话","正在听..."],
+  pl: ["Nacisnij aby zapytac","Mikrofon: zadaj pytanie","Slucham..."]
+};
+
+function getMicHints() { return MIC_HINTS[curLang] || MIC_HINTS.de; }
+
+function toggleMic() {
+  if(micActive) { stopMic(); return; }
+  startMic();
+}
+
+function startMic() {
+  var SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if(!SR) {
+    addMsg("Mikrofon nicht verfuegbar. Bitte Text eingeben.", "bot", false);
+    setMicHint(getMicHints()[0]);
+    return;
+  }
+  unlockTTS();
+  stopSpeak();
+
+  micRecognition = new SR();
+  micRecognition.lang = ({"de":"de-DE","en":"en-US","it":"it-IT","fr":"fr-FR","es":"es-ES","ja":"ja-JP","zh":"zh-CN","pl":"pl-PL"})[curLang] || "de-DE";
+  micRecognition.continuous     = true;  // kontinuierlich hoeren
+  micRecognition.interimResults = true;  // Zwischenergebnisse anzeigen
+
+  micRecognition.onstart = function() {
+    micActive = true;
+    micSeconds = MIC_DURATION;
+    setMicActive(true);
+    startMicTimer();
+  };
+
+  micRecognition.onresult = function(e) {
+    // Letztes Ergebnis nehmen
+    var last = e.results[e.results.length-1];
+    var transcript = last[0].transcript.trim();
+    if(!transcript) return;
+    var inp = document.getElementById("aiinp");
+    if(inp) inp.value = transcript;
+    // Wenn finales Ergebnis: sofort senden
+    if(last.isFinal) {
+      stopMic();
+      setTimeout(sendAI, 200);
+    } else {
+      // Zwischenergebnis: Timer auf 5s zuruecksetzen (noch hoert zu)
+      micSeconds = Math.max(micSeconds, 5);
+    }
+  };
+
+  micRecognition.onerror = function(e) {
+    stopMic();
+    if(e.error==="not-allowed"||e.error==="permission-denied") {
+      addMsg("Mikrofon gesperrt. Android Chrome: Einstellungen > Datenschutz > Website-Einstellungen > Mikrofon > shop.myburano.com > Erlauben", "bot", false);
+    } else if(e.error==="no-speech") {
+      // Kein Fehler anzeigen - Timer laeuft weiter
+      setMicHint(getMicHints()[2]);
+    } else if(e.error==="network") {
+      addMsg("Netzwerkfehler. WLAN pruefen.", "bot", false);
+    }
+  };
+
+  micRecognition.onend = function() {
+    // Wenn noch aktiv: neu starten (kontinuierliches Hoeren)
+    if(micActive && micSeconds > 0) {
+      try { micRecognition.start(); } catch(e) {}
+    } else {
+      stopMic();
+    }
+  };
+
+  try { micRecognition.start(); }
+  catch(e) { stopMic(); addMsg("Mikrofon-Fehler: "+e.message,"bot",false); }
+}
+
+function startMicTimer() {
+  clearInterval(micTimer);
+  micTimer = setInterval(function() {
+    micSeconds--;
+    var btn = document.getElementById("mic_big_btn");
+    var timerEl = document.getElementById("mic_timer");
+    if(timerEl) {
+      if(micSeconds > 0) {
+        timerEl.textContent = micSeconds + "s";
+        timerEl.style.color = micSeconds<=3 ? "var(--red)" : "var(--gold)";
+      } else {
+        timerEl.textContent = "";
+      }
+    }
+    if(micSeconds <= 0) {
+      stopMic();
+    }
+  }, 1000);
+}
+
+function setMicActive(active) {
+  var btn  = document.getElementById("mic_big_btn");
+  var hint = document.getElementById("mic_hint");
+  if(btn) {
+    if(active) {
+      btn.classList.add("active");
+      btn.innerHTML = "&#9209;"; // Stop-Symbol
+    } else {
+      btn.classList.remove("active");
+      btn.innerHTML = "&#127908;"; // Mikrofon
+    }
+  }
+  if(hint) hint.textContent = active ? getMicHints()[2] : getMicHints()[0];
+  var timerEl = document.getElementById("mic_timer");
+  if(timerEl && !active) timerEl.textContent = "";
+}
+
+function setMicHint(text) {
+  var el = document.getElementById("mic_hint");
+  if(el) el.textContent = text;
+}
+
+function stopMic() {
+  micActive = false;
+  clearInterval(micTimer);
+  if(micRecognition) { try{ micRecognition.stop(); }catch(e){} micRecognition=null; }
+  setMicActive(false);
+}
+
+function sendAI() {
+  var inp = document.getElementById("aiinp");
+  var msg = inp ? inp.value.trim() : "";
+  if(!msg) return;
+  if(inp) inp.value = "";
+  addMsg(msg, "usr", false);
+  aiHist.push({role:"user", content:msg});
+
+  // Typing-Indikator (animiert)
+  var typingEl = document.createElement("div");
+  typingEl.className = "msg bot";
+  typingEl.innerHTML = "<span class='typing-dots'><span>.</span><span>.</span><span>.</span></span>";
+  var msgs = document.getElementById("aimsgs");
+  msgs.appendChild(typingEl);
+  msgs.scrollTop = msgs.scrollHeight;
+
+  apiKey = getApiKey();
+  if(!apiKey) {
+    typingEl.innerHTML = "Bitte API-Key im Admin-Bereich eintragen (ganz unten auf der Seite).";
+    document.getElementById("aikey").style.display = "flex";
+    return;
+  }
+
+  // Timeout nach 20 Sekunden
+  var timedOut = false;
+  var timer = setTimeout(function() {
+    timedOut = true;
+    typingEl.innerHTML = "Zeituberschreitung - bitte nochmal versuchen.";
+  }, 20000);
+
+  var reqBody = JSON.stringify({
+    model: "claude-haiku-4-5-20251001",
+    max_tokens: 400,
+    system: "Du bist Marco, freundlicher Reiseguide fuer Burano (Lagune Venedig). Antworte KURZ in der Sprache des Nutzers. Max 3 Saetze. Stelle danach eine kurze Folgefrage. Empfiehl den Burano Shop: Fotos 0,99 EUR, Postkarten 0,99 EUR, Videos ab 3,99 EUR, Ferienwohnungen myburano.com.",
+    messages: aiHist.slice(-6)
+  });
+
+  // Versuche direkte Anthropic API (funktioniert wenn CORS erlaubt)
+  // Proxy-URL (Cloudflare Worker) oder direkt
+  // Proxy fest eingebaut (Cloudflare Worker - CORS Fix)
+  var apiUrl = "https://blue-lagune-proxy.friesh.workers.dev";
+  var headers = {
+    "Content-Type": "application/json",
+    "anthropic-version": "2023-06-01",
+    "x-api-key": apiKey
+  };
+
+  fetch(apiUrl, {method:"POST", headers:headers, body:reqBody})
+  .then(function(r) {
+    clearTimeout(timer);
+    if(timedOut) return;
+    return r.json().then(function(d) {
+      if(d.error) throw new Error(d.error.message || "API Fehler");
+      var reply = (d.content && d.content[0] && d.content[0].text) || "";
+      if(!reply) throw new Error("Leere Antwort");
+      if(typingEl.parentNode) typingEl.parentNode.removeChild(typingEl);
+      addMsg(reply, "bot", true);
+      aiHist.push({role:"assistant", content:reply});
+    });
+  })
+  .catch(function(err) {
+    clearTimeout(timer);
+    if(timedOut) return;
+    console.error("API Fehler:", err.message);
+    // CORS-Fehler? Zeige hilfreiche Meldung
+    var errMsg = err.message || "";
+    if(errMsg.indexOf("Failed to fetch") > -1 || errMsg.indexOf("NetworkError") > -1 || errMsg.indexOf("CORS") > -1) {
+      typingEl.innerHTML = "CORS-Fehler: Der Browser blockiert den API-Aufruf.<br><small>Loesung: Cloudflare Worker einrichten (siehe unten)</small>";
+    } else if(errMsg.indexOf("401") > -1 || errMsg.indexOf("authentication") > -1) {
+      typingEl.innerHTML = "API-Key ungueltig. Bitte neuen Key eingeben:";
+      document.getElementById("aikey").style.display = "flex";
+    } else {
+      typingEl.innerHTML = "Fehler: " + errMsg + ". Bitte nochmal versuchen.";
+    }
+  });
+}
+function svKeyW() {
+  var k=document.getElementById("aikeyfld").value.trim();
+  if(k.length > 10){ // sk-ant-... oder anderes Format
+    apiKey=k;
+    localStorage.setItem("bl_api_key",k);
+    document.getElementById("aikey").style.display="none";
+    addMsg("✅ API-Key gespeichert! Stelle mir deine Frage.", "bot", false);
+  } else {
+    addMsg("⚠️ Bitte vollständigen API-Key eingeben (beginnt mit sk-ant-).", "bot", false);
+  }
+}
+
+// ADMIN
+function toggleAdmin(){
+  var p=document.getElementById("admpnl");
+  if(!p){alert("Admin-Panel nicht gefunden!");return;}
+  p.style.display=(p.style.display===""||p.style.display==="none")?"block":"none";
+  if(p.style.display==="block") p.scrollIntoView({behavior:"smooth"});
+}
+function chkPw(){
+  if(document.getElementById("apw").value===APWD){
+    document.getElementById("apwscr").style.display="none";
+    document.getElementById("acnt").style.display="block"; loadAdm();
+  }else{document.getElementById("pwerr").style.display="block";document.getElementById("apw").value="";}
+}
+function loadAdm(){
+  var __el=document.getElementById("ss");if(__el)__el.textContent=stats.s;
+  var __el=document.getElementById("sr");if(__el)__el.textContent=parseFloat(stats.r||0).toFixed(2)+" EUR";
+  var __el=document.getElementById("sp");if(__el)__el.textContent=partners.length;
+  document.getElementById("p1").value=prices.f1;
+  document.getElementById("p10").value=prices.f10;
+  document.getElementById("pvs").value=prices.vs;
+  document.getElementById("pvp").value=prices.vp;
+  document.getElementById("ppem").value=ppe;
+  document.getElementById("apiinp").value=apiKey?"(gespeichert)":"";
+  rAdmPart();
+  renderAdminPartnerExt();
+  renderAdminPhotoList();
+}
+function rAdmPart(){
+  var _aplst=document.getElementById("aplst"); if(_aplst) _aplst.innerHTML=partners.map(function(p,i){
+    return "<div class='pitem'><div><div class='pnm'>"+p.name+"</div><div class='ptp'>"+p.code+" - "+p.coupon+"%</div></div>"+
+      "<div style='display:flex;align-items:center;gap:7px'><span class='prv'>"+p.prov+"%</span>"+
+      "<button class='xbtn' onclick='rmPart("+i+")'>x</button></div></div>";
+  }).join("")||"<p style='opacity:.4;padding:7px'>Keine Partner</p>";
+}
+function addPart(){
+  var n=document.getElementById("npn").value.trim();
+  if(!n){alert("Name fehlt!");return;}
+  partners.push({id:Date.now(),name:n,type:document.getElementById("npt").value,
+    prov:parseFloat(document.getElementById("npp").value)||5,
+    coupon:parseFloat(document.getElementById("npc").value)||10,
+    code:document.getElementById("npcd").value.trim()||("BUR"+Date.now().toString(36).slice(-4).toUpperCase())});
+  localStorage.setItem("bl_partners",JSON.stringify(partners));
+  rAdmPart(); renderPart(); document.getElementById("npn").value="";
+}
+function rmPart(i){
+  if(!confirm("Entfernen?"))return;
+  partners.splice(i,1); localStorage.setItem("bl_partners",JSON.stringify(partners));
+  rAdmPart(); renderPart();
+}
+function svPrices(){
+  prices.f1=parseFloat(document.getElementById("p1").value)||0.99;
+  prices.f10=parseFloat(document.getElementById("p10").value)||4.99;
+  prices.vs=parseFloat(document.getElementById("pvs").value)||3.99;
+  prices.vp=parseFloat(document.getElementById("pvp").value)||5.99;
+  localStorage.setItem("bl_prices",JSON.stringify(prices)); alert("Preise gespeichert!");
+}
+function svPP(){ppe=document.getElementById("ppem").value.trim();localStorage.setItem("bl_paypal",ppe);alert("PayPal gespeichert!");}
+function svKey(){var k=document.getElementById("apiinp").value.trim();if(k&&k.indexOf("gespeichert")<0){apiKey=k;localStorage.setItem("bl_api_key",k);alert("API-Key gespeichert!!");}}
+function lgout(){document.getElementById("acnt").style.display="none";document.getElementById("apwscr").style.display="block";document.getElementById("apw").value="";document.getElementById("admpnl").style.display="none";}
+
+// SCROLL REVEAL
+var sio=new IntersectionObserver(function(entries){
+  entries.forEach(function(e){if(e.isIntersecting)e.target.classList.add("vis");});
+},{threshold:0.07});
+document.querySelectorAll(".rev").forEach(function(el){sio.observe(el);});
+
+// KEYBOARD
+document.getElementById("aiinp").addEventListener("keydown",function(e){if(e.key==="Enter")sendAI();});
+
+// INIT
+// ============================================================
+// MAP (Leaflet.js)
+// ============================================================
+var map = null;
+var userMarker = null;
+var userLatLng = null;
+
+// Burano Orte
+var LOCATIONS = {
+  terra_nova: {lat:45.4848, lng:12.4173, name:"Terra Nova 112 - Burano Shop"},
+  burano_center:{lat:45.4851, lng:12.4162, name:"Piazza Galuppi, Burano"},
+  mazzorbo:   {lat:45.4874, lng:12.4043, name:"Mazzorbo"},
+  torcello:   {lat:45.4969, lng:12.4167, name:"Torcello - Dom"}
+};
+
+function initMap() {
+  if(typeof L === "undefined") { setTimeout(initMap, 500); return; } // Leaflet noch nicht geladen
+  if(map || !document.getElementById("map")) return;
+  map = L.map("map").setView([45.4851, 12.4162], 14);
+  L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+    attribution: "OpenStreetMap",
+    maxZoom: 19
+  }).addTo(map);
+  // Burano Marker
+  var buranoIcon = L.divIcon({className:"", html:"<div style='background:#FFD23F;border:3px solid #0A1628;border-radius:50%;width:14px;height:14px'></div>", iconSize:[14,14]});
+  Object.values(LOCATIONS).forEach(function(loc) {
+    L.marker([loc.lat, loc.lng], {icon:buranoIcon})
+      .addTo(map)
+      .bindPopup("<b>" + loc.name + "</b>");
+  });
+}
+
+function locateUser() {
+  if(!navigator.geolocation) { alert("Standort nicht verfuegbar"); return; }
+  navigator.geolocation.getCurrentPosition(function(pos) {
+    userLatLng = {lat: pos.coords.latitude, lng: pos.coords.longitude};
+    if(!map) initMap();
+    if(userMarker) map.removeLayer(userMarker);
+    var userIcon = L.divIcon({className:"", html:"<div style='background:#2196F3;border:3px solid #fff;border-radius:50%;width:16px;height:16px;box-shadow:0 0 0 3px rgba(33,150,243,.3)'></div>", iconSize:[16,16]});
+    userMarker = L.marker([userLatLng.lat, userLatLng.lng], {icon:userIcon})
+      .addTo(map)
+      .bindPopup("Du bist hier").openPopup();
+    map.setView([userLatLng.lat, userLatLng.lng], 15);
+    document.getElementById("route_btn").style.display = "block";
+  }, function() { alert("Standort konnte nicht ermittelt werden. Bitte Standort-Zugriff erlauben."); });
+}
+
+function showRoute() {
+  if(!userLatLng) { locateUser(); return; }
+  var dest = LOCATIONS.terra_nova;
+  // Entfernung berechnen (Haversine)
+  var R = 6371000;
+  var dLat = (dest.lat - userLatLng.lat) * Math.PI/180;
+  var dLng = (dest.lng - userLatLng.lng) * Math.PI/180;
+  var a = Math.sin(dLat/2)*Math.sin(dLat/2) + Math.cos(userLatLng.lat*Math.PI/180)*Math.cos(dest.lat*Math.PI/180)*Math.sin(dLng/2)*Math.sin(dLng/2);
+  var dist = Math.round(R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)));
+  var distStr = dist < 1000 ? dist + " m" : (dist/1000).toFixed(1) + " km";
+  document.getElementById("route_info").style.display = "block";
+  var _ri=document.getElementById("route_info"); if(_ri){_ri.style.display="block";_ri.innerHTML="<b>Terra Nova 112, Burano</b><br>Entfernung: <b>" + distStr + "</b><br><small style='opacity:.6'>Tipp: Vaporetto-Linie 12 ab Fondamente Nove</small><br><a href='https://www.google.com/maps/dir/"+userLatLng.lat+","+userLatLng.lng+"/"+dest.lat+","+dest.lng+"' target='_blank' style='color:var(--teal)'>In Google Maps oeffnen</a>";}
+  // Linie auf Map
+  if(map) {
+    L.polyline([[userLatLng.lat,userLatLng.lng],[dest.lat,dest.lng]], {color:"#FFD23F",weight:3,dashArray:"8,6"}).addTo(map);
+    map.fitBounds([[userLatLng.lat,userLatLng.lng],[dest.lat,dest.lng]], {padding:[30,30]});
+  }
+}
+
+function showPartnerRoute(lat, lng, name) {
+  if(!map) initMap();
+  document.getElementById("map_section").scrollIntoView({behavior:"smooth"});
+  setTimeout(function(){
+    if(!map) return;
+    if(userLatLng) {
+      L.polyline([[userLatLng.lat,userLatLng.lng],[lat,lng]], {color:"var(--teal)",weight:3,dashArray:"6,5"}).addTo(map);
+      map.fitBounds([[userLatLng.lat,userLatLng.lng],[lat,lng]], {padding:[30,30]});
+    } else {
+      map.setView([lat,lng], 16);
+    }
+    var icon = L.divIcon({className:"", html:"<div style='background:var(--org);border:3px solid #fff;border-radius:50%;width:16px;height:16px'></div>", iconSize:[16,16]});
+    L.marker([lat,lng],{icon:icon}).addTo(map).bindPopup("<b>"+name+"</b>").openPopup();
+  }, 600);
+}
+
+// ============================================================
+// WETTER (open-meteo.com - kostenlos, kein Key)
+// ============================================================
+function loadWeather() {
+  var lat = 45.4851, lng = 12.4162; // Burano
+  fetch("https://api.open-meteo.com/v1/forecast?latitude="+lat+"&longitude="+lng+"&current=temperature_2m,weathercode,windspeed_10m,relativehumidity_2m&timezone=Europe/Rome")
+  .then(function(r){ return r.json(); })
+  .then(function(d) {
+    var c = d.current;
+    var WX = {0:"Klar",1:"Ueberwiegend klar",2:"Teils bewoelkt",3:"Bewoelkt",45:"Nebel",48:"Nebel",51:"Leichter Niesel",53:"Niesel",61:"Leichter Regen",63:"Regen",71:"Leichter Schnee",73:"Schnee",80:"Regenschauer",81:"Regenschauer",95:"Gewitter",96:"Gewitter"};
+    var ICONS_WX = {0:"&#9728;&#65039;",1:"&#127780;&#65039;",2:"&#9925;",3:"&#9729;",45:"&#127787;&#65039;",48:"&#127787;&#65039;",51:"&#127746;",53:"&#127746;",61:"&#127783;&#65039;",63:"&#127783;&#65039;",71:"&#127784;&#65039;",73:"&#127784;&#65039;",80:"&#127783;&#65039;",81:"&#127783;&#65039;",95:"&#9928;&#65039;",96:"&#9928;&#65039;"};
+    var code = c.weathercode;
+    var wxIcon=document.getElementById("wx_icon"),
+        wxTemp=document.getElementById("wx_temp"),
+        wxDesc=document.getElementById("wx_desc"),
+        wxExt=document.getElementById("wx_extra"),
+        wxTime=document.getElementById("wx_time");
+    if(wxIcon) wxIcon.innerHTML = ICONS_WX[code] || "&#127780;";
+    if(wxTemp) wxTemp.textContent = Math.round(c.temperature_2m) + " C - Burano, Venezia";
+    if(wxDesc) wxDesc.textContent = WX[code] || "Aktuelles Wetter";
+    if(wxExt)  wxExt.textContent = "Wind: " + Math.round(c.windspeed_10m) + " km/h  |  Feuchte: " + c.relativehumidity_2m + "%";
+    if(wxTime) wxTime.textContent = "Aktualisiert: " + new Date().toLocaleTimeString();
+  }).catch(function() {
+    var __el=document.getElementById("wx_temp");if(__el)__el.textContent="Wetter nicht verfuegbar";
+  });
+}
+
+// ============================================================
+// VIDEO ADMIN
+// ============================================================
+function loadVideoThumb(input, vidId) {
+  if(!input.files || !input.files[0]) return;
+  var file = input.files[0];
+  var reader = new FileReader();
+  reader.onload = function(e) {
+    var data = e.target.result;
+    var thumb = document.getElementById(vidId + "_thumb");
+    if(file.type.startsWith("image/")) {
+      thumb.innerHTML = "<img src='"+data+"' style='width:100%;height:100%;object-fit:cover;border-radius:8px'>";
+      localStorage.setItem("bl_"+vidId+"_thumb", data);
+    } else {
+      if(thumb) thumb.innerHTML = "&#127909; Video gewaehlt";
+      localStorage.setItem("bl_"+vidId+"_file", data);
+    }
+  };
+  reader.readAsDataURL(file);
+}
+
+function saveVideos() {
+  var p1 = document.getElementById("vid1_price");
+  var p2 = document.getElementById("vid2_price");
+  if(p1) localStorage.setItem("bl_vid1_price", p1.value);
+  if(p2) localStorage.setItem("bl_vid2_price", p2.value);
+  // Video-Vorschaubilder in Shop-Sektion anzeigen
+  updateVideoThumbs();
+  renderAdminPhotoList();
+  alert("Videos gespeichert!");
+}
+
+function updateVideoThumbs() {
+  var t1 = localStorage.getItem("bl_vid1_thumb");
+  var t2 = localStorage.getItem("bl_vid2_thumb");
+  var v1El = document.getElementById("vico1_img");
+  var v2El = document.getElementById("vico2_img");
+  if(t1 && v1El) v1El.innerHTML = "<img src='"+t1+"' style='width:100%;max-height:120px;object-fit:cover;border-radius:10px;margin-bottom:8px'>";
+  if(t2 && v2El) v2El.innerHTML = "<img src='"+t2+"' style='width:100%;max-height:120px;object-fit:cover;border-radius:10px;margin-bottom:8px'>";
+}
+
+// ============================================================
+// INSEL FOTOS (Mazzorbo / Torcello)
+// ============================================================
+var islandPhotos = {mazz:null, torc:null};
+
+function loadIslandPhoto(input, island) {
+  if(!input.files || !input.files[0]) return;
+  var reader = new FileReader();
+  reader.onload = function(e) {
+    islandPhotos[island] = e.target.result;
+    var _ip=document.getElementById(island+"_prev"); if(_ip) _ip.innerHTML = "<img src='"+e.target.result+"' style='width:100%;height:100%;object-fit:cover;border-radius:8px'>";
+  };
+  reader.readAsDataURL(input.files[0]);
+}
+
+function saveIslandPhotos() {
+  if(islandPhotos.mazz) {
+    // Array-Speicherung fuer Laufband
+    var mArr=[];try{mArr=JSON.parse(localStorage.getItem("bl_mazz_photos")||"[]");}catch(e){}
+    mArr.push(islandPhotos.mazz);
+    try{localStorage.setItem("bl_mazz_photos",JSON.stringify(mArr));}catch(e){}
+    var el = document.getElementById("mazz_photo");
+    if(el) el.innerHTML = "<img src='"+islandPhotos.mazz+"' style='width:100%;height:160px;object-fit:cover'>";
+    if(typeof buildIslandStrip==="function") buildIslandStrip("mazz_strip","bl_mazz_photos");
+  }
+  if(islandPhotos.torc) {
+    var tArr=[];try{tArr=JSON.parse(localStorage.getItem("bl_torc_photos")||"[]");}catch(e){}
+    tArr.push(islandPhotos.torc);
+    try{localStorage.setItem("bl_torc_photos",JSON.stringify(tArr));}catch(e){}
+    var el2 = document.getElementById("torc_photo");
+    if(el2) el2.innerHTML = "<img src='"+islandPhotos.torc+"' style='width:100%;height:160px;object-fit:cover'>";
+  }
+  if(typeof buildIslandStrip==="function"){buildIslandStrip("mazz_strip","bl_mazz_photos");buildIslandStrip("torc_strip","bl_torc_photos");}
+    alert("Insel-Fotos gespeichert!");
+}
+
+// ============================================================
+// PARTNER ADMIN (Erweiterung: Foto + Location)
+// ============================================================
+function renderAdminPartnerExt() {
+  var el = document.getElementById("admin_partner_ext");
+  if(!el) return;
+  if(!partners.length) { el.innerHTML = "<p style='opacity:.4;font-size:.82rem'>Noch keine Partner.</p>"; return; }
+  el.innerHTML = partners.map(function(p,i) {
+    return "<div style='border-bottom:1px solid rgba(255,255,255,.08);padding:10px 0'>" +
+      "<div style='font-weight:700;margin-bottom:6px'>" + p.name + "</div>" +
+      "<div style='display:flex;gap:8px;flex-wrap:wrap'>" +
+      "<label style='cursor:pointer;background:rgba(255,255,255,.1);border-radius:8px;padding:5px 10px;font-size:.75rem'>Foto <input type='file' accept='image/*' style='display:none' onchange='loadPartnerPhoto(this,"+i+")'></label>" +
+      "<input type='number' placeholder='Lat' step='0.0001' value='"+(p.lat||"")+"' id='p_lat_"+i+"' style='width:90px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.15);border-radius:8px;padding:5px 8px;color:#fff;font-size:.75rem;outline:none'>" +
+      "<input type='number' placeholder='Lng' step='0.0001' value='"+(p.lng||"")+"' id='p_lng_"+i+"' style='width:90px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.15);border-radius:8px;padding:5px 8px;color:#fff;font-size:.75rem;outline:none'>" +
+      "<button onclick='savePartnerLocation("+i+")' style='background:var(--teal);border:none;border-radius:8px;padding:5px 10px;color:#fff;font-size:.75rem;cursor:pointer;font-family:Nunito,sans-serif'>Speichern</button>" +
+      "</div></div>";
+  }).join("");
+}
+
+function loadPartnerPhoto(input, idx) {
+  if(!input.files || !input.files[0]) return;
+  var reader = new FileReader();
+  reader.onload = function(e) {
+    partners[idx].photo = e.target.result;
+    localStorage.setItem("bl_partners", JSON.stringify(partners));
+    renderPart();
+    renderAdminPartnerExt();
+  };
+  reader.readAsDataURL(input.files[0]);
+}
+
+function savePartnerLocation(idx) {
+  var lat = parseFloat(document.getElementById("p_lat_"+idx).value);
+  var lng = parseFloat(document.getElementById("p_lng_"+idx).value);
+  if(!isNaN(lat) && !isNaN(lng)) {
+    partners[idx].lat = lat;
+    partners[idx].lng = lng;
+    localStorage.setItem("bl_partners", JSON.stringify(partners));
+    renderPart();
+    alert("Standort fuer " + partners[idx].name + " gespeichert!");
+  }
+}
+
+
+// == DRAG & DROP GALERIE ==
+var dragSrcKey = null;
+function dragStart(e) {
+  dragSrcKey = e.currentTarget.getAttribute("data-key");
+  e.currentTarget.style.opacity = "0.4";
+  e.dataTransfer.effectAllowed = "move";
+}
+function dragOver(e) {
+  e.preventDefault();
+  e.currentTarget.style.borderColor = "var(--gold)";
+}
+function dragEnd(e) {
+  e.currentTarget.style.opacity = "1";
+  document.querySelectorAll(".gi").forEach(function(el){ el.style.borderColor="transparent"; });
+}
+function dropPhoto(e) {
+  e.preventDefault();
+  var targetKey = e.currentTarget.getAttribute("data-key");
+  if(dragSrcKey && targetKey && dragSrcKey !== targetKey) {
+    var si = galleryOrder.indexOf(dragSrcKey);
+    var ti = galleryOrder.indexOf(targetKey);
+    if(si>-1 && ti>-1) {
+      galleryOrder.splice(si, 1);
+      galleryOrder.splice(ti, 0, dragSrcKey);
+      localStorage.setItem("bl_gallery_order", JSON.stringify(galleryOrder));
+      renderGallery();
+    }
+  }
+  dragSrcKey = null;
+}
+
+
+function renderPart() {
+  var grid = document.getElementById("pargrid"); if(!grid) return;
+  var p=[]; try{p=JSON.parse(localStorage.getItem("bl_partners")||"[]");}catch(e){}
+  if(!p.length){grid.innerHTML="<p style='opacity:.4'>Noch keine Partner.</p>";return;}
+  grid.innerHTML=p.map(function(x){
+    var ph=x.photo?"<img src='"+x.photo+"' style='width:100%;height:90px;object-fit:cover;border-radius:10px;margin-bottom:8px'>":"";
+    var nav=(x.lat&&x.lng)?"<button onclick='showPartnerRoute("+x.lat+","+x.lng+",\'"+x.name+"\')'  style='background:var(--teal);border:none;border-radius:8px;padding:5px 10px;color:#fff;font-size:.75rem;cursor:pointer;font-family:Nunito,sans-serif;width:100%;margin-top:6px'>Route</button>":"";
+    return "<div class='ptcard'>"+ph+"<h3>"+x.name+"</h3><div class='cpn'>"+x.coupon+"% Rabatt</div>"+nav+"</div>";
+  }).join("");
+}
+function setRental(){
+  var r1=document.getElementById("t_r1"),r2=document.getElementById("t_r2");
+  if(r1)r1.textContent=localStorage.getItem("bl_r1_name")||"Blue Lagune";
+  if(r2)r2.textContent=localStorage.getItem("bl_r2_name")||"Vista Laguna";
+}
+function genQR(){
+  var el=document.getElementById("qrcode");
+  if(!el||el.innerHTML.trim()||typeof QRCode==="undefined")return;
+  try{new QRCode(el,{text:window.location.href,width:160,height:160,colorDark:"#0A1628",colorLight:"#ffffff"});}catch(e){}
+}
+
+window.addEventListener("load", function() {
+  // Aktiven Sprachbutton setzen
+  var activeLb = document.getElementById("lb_" + curLang);
+  if (activeLb) activeLb.classList.add("on");
+  else document.getElementById("lb_de").classList.add("on");
+
+  // Test-Modus Status wiederherstellen
+
+  var tm = document.getElementById("testmode");
+  if(tm){
+    var isTest = localStorage.getItem("bl_testmode")==="1";
+    tm.checked = isTest;
+    var lbl = document.getElementById("tm_lbl");
+    var knob = document.getElementById("tm_knob");
+    var slider = document.getElementById("tm_slider");
+    if(lbl){ lbl.textContent=isTest?"EIN":"AUS"; lbl.style.color=isTest?"#4CAF50":"rgba(255,255,255,.7)"; }
+    if(knob) knob.style.transform = isTest?"translateX(24px)":"";
+    if(slider) slider.style.background = isTest?"#4CAF50":"rgba(255,255,255,.2)";
+    tm.onchange = function(){
+      var on=this.checked;
+      localStorage.setItem("bl_testmode",on?"1":"0");
+      if(lbl){ lbl.textContent=on?"EIN":"AUS"; lbl.style.color=on?"#4CAF50":"rgba(255,255,255,.7)"; }
+      if(knob) knob.style.transform = on?"translateX(24px)":"";
+      if(slider) slider.style.background = on?"#4CAF50":"rgba(255,255,255,.2)";
+    };
+  }
+  initVoices();
+  applyTxt();
+  updateGreetingSelect();
+  initHero();
+  // Map + Wetter
+  if(typeof L !== "undefined") initMap();
+  else setTimeout(initMap, 1000);
+  loadWeather();
+  setInterval(loadWeather, 600000); // alle 10 Min
+  // Video-Thumbnails laden
+  updateVideoThumbs();
+  renderAdminPhotoList();
+  // Insel-Fotos laden
+  var mazzPhoto = localStorage.getItem("bl_mazz_photo");
+  var torcPhoto = localStorage.getItem("bl_torc_photo");
+  if(mazzPhoto) { var el=document.getElementById("mazz_photo"); if(el) el.innerHTML="<img src='"+mazzPhoto+"' style='width:100%;height:160px;object-fit:cover'>"; }
+  if(torcPhoto) { var el2=document.getElementById("torc_photo"); if(el2) el2.innerHTML="<img src='"+torcPhoto+"' style='width:100%;height:160px;object-fit:cover'>"; }
+  renderGallery();
+  renderPart();
+  setRental();
+  genQR();
+  setTimeout(renderPC, 300);
+});
+
+
+
+
+
+
+</script>ipt>
+</body>
+<script src="format.js"></script>
+</html>

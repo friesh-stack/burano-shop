@@ -107,10 +107,19 @@ function renderFmtGallery(){
     items.forEach(function(item){
       var div=document.createElement("div");div.className="gi";
       div.setAttribute("data-fmt",fmt);
-      div.style.cssText="position:relative;overflow:hidden;cursor:pointer";
-      var img=document.createElement("img");img.src=item.src;img.loading="lazy";
-      img.style.cssText="width:100%;height:100%;object-fit:cover;display:block";div.appendChild(img);
-      var lbl=document.createElement("div");lbl.className="lbl";lbl.textContent=item.lbl;div.appendChild(lbl);
+      // Spacer für korrektes Seitenverhältnis auf allen Geräten
+      var ptMap={"4:3":"75","16:9":"56.25","3:4":"133.33","9:16":"177.78"};
+      var pt=(ptMap[fmt]||"75")+"%";
+      var spacer=document.createElement("div");
+      spacer.style.cssText="position:relative;width:100%;padding-top:"+pt+";";
+      var img=document.createElement("img");
+      img.src=item.src;img.loading="lazy";
+      img.style.cssText="position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;display:block;";
+      spacer.appendChild(img);
+      div.appendChild(spacer);
+      var lbl=document.createElement("div");lbl.className="lbl";
+      lbl.style.cssText="position:absolute;bottom:8px;right:8px;background:rgba(0,0,0,.7);color:#fff;font-size:.72rem;padding:3px 8px;border-radius:8px;pointer-events:none;";
+      lbl.textContent=item.lbl;spacer.appendChild(lbl);
       div.onclick=(function(l){return function(){if(typeof openMdl==="function")openMdl(l,0.99);};})(item.lbl);
       if(item.isCustom){
         var f2=item.fmt,i2=item.idx;div.draggable=true;
