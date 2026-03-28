@@ -656,7 +656,7 @@ footer strong{color:var(--gold);}
         </div>
       </div>
       <canvas id="pc_admin_preview" width="600" height="800" style="width:100%;border-radius:10px;display:none;margin-bottom:8px"></canvas>
-      <button class="abtn" onclick="savePcPhoto()" id="pc_save_btn" style="display:none">Foto speichern</button>
+      <button class="abtn" onclick="savePcPhoto()" id="pc_save_btn" style="display:none;margin-top:10px">&#128190; Foto speichern</button>
       <div style="margin-top:14px"><h4 style="color:var(--teal);font-size:.75rem;font-weight:900;letter-spacing:1px;text-transform:uppercase;margin-bottom:8px">Gespeicherte Fotos</h4><div id="admin_photo_list" style="background:rgba(255,255,255,.04);border-radius:10px;padding:10px;min-height:40px"></div></div>
     </div>
     <!-- GALERIE REIHENFOLGE -->
@@ -792,9 +792,28 @@ if("serviceWorker" in navigator){
 
 function loadPcPhoto(input) {
   if(!input.files || !input.files[0]) return;
-  if(typeof loadPcPhotoFile === "function") loadPcPhotoFile(input.files[0]);
-  var btn = document.getElementById("pc_save_btn");
-  if(btn) btn.style.display = "block";
+  var file = input.files[0];
+  // Vorschau sofort zeigen
+  var reader = new FileReader();
+  reader.onload = function(e) {
+    var prev = document.getElementById("pc_upload_preview");
+    if(prev) {
+      prev.innerHTML = "";
+      var img = document.createElement("img");
+      img.src = e.target.result;
+      img.style.cssText = "max-width:100%;max-height:160px;border-radius:8px;display:block;margin:0 auto";
+      prev.appendChild(img);
+    }
+    // Canvas zeigen
+    var cv = document.getElementById("pc_admin_preview");
+    if(cv) cv.style.display = "block";
+    // Speichern-Button zeigen
+    var btn = document.getElementById("pc_save_btn");
+    if(btn) { btn.style.display = "block"; btn.style.cssText += ";display:block!important"; }
+  };
+  reader.readAsDataURL(file);
+  // format.js Funktion aufrufen
+  if(typeof loadPcPhotoFile === "function") loadPcPhotoFile(file);
 }
 
 // ── GLOBALER ERROR-HANDLER ──
@@ -1473,7 +1492,7 @@ var micRecognition = null;
 var micActive      = false;
 var micTimer       = null;
 var micSeconds     = 0;
-var MIC_DURATION   = 12; // Sekunden offen
+var MIC_DURATION   = 12; // MAX 12 Sekunden // Sekunden offen
 
 var MIC_HINTS = {
   de: ["Tippen um Marco zu fragen","Mikrofon: Frage sprechen","Hoere zu..."],
@@ -1495,73 +1514,43 @@ function toggleMic() {
 
 function startMic() {
   var SR = window.SpeechRecognition || window.webkitSpeechRecognition;
-  if(!SR) {
-    addMsg("Mikrofon nicht verfuegbar. Bitte Text eingeben.", "bot", false);
-    setMicHint(getMicHints()[0]);
-    return;
-  }
-  unlockTTS();
-  stopSpeak();
-
+  if(!SR) { addMsg("Mikrofon nicht verfuegbar. Text eingeben.", "bot", false); return; }
+  unlockTTS(); stopSpeak();
+  if(micRecognition) { try{micRecognition.stop();}catch(e){} micRecognition=null; }
   micRecognition = new SR();
   micRecognition.lang = ({"de":"de-DE","en":"en-US","it":"it-IT","fr":"fr-FR","es":"es-ES","ja":"ja-JP","zh":"zh-CN","pl":"pl-PL"})[curLang] || "de-DE";
-  micRecognition.continuous     = true;  // kontinuierlich hoeren
-  micRecognition.interimResults = true;  // Zwischenergebnisse anzeigen
-
+  micRecognition.continuous = true;
+  micRecognition.interimResults = false;
   micRecognition.onstart = function() {
-    micActive = true;
-    micSeconds = MIC_DURATION;
-    setMicActive(true);
-    startMicTimer();
+    micActive = true; micSeconds = MIC_DURATION;
+    setMicActive(true); startMicTimer();
   };
-
   micRecognition.onresult = function(e) {
-    // Letztes Ergebnis nehmen
     var last = e.results[e.results.length-1];
-    var transcript = last[0].transcript.trim();
-    if(!transcript) return;
+    if(!last.isFinal) return;
+    var text = last[0].transcript.trim(); if(!text) return;
     var inp = document.getElementById("aiinp");
-    if(inp) inp.value = transcript;
-    // Wenn finales Ergebnis: sofort senden
-    if(last.isFinal) {
-      stopMic();
-      setTimeout(sendAI, 200);
-    } else {
-      // Zwischenergebnis: Timer auf 5s zuruecksetzen (noch hoert zu)
-      micSeconds = Math.max(micSeconds, 5);
-    }
+    if(inp) inp.value = text;
+    stopMic(); setTimeout(sendAI, 200);
   };
-
   micRecognition.onerror = function(e) {
-    stopMic();
     if(e.error==="not-allowed"||e.error==="permission-denied") {
-      addMsg("Mikrofon gesperrt. Android Chrome: Einstellungen > Datenschutz > Website-Einstellungen > Mikrofon > shop.myburano.com > Erlauben", "bot", false);
-    } else if(e.error==="no-speech") {
-      // Kein Fehler anzeigen - Timer laeuft weiter
-      setMicHint(getMicHints()[2]);
-    } else if(e.error==="network") {
-      addMsg("Netzwerkfehler. WLAN pruefen.", "bot", false);
-    }
-  };
-
-  micRecognition.onend = function() {
-    // Wenn noch aktiv: neu starten (kontinuierliches Hoeren)
-    if(micActive && micSeconds > 0) {
-      try { micRecognition.start(); } catch(e) {}
-    } else {
       stopMic();
+      addMsg("Mikrofon gesperrt. Browser-Einstellungen pruefen.", "bot", false);
     }
   };
-
-  try { micRecognition.start(); }
-  catch(e) { stopMic(); addMsg("Mikrofon-Fehler: "+e.message,"bot",false); }
+  micRecognition.onend = function() {
+    if(micActive && micSeconds > 1) { try { micRecognition.start(); } catch(e) { stopMic(); } }
+    else { stopMic(); }
+  };
+  try { micRecognition.start(); } catch(e) { stopMic(); addMsg("Mikrofon-Fehler: "+e.message,"bot",false); }
 }
 
 function startMicTimer() {
   clearInterval(micTimer);
   micTimer = setInterval(function() {
     micSeconds--;
-    if(micSeconds <= 0) stopMic();
+    if(micSeconds <= 0) { clearInterval(micTimer); stopMic(); }
   }, 1000);
 }
 

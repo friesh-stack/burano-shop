@@ -59,7 +59,9 @@ function loadPcPhotoFile(file){
       var prev=document.getElementById("pc_upload_preview");
       if(prev){prev.innerHTML="";var i=document.createElement("img");i.src=cropped;i.style.cssText="max-width:100%;max-height:160px;border-radius:8px;display:block;margin:0 auto";prev.appendChild(i);var inf=document.createElement("div");inf.style.cssText="font-size:.72rem;color:var(--gold);margin-top:6px;text-align:center;font-weight:700";inf.textContent=(FMTS[activeFmt]||{label:activeFmt}).label+" - bereit";prev.appendChild(inf);}
       var cv=document.getElementById("pc_admin_preview");if(cv){cv.width=cfg.w;cv.height=cfg.h;cv.style.display="block";}
-      var btn=document.getElementById("pc_save_btn");if(btn)btn.style.display="block";
+      // Button immer anzeigen - mehrfach sichern
+      var btn=document.getElementById("pc_save_btn");
+      if(btn){ btn.style.display="block"; btn.style.visibility="visible"; }
       if(typeof updatePcPreview==="function")updatePcPreview();
     });
   };reader.readAsDataURL(file);
