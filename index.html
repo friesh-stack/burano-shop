@@ -14,7 +14,7 @@
 <link rel="apple-touch-icon" sizes="512x512" href="icon-512.png">
 <!-- Fonts -->
 <link href="https://fonts.googleapis.com/css2?family=Pacifico&family=Nunito:wght@400;700;800;900&display=swap" rel="stylesheet">
-<script src="photos.js"></script></script>
+<script src="photos.js"></script>
 <style>
 :root{--bd:#0A1628;--bm:#0D2B5E;--bv:#1565C0;--gold:#FFD23F;--org:#FF6B35;--teal:#00C2C7;--grn:#4CAF50;--wh:#fff;}
 *{margin:0;padding:0;box-sizing:border-box;}html{scroll-behavior:smooth;}
@@ -71,17 +71,8 @@ body{font-family:'Nunito',sans-serif;background:var(--bd);color:var(--wh);overfl
 .btnPP{display:inline-block;background:linear-gradient(135deg,#009CDE,#003087);color:#fff;border:none;border-radius:50px;padding:12px 26px;font-size:.9rem;font-weight:800;cursor:pointer;font-family:'Nunito',sans-serif;box-shadow:0 4px 16px rgba(0,144,222,.35);transition:transform .2s;}
 .btnPP:hover{transform:scale(1.05);}
 /* GALLERY */
-.ggrid{display:grid;gap:12px;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));}
-#ggrid_f3{grid-template-columns:repeat(auto-fill,minmax(140px,1fr));}
-#ggrid_f4{grid-template-columns:repeat(auto-fill,minmax(110px,1fr));}
-@media(max-width:480px){#ggrid_f1,#ggrid_f2{grid-template-columns:repeat(2,1fr);}#ggrid_f3,#ggrid_f4{grid-template-columns:repeat(3,1fr);}}
-
-.gi{border-radius:14px;overflow:hidden;position:relative;cursor:pointer;border:3px solid transparent;transition:border-color .2s,transform .2s;background:var(--bm);}
-.gi img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;}
-.gi::before{content:"";display:block;padding-top:75%;}
-.gi[data-fmt="16:9"]::before{padding-top:56.25%;}
-.gi[data-fmt="3:4"]::before {padding-top:133%;}
-.gi[data-fmt="9:16"]::before{padding-top:177%;}
+.ggrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:14px;}
+.gi{border-radius:14px;overflow:hidden;position:relative;cursor:pointer;aspect-ratio:4/3;border:3px solid transparent;transition:border-color .2s,transform .2s;background:var(--bm);}
 .gi:hover{border-color:var(--gold);transform:scale(1.02);}
 .gi img{width:100%;height:100%;object-fit:cover;display:block;}
 .gi .lbl{position:absolute;bottom:8px;right:8px;background:rgba(0,0,0,.7);color:var(--gold);font-size:.68rem;font-weight:900;padding:3px 9px;border-radius:10px;}
@@ -177,7 +168,7 @@ body{font-family:'Nunito',sans-serif;background:var(--bd);color:var(--wh);overfl
 footer{background:#040b14;text-align:center;padding:30px 16px;color:rgba(255,255,255,.4);font-size:.85rem;border-top:1px solid rgba(255,255,255,.06);}
 footer strong{color:var(--gold);}
 /* REVEAL */
-.rev{opacity:1;transform:none;}
+.rev{opacity:0;transform:translateY(20px);transition:opacity .5s,transform .5s;}
 .rev.vis{opacity:1;transform:none;}
 /* TYPING ANIMATION */
 .typing-dots span{animation:typingBlink 1.2s infinite;display:inline-block;font-size:1.4rem;line-height:1;}
@@ -803,6 +794,7 @@ if("serviceWorker" in navigator){
 
 
 
+
 // Translations - nur ASCII, keine Sonderzeichen im JS
 var TXT = {
   de: {
@@ -1142,16 +1134,20 @@ var GDEFS = [
 ];
 
 function renderGallery() {
-  var grid = document.getElementById("ggrid");
-  if (typeof PHOTOS === "undefined") {
-    grid.innerHTML = "<p style='opacity:.4;padding:20px'>Fotos nicht geladen - photos.js fehlt?</p>";
-    return;
-  }
-  grid.innerHTML = GDEFS.map(function(d) {
-    return "<div class='gi' onclick=\"openMdl('" + d.l + "',0.99)\">" +
-      "<img src='" + (PHOTOS[d.k] || "") + "' alt='" + d.l + "' loading='lazy'>" +
-      "<div class='lbl'>" + d.l + "</div></div>";
-  }).join("");
+  if(typeof renderFmtGallery==="function"){ renderFmtGallery(); return; }
+  // Fallback: Standard-Fotos direkt rendern
+  var grid=document.getElementById("ggrid_f1");
+  if(!grid||typeof PHOTOS==="undefined") return;
+  grid.innerHTML="";
+  GDEFS.forEach(function(d){
+    var div=document.createElement("div"); div.className="gi";
+    div.onclick=(function(l){return function(){openMdl(l,0.99);};})(d.l);
+    var img=document.createElement("img"); img.src=PHOTOS[d.k]||""; img.loading="lazy"; img.style.cssText="width:100%;height:100%;object-fit:cover";
+    div.appendChild(img);
+    var lbl=document.createElement("div"); lbl.className="lbl"; lbl.textContent=d.l; div.appendChild(lbl);
+    grid.appendChild(div);
+  });
+  var sec=document.getElementById("sec_f1"); if(sec)sec.style.display="block";
 }
 
 // POSTCARD CANVAS
@@ -1993,6 +1989,28 @@ function dropPhoto(e) {
   dragSrcKey = null;
 }
 
+
+function renderPart() {
+  var grid = document.getElementById("pargrid"); if(!grid) return;
+  var p=[]; try{p=JSON.parse(localStorage.getItem("bl_partners")||"[]");}catch(e){}
+  if(!p.length){grid.innerHTML="<p style='opacity:.4'>Noch keine Partner.</p>";return;}
+  grid.innerHTML=p.map(function(x){
+    var ph=x.photo?"<img src='"+x.photo+"' style='width:100%;height:90px;object-fit:cover;border-radius:10px;margin-bottom:8px'>":"";
+    var nav=(x.lat&&x.lng)?"<button onclick='showPartnerRoute("+x.lat+","+x.lng+",\'"+x.name+"\')'  style='background:var(--teal);border:none;border-radius:8px;padding:5px 10px;color:#fff;font-size:.75rem;cursor:pointer;font-family:Nunito,sans-serif;width:100%;margin-top:6px'>Route</button>":"";
+    return "<div class='ptcard'>"+ph+"<h3>"+x.name+"</h3><div class='cpn'>"+x.coupon+"% Rabatt</div>"+nav+"</div>";
+  }).join("");
+}
+function setRental(){
+  var r1=document.getElementById("t_r1"),r2=document.getElementById("t_r2");
+  if(r1)r1.textContent=localStorage.getItem("bl_r1_name")||"Blue Lagune";
+  if(r2)r2.textContent=localStorage.getItem("bl_r2_name")||"Vista Laguna";
+}
+function genQR(){
+  var el=document.getElementById("qrcode");
+  if(!el||el.innerHTML.trim()||typeof QRCode==="undefined")return;
+  try{new QRCode(el,{text:window.location.href,width:160,height:160,colorDark:"#0A1628",colorLight:"#ffffff"});}catch(e){}
+}
+
 window.addEventListener("load", function() {
   // Aktiven Sprachbutton setzen
   var activeLb = document.getElementById("lb_" + curLang);
@@ -2047,7 +2065,8 @@ window.addEventListener("load", function() {
 
 
 
+
 </script>ipt>
-<script src="format.js"></script>
 </body>
+<script src="format.js"></script>
 </html>
