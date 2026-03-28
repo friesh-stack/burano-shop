@@ -685,7 +685,7 @@ footer strong{color:var(--gold);}
           <input type="number" class="ainput" id="vid2_price" placeholder="Preis EUR" value="5.99" step=".01" style="margin-bottom:0">
         </div>
       </div>
-      <button class="abtn" onclick="saveVideos()">Videos speichern</button>
+      <button class="abtn" onclick="saveVideos()" id="videos_save_btn">Videos speichern</button>
     </div>
 
     <!-- PARTNER FOTO + LOCATION -->
@@ -709,7 +709,7 @@ footer strong{color:var(--gold);}
           <input type="file" id="torc_file" accept="image/*" style="display:none" onchange="loadIslandPhoto(this,'torc')">
         </div>
       </div>
-      <button class="abtn" onclick="saveIslandPhotos()" style="margin-top:10px">Fotos speichern</button>
+      <button class="abtn" onclick="saveIslandPhotos()" id="island_save_btn" style="margin-top:10px">Fotos speichern</button>
     </div>
 
     <div style="margin-top:14px;text-align:right">
@@ -790,6 +790,7 @@ if("serviceWorker" in navigator){
 }
 </script>
 <script>
+
 
 
 
@@ -1835,34 +1836,9 @@ function loadWeather() {
 // ============================================================
 // VIDEO ADMIN
 // ============================================================
-function loadVideoThumb(input, vidId) {
-  if(!input.files || !input.files[0]) return;
-  var file = input.files[0];
-  var reader = new FileReader();
-  reader.onload = function(e) {
-    var data = e.target.result;
-    var thumb = document.getElementById(vidId + "_thumb");
-    if(file.type.startsWith("image/")) {
-      thumb.innerHTML = "<img src='"+data+"' style='width:100%;height:100%;object-fit:cover;border-radius:8px'>";
-      localStorage.setItem("bl_"+vidId+"_thumb", data);
-    } else {
-      if(thumb) thumb.innerHTML = "&#127909; Video gewaehlt";
-      localStorage.setItem("bl_"+vidId+"_file", data);
-    }
-  };
-  reader.readAsDataURL(file);
-}
+// loadVideoThumb -> siehe Upload-System oben
 
-function saveVideos() {
-  var p1 = document.getElementById("vid1_price");
-  var p2 = document.getElementById("vid2_price");
-  if(p1) localStorage.setItem("bl_vid1_price", p1.value);
-  if(p2) localStorage.setItem("bl_vid2_price", p2.value);
-  // Video-Vorschaubilder in Shop-Sektion anzeigen
-  updateVideoThumbs();
-  renderAdminPhotoList();
-  alert("Videos gespeichert!");
-}
+// saveVideos -> siehe Upload-System oben
 
 function updateVideoThumbs() {
   var t1 = localStorage.getItem("bl_vid1_thumb");
@@ -1878,36 +1854,9 @@ function updateVideoThumbs() {
 // ============================================================
 var islandPhotos = {mazz:null, torc:null};
 
-function loadIslandPhoto(input, island) {
-  if(!input.files || !input.files[0]) return;
-  var reader = new FileReader();
-  reader.onload = function(e) {
-    islandPhotos[island] = e.target.result;
-    var _ip=document.getElementById(island+"_prev"); if(_ip) _ip.innerHTML = "<img src='"+e.target.result+"' style='width:100%;height:100%;object-fit:cover;border-radius:8px'>";
-  };
-  reader.readAsDataURL(input.files[0]);
-}
+// loadIslandPhoto -> siehe Upload-System oben
 
-function saveIslandPhotos() {
-  if(islandPhotos.mazz) {
-    // Array-Speicherung fuer Laufband
-    var mArr=[];try{mArr=JSON.parse(localStorage.getItem("bl_mazz_photos")||"[]");}catch(e){}
-    mArr.push(islandPhotos.mazz);
-    try{localStorage.setItem("bl_mazz_photos",JSON.stringify(mArr));}catch(e){}
-    var el = document.getElementById("mazz_photo");
-    if(el) el.innerHTML = "<img src='"+islandPhotos.mazz+"' style='width:100%;height:160px;object-fit:cover'>";
-    if(typeof buildIslandStrip==="function") buildIslandStrip("mazz_strip","bl_mazz_photos");
-  }
-  if(islandPhotos.torc) {
-    var tArr=[];try{tArr=JSON.parse(localStorage.getItem("bl_torc_photos")||"[]");}catch(e){}
-    tArr.push(islandPhotos.torc);
-    try{localStorage.setItem("bl_torc_photos",JSON.stringify(tArr));}catch(e){}
-    var el2 = document.getElementById("torc_photo");
-    if(el2) el2.innerHTML = "<img src='"+islandPhotos.torc+"' style='width:100%;height:160px;object-fit:cover'>";
-  }
-  if(typeof buildIslandStrip==="function"){buildIslandStrip("mazz_strip","bl_mazz_photos");buildIslandStrip("torc_strip","bl_torc_photos");}
-    alert("Insel-Fotos gespeichert!");
-}
+// saveIslandPhotos -> siehe Upload-System oben
 
 // ============================================================
 // PARTNER ADMIN (Erweiterung: Foto + Location)
@@ -1928,17 +1877,7 @@ function renderAdminPartnerExt() {
   }).join("");
 }
 
-function loadPartnerPhoto(input, idx) {
-  if(!input.files || !input.files[0]) return;
-  var reader = new FileReader();
-  reader.onload = function(e) {
-    partners[idx].photo = e.target.result;
-    localStorage.setItem("bl_partners", JSON.stringify(partners));
-    renderPart();
-    renderAdminPartnerExt();
-  };
-  reader.readAsDataURL(input.files[0]);
-}
+// loadPartnerPhoto -> siehe Upload-System oben
 
 function savePartnerLocation(idx) {
   var lat = parseFloat(document.getElementById("p_lat_"+idx).value);
@@ -2020,6 +1959,141 @@ function loadPcPhoto(input) {
   showUploadPreview(input.files[0]);
 }
 
+
+// ═══════════════════════════════════════
+// UNIVERSELLES UPLOAD-SYSTEM
+// ═══════════════════════════════════════
+function showUploadFeedback(previewEl, saveBtnId, file, labelText) {
+  // Speichern-Button zeigen
+  var btn = saveBtnId ? document.getElementById(saveBtnId) : null;
+  if(btn) { btn.style.display="block"; btn.style.visibility="visible"; }
+  // Vorschau zeigen
+  if(!previewEl) return;
+  var reader = new FileReader();
+  reader.onload = function(ev) {
+    previewEl.innerHTML = "";
+    var isVideo = file.type.startsWith("video/");
+    var media = document.createElement(isVideo ? "video" : "img");
+    media.src = ev.target.result;
+    media.style.cssText = "max-width:100%;max-height:140px;border-radius:8px;display:block;margin:0 auto";
+    if(isVideo) { media.controls=true; media.muted=true; }
+    previewEl.appendChild(media);
+    var inf = document.createElement("div");
+    inf.style.cssText = "font-size:.72rem;color:var(--gold);margin-top:6px;text-align:center;font-weight:700";
+    inf.textContent = (labelText||"Bereit") + " - Speichern nicht vergessen!";
+    previewEl.appendChild(inf);
+  };
+  reader.readAsDataURL(file);
+}
+
+// ── VIDEO-UPLOAD ──
+function loadVideoThumb(input, vidId) {
+  if(!input.files || !input.files[0]) return;
+  var file = input.files[0];
+  var thumb = document.getElementById(vidId+"_thumb");
+  var reader = new FileReader();
+  reader.onload = function(e) {
+    var data = e.target.result;
+    if(file.type.startsWith("image/")) {
+      if(thumb) {
+        thumb.innerHTML = "";
+        var img = document.createElement("img");
+        img.src = data;
+        img.style.cssText = "width:100%;height:100%;object-fit:cover;border-radius:8px";
+        thumb.appendChild(img);
+      }
+      localStorage.setItem("bl_"+vidId+"_thumb", data);
+    } else if(file.type.startsWith("video/")) {
+      if(thumb) thumb.innerHTML = "&#127909; Video gewaehlt: "+file.name;
+      localStorage.setItem("bl_"+vidId+"_file", data);
+    }
+    // Speichern-Button anzeigen
+    var saveBtn = document.getElementById("videos_save_btn");
+    if(saveBtn) { saveBtn.style.display="block"; saveBtn.style.visibility="visible"; }
+    updateVideoThumbs();
+  };
+  reader.readAsDataURL(file);
+}
+
+// ── INSEL-FOTO UPLOAD (Mazzorbo / Torcello) ──
+var islandPhotos = {mazz:null, torc:null};
+
+function loadIslandPhoto(input, island) {
+  if(!input.files || !input.files[0]) return;
+  var file = input.files[0];
+  var reader = new FileReader();
+  reader.onload = function(e) {
+    islandPhotos[island] = e.target.result;
+    // Vorschau im Admin
+    var prevEl = document.getElementById(island+"_prev");
+    var saveBtn = document.getElementById("island_save_btn");
+    showUploadFeedback(prevEl, null, file, island==="mazz"?"Mazzorbo":"Torcello");
+    if(saveBtn) { saveBtn.style.display="block"; saveBtn.style.visibility="visible"; }
+  };
+  reader.readAsDataURL(file);
+}
+
+// ── INSEL-FOTOS SPEICHERN ──
+function saveIslandPhotos() {
+  var saved = [];
+  if(islandPhotos.mazz) {
+    var mArr=[]; try{mArr=JSON.parse(localStorage.getItem("bl_mazz_photos")||"[]");}catch(e){}
+    mArr.push(islandPhotos.mazz);
+    try{localStorage.setItem("bl_mazz_photos",JSON.stringify(mArr));saved.push("Mazzorbo");}catch(e){}
+    var el=document.getElementById("mazz_photo");
+    if(el) el.innerHTML="<img src='"+islandPhotos.mazz+"' style='width:100%;height:160px;object-fit:cover'>";
+    if(typeof buildIslandStrip==="function") buildIslandStrip("mazz_strip","bl_mazz_photos");
+    islandPhotos.mazz = null;
+  }
+  if(islandPhotos.torc) {
+    var tArr=[]; try{tArr=JSON.parse(localStorage.getItem("bl_torc_photos")||"[]");}catch(e){}
+    tArr.push(islandPhotos.torc);
+    try{localStorage.setItem("bl_torc_photos",JSON.stringify(tArr));saved.push("Torcello");}catch(e){}
+    var el2=document.getElementById("torc_photo");
+    if(el2) el2.innerHTML="<img src='"+islandPhotos.torc+"' style='width:100%;height:160px;object-fit:cover'>";
+    if(typeof buildIslandStrip==="function") buildIslandStrip("torc_strip","bl_torc_photos");
+    islandPhotos.torc = null;
+  }
+  if(saved.length) {
+    var btn=document.getElementById("island_save_btn");
+    if(btn) btn.style.display="none";
+    alert("Gespeichert: "+saved.join(", "));
+  } else {
+    alert("Bitte zuerst ein Foto hochladen.");
+  }
+}
+
+// ── VIDEOS SPEICHERN ──
+function saveVideos() {
+  var p1=document.getElementById("vid1_price"), p2=document.getElementById("vid2_price");
+  if(p1) localStorage.setItem("bl_vid1_price", p1.value);
+  if(p2) localStorage.setItem("bl_vid2_price", p2.value);
+  var btn=document.getElementById("videos_save_btn");
+  if(btn) btn.style.display="none";
+  updateVideoThumbs();
+  alert("Videos gespeichert!");
+}
+
+// ── PARTNER-FOTO UPLOAD ──
+function loadPartnerPhoto(input, idx) {
+  if(!input.files || !input.files[0]) return;
+  var file = input.files[0];
+  var reader = new FileReader();
+  reader.onload = function(e) {
+    var partners=[];
+    try{partners=JSON.parse(localStorage.getItem("bl_partners")||"[]");}catch(ex){}
+    if(partners[idx]) {
+      partners[idx].photo = e.target.result;
+      localStorage.setItem("bl_partners", JSON.stringify(partners));
+      if(typeof renderPart==="function") renderPart();
+      if(typeof renderAdminPartnerExt==="function") renderAdminPartnerExt();
+      alert("Partner-Foto gespeichert: "+partners[idx].name);
+    }
+  };
+  reader.readAsDataURL(file);
+}
+
+
 window.addEventListener("load", function() {
   // Aktiven Sprachbutton setzen
   var activeLb = document.getElementById("lb_" + curLang);
@@ -2069,6 +2143,7 @@ window.addEventListener("load", function() {
   genQR();
   setTimeout(renderPC, 300);
 });
+
 
 
 
