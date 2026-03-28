@@ -96,6 +96,7 @@ function renderFmtGallery(){
     grid.innerHTML="";
     items.forEach(function(item){
       var div=document.createElement("div");div.className="gi";
+      div.setAttribute("data-fmt",fmt);
       div.style.cssText="aspect-ratio:"+cfg.ar+";position:relative;overflow:hidden;cursor:pointer";
       var img=document.createElement("img");img.src=item.src;img.loading="lazy";
       img.style.cssText="width:100%;height:100%;object-fit:cover;display:block";div.appendChild(img);

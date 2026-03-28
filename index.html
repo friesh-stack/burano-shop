@@ -7,7 +7,6 @@
 <!-- PWA -->
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#0A1628">
-<meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Burano Shop">
@@ -72,8 +71,31 @@ body{font-family:'Nunito',sans-serif;background:var(--bd);color:var(--wh);overfl
 .btnPP{display:inline-block;background:linear-gradient(135deg,#009CDE,#003087);color:#fff;border:none;border-radius:50px;padding:12px 26px;font-size:.9rem;font-weight:800;cursor:pointer;font-family:'Nunito',sans-serif;box-shadow:0 4px 16px rgba(0,144,222,.35);transition:transform .2s;}
 .btnPP:hover{transform:scale(1.05);}
 /* GALLERY */
-.ggrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:14px;}
-.gi{border-radius:14px;overflow:hidden;position:relative;cursor:pointer;aspect-ratio:4/3;border:3px solid transparent;transition:border-color .2s,transform .2s;background:var(--bm);}
+.ggrid{display:grid;gap:12px;}
+#ggrid_f1,#ggrid_f2{grid-template-columns:repeat(auto-fill,minmax(200px,1fr));}
+#ggrid_f3{grid-template-columns:repeat(auto-fill,minmax(140px,1fr));}
+#ggrid_f4{grid-template-columns:repeat(auto-fill,minmax(110px,1fr));}
+@media(max-width:480px){
+  #ggrid_f1,#ggrid_f2{grid-template-columns:repeat(2,1fr);}
+  #ggrid_f3{grid-template-columns:repeat(3,1fr);}
+  #ggrid_f4{grid-template-columns:repeat(3,1fr);}
+}
+.gi{border-radius:14px;overflow:hidden;position:relative;cursor:pointer;border:3px solid transparent;transition:border-color .2s, transform .15s;}
+.gi:active{transform:scale(.97);}
+.gi img{width:100%;height:100%;object-fit:cover;display:block;}
+/* aspect-ratio Fallback für ältere Android-Browser */
+.gi[data-fmt="4:3"]  { aspect-ratio:4/3;  }
+.gi[data-fmt="16:9"] { aspect-ratio:16/9; }
+.gi[data-fmt="3:4"]  { aspect-ratio:3/4;  }
+.gi[data-fmt="9:16"] { aspect-ratio:9/16; min-height:120px; }
+/* Fallback wenn aspect-ratio nicht unterstützt */
+@supports not (aspect-ratio: 1) {
+  .gi[data-fmt="4:3"]  { padding-top:75%;  height:0; }
+  .gi[data-fmt="16:9"] { padding-top:56.25%; height:0; }
+  .gi[data-fmt="3:4"]  { padding-top:133%; height:0; }
+  .gi[data-fmt="9:16"] { padding-top:177%; height:0; }
+  .gi img { position:absolute;inset:0;width:100%;height:100%; }
+}
 .gi:hover{border-color:var(--gold);transform:scale(1.02);}
 .gi img{width:100%;height:100%;object-fit:cover;display:block;}
 .gi .lbl{position:absolute;bottom:8px;right:8px;background:rgba(0,0,0,.7);color:var(--gold);font-size:.68rem;font-weight:900;padding:3px 9px;border-radius:10px;}
@@ -339,13 +361,13 @@ footer strong{color:var(--gold);}
   </div>
   <!-- Foto-Laufband -->
   <p style="font-size:.8rem;opacity:.65;margin-bottom:8px">&#128247; Foto auswaehlen:</p>
-  <div style="overflow-x:auto;white-space:nowrap;padding-bottom:8px;-webkit-overflow-scrolling:touch;margin-bottom:14px">
+  <div style="overflow-x:auto;white-space:nowrap;padding-bottom:8px;-webkit-overflow-scrolling:touch;margin-bottom:14px;max-height:100px">
     <div id="pc_thumb_row" style="display:inline-flex;gap:8px;padding:2px 0"></div>
   </div>
   <!-- Canvas -->
   <div style="display:flex;justify-content:center;margin-bottom:14px">
     <canvas id="pcanv" width="600" height="800"
-      style="border-radius:12px;box-shadow:0 10px 36px rgba(0,0,0,.5);max-width:100%;max-height:70vh"></canvas>
+      style="border-radius:12px;box-shadow:0 10px 36px rgba(0,0,0,.5);max-width:100%;max-height:75vh;width:auto;display:block;margin:0 auto;max-height:70vh"></canvas>
   </div>
   <!-- Text-Position -->
   <div style="display:flex;gap:8px;margin-bottom:10px">
@@ -670,25 +692,26 @@ footer strong{color:var(--gold);}
 
     <!-- VIDEO UPLOAD -->
     <div class="asec">
-      <h4>Video-Clips verwalten</h4>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px">
-        <div style="background:rgba(255,255,255,.05);border-radius:12px;padding:14px">
-          <div style="font-weight:800;font-size:.9rem;margin-bottom:8px;color:var(--gold)">Standard 16s</div>
-          <div id="vid1_thumb" style="height:80px;background:#1A1A2E;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:1.5rem;margin-bottom:8px;cursor:pointer" onclick="document.getElementById('vid1_file').click()">&#127909;</div>
-          <input type="file" id="vid1_file" accept="video/*,image/*" style="display:none" onchange="loadVideoThumb(this,'vid1')">
-          <div id="vid1_name" style="font-size:.7rem;opacity:.55;margin-top:4px;text-align:center;overflow:hidden;white-space:nowrap;text-overflow:ellipsis"></div>
-          <input type="number" class="ainput" id="vid1_price" placeholder="Preis EUR" value="3.99" step=".01" style="margin-bottom:0">
+      <h4>Video-Clips (YouTube/Vimeo URL)</h4>
+      <p style="font-size:.75rem;opacity:.6;margin-bottom:10px;line-height:1.5">Video auf YouTube hochladen (nicht gelistet) &#8594; URL hier eintragen</p>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px">
+        <div style="background:rgba(255,255,255,.05);border-radius:10px;padding:12px">
+          <b style="color:var(--gold);font-size:.85rem">Standard 16s</b>
+          <div id="vid1_preview" style="height:75px;background:#1A1A2E;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:1.4rem;margin:8px 0">&#127909;</div>
+          <input class="ainput" id="vid1_url" placeholder="YouTube URL..." style="margin-bottom:6px;font-size:.74rem" oninput="previewVideoUrl('vid1')">
+          <input class="ainput" id="vid1_buy_url" placeholder="Saubere Video-URL (nach Kauf)..." style="margin-bottom:6px;font-size:.72rem">
+          <input type="number" class="ainput" id="vid1_price" value="3.99" step=".01" style="margin:0">
         </div>
-        <div style="background:rgba(255,255,255,.05);border-radius:12px;padding:14px">
-          <div style="font-weight:800;font-size:.9rem;margin-bottom:8px;color:var(--gold)">Premium 20s</div>
-          <div id="vid2_thumb" style="height:80px;background:#1A1A2E;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:1.5rem;margin-bottom:8px;cursor:pointer" onclick="document.getElementById('vid2_file').click()">&#127909;</div>
-          <input type="file" id="vid2_file" accept="video/*,image/*" style="display:none" onchange="loadVideoThumb(this,'vid2')">
-          <div id="vid2_name" style="font-size:.7rem;opacity:.55;margin-top:4px;text-align:center;overflow:hidden;white-space:nowrap;text-overflow:ellipsis"></div>
-          <input type="number" class="ainput" id="vid2_price" placeholder="Preis EUR" value="5.99" step=".01" style="margin-bottom:0">
+        <div style="background:rgba(255,255,255,.05);border-radius:10px;padding:12px">
+          <b style="color:var(--gold);font-size:.85rem">Premium 20s</b>
+          <div id="vid2_preview" style="height:75px;background:#1A1A2E;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:1.4rem;margin:8px 0">&#127909;</div>
+          <input class="ainput" id="vid2_url" placeholder="YouTube URL..." style="margin-bottom:6px;font-size:.74rem" oninput="previewVideoUrl('vid2')">
+          <input class="ainput" id="vid2_buy_url" placeholder="Saubere Video-URL (nach Kauf)..." style="margin-bottom:6px;font-size:.72rem">
+          <input type="number" class="ainput" id="vid2_price" value="5.99" step=".01" style="margin:0">
         </div>
       </div>
-      <button class="abtn" onclick="saveVideos()" id="videos_save_btn">Videos speichern</button>
-    </div>
+      <button class="abtn" onclick="saveVideos()">Videos speichern</button>
+    </div></div>
 
     <!-- PARTNER FOTO + LOCATION -->
     <div class="asec">
@@ -796,6 +819,10 @@ if("serviceWorker" in navigator){
 
 
 
+
+
+
+// Translations - nur ASCII, <script>
 
 
 
@@ -1102,7 +1129,7 @@ function initHero() {
   var c = document.getElementById("hslides");
   // Default fallback slide schon vorhanden, jetzt echte Fotos hinzufuegen falls PHOTOS geladen
   if (typeof PHOTOS !== "undefined") {
-  if(c) c.innerHTML = "";
+    c.innerHTML = "";
     HKEYS.forEach(function(n, i) {
       var d = document.createElement("div");
       d.className = "hslide" + (i === 0 ? " on" : "");
@@ -1142,9 +1169,8 @@ var GDEFS = [
 
 function renderGallery() {
   var grid = document.getElementById("ggrid");
-  if(!grid) return;
   if (typeof PHOTOS === "undefined") {
-    if(grid) grid.innerHTML = "<p style='opacity:.4;padding:20px'>Fotos nicht geladen.</p>";
+    grid.innerHTML = "<p style='opacity:.4;padding:20px'>Fotos nicht geladen - photos.js fehlt?</p>";
     return;
   }
   grid.innerHTML = GDEFS.map(function(d) {
@@ -1473,8 +1499,8 @@ function startMic() {
 
   micRecognition = new SR();
   micRecognition.lang = ({"de":"de-DE","en":"en-US","it":"it-IT","fr":"fr-FR","es":"es-ES","ja":"ja-JP","zh":"zh-CN","pl":"pl-PL"})[curLang] || "de-DE";
-  micRecognition.continuous     = false;
-  micRecognition.interimResults = false;
+  micRecognition.continuous     = true;  // kontinuierlich hoeren
+  micRecognition.interimResults = true;  // Zwischenergebnisse anzeigen
 
   micRecognition.onstart = function() {
     micActive = true;
@@ -1484,12 +1510,20 @@ function startMic() {
   };
 
   micRecognition.onresult = function(e) {
-    var transcript = e.results[0][0].transcript.trim();
+    // Letztes Ergebnis nehmen
+    var last = e.results[e.results.length-1];
+    var transcript = last[0].transcript.trim();
     if(!transcript) return;
     var inp = document.getElementById("aiinp");
     if(inp) inp.value = transcript;
-    stopMic();
-    setTimeout(sendAI, 200);
+    // Wenn finales Ergebnis: sofort senden
+    if(last.isFinal) {
+      stopMic();
+      setTimeout(sendAI, 200);
+    } else {
+      // Zwischenergebnis: Timer auf 5s zuruecksetzen (noch hoert zu)
+      micSeconds = Math.max(micSeconds, 5);
+    }
   };
 
   micRecognition.onerror = function(e) {
@@ -1528,7 +1562,7 @@ function startMicTimer() {
         timerEl.textContent = micSeconds + "s";
         timerEl.style.color = micSeconds<=3 ? "var(--red)" : "var(--gold)";
       } else {
-        if(timerEl) timerEl.textContent = "";
+        timerEl.textContent = "";
       }
     }
     if(micSeconds <= 0) {
@@ -1543,10 +1577,10 @@ function setMicActive(active) {
   if(btn) {
     if(active) {
       btn.classList.add("active");
-      if(btn) btn.innerHTML = "&#9209;";
+      btn.innerHTML = "&#9209;"; // Stop-Symbol
     } else {
       btn.classList.remove("active");
-      if(btn) btn.innerHTML = "&#127908;";
+      btn.innerHTML = "&#127908;"; // Mikrofon
     }
   }
   if(hint) hint.textContent = active ? getMicHints()[2] : getMicHints()[0];
@@ -1577,16 +1611,10 @@ function sendAI() {
   // Typing-Indikator (animiert)
   var typingEl = document.createElement("div");
   typingEl.className = "msg bot";
-  if(typingEl) typingEl.innerHTML = "<span class='typing-dots'><span>.</span><span>.</span><span>.</span></span>";
-  var msgs = document.getElementById("aimsgs");
-  var typingEl = null;
-  if(msgs) {
-    typingEl = document.createElement("div");
-    typingEl.className = "msg bot";
   typingEl.innerHTML = "<span class='typing-dots'><span>.</span><span>.</span><span>.</span></span>";
-    msgs.appendChild(typingEl);
-    msgs.scrollTop = msgs.scrollHeight;
-  }ght;
+  var msgs = document.getElementById("aimsgs");
+  msgs.appendChild(typingEl);
+  msgs.scrollTop = msgs.scrollHeight;
 
   apiKey = getApiKey();
   if(!apiKey) {
@@ -1599,7 +1627,7 @@ function sendAI() {
   var timedOut = false;
   var timer = setTimeout(function() {
     timedOut = true;
-  if(typingEl && typingEl.parentNode) typingEl.innerHTML = "Zeituberschreitung.";
+    typingEl.innerHTML = "Zeituberschreitung - bitte nochmal versuchen.";
   }, 20000);
 
   var reqBody = JSON.stringify({
@@ -1644,7 +1672,7 @@ function sendAI() {
       typingEl.innerHTML = "API-Key ungueltig. Bitte neuen Key eingeben:";
       document.getElementById("aikey").style.display = "flex";
     } else {
-      if(typingEl && typingEl.parentNode) typingEl.innerHTML = "Fehler: " + errMsg;
+      typingEl.innerHTML = "Fehler: " + errMsg + ". Bitte nochmal versuchen.";
     }
   });
 }
@@ -1842,9 +1870,34 @@ function loadWeather() {
 // ============================================================
 // VIDEO ADMIN
 // ============================================================
-// loadVideoThumb -> siehe Upload-System oben
+function loadVideoThumb(input, vidId) {
+  if(!input.files || !input.files[0]) return;
+  var file = input.files[0];
+  var reader = new FileReader();
+  reader.onload = function(e) {
+    var data = e.target.result;
+    var thumb = document.getElementById(vidId + "_thumb");
+    if(file.type.startsWith("image/")) {
+      thumb.innerHTML = "<img src='"+data+"' style='width:100%;height:100%;object-fit:cover;border-radius:8px'>";
+      localStorage.setItem("bl_"+vidId+"_thumb", data);
+    } else {
+      if(thumb) thumb.innerHTML = "&#127909; Video gewaehlt";
+      localStorage.setItem("bl_"+vidId+"_file", data);
+    }
+  };
+  reader.readAsDataURL(file);
+}
 
-// saveVideos -> siehe Upload-System oben
+function saveVideos() {
+  var p1 = document.getElementById("vid1_price");
+  var p2 = document.getElementById("vid2_price");
+  if(p1) localStorage.setItem("bl_vid1_price", p1.value);
+  if(p2) localStorage.setItem("bl_vid2_price", p2.value);
+  // Video-Vorschaubilder in Shop-Sektion anzeigen
+  updateVideoThumbs();
+  renderAdminPhotoList();
+  alert("Videos gespeichert!");
+}
 
 function updateVideoThumbs() {
   var t1 = localStorage.getItem("bl_vid1_thumb");
@@ -1860,9 +1913,36 @@ function updateVideoThumbs() {
 // ============================================================
 var islandPhotos = {mazz:null, torc:null};
 
-// loadIslandPhoto -> siehe Upload-System oben
+function loadIslandPhoto(input, island) {
+  if(!input.files || !input.files[0]) return;
+  var reader = new FileReader();
+  reader.onload = function(e) {
+    islandPhotos[island] = e.target.result;
+    var _ip=document.getElementById(island+"_prev"); if(_ip) _ip.innerHTML = "<img src='"+e.target.result+"' style='width:100%;height:100%;object-fit:cover;border-radius:8px'>";
+  };
+  reader.readAsDataURL(input.files[0]);
+}
 
-// saveIslandPhotos -> siehe Upload-System oben
+function saveIslandPhotos() {
+  if(islandPhotos.mazz) {
+    // Array-Speicherung fuer Laufband
+    var mArr=[];try{mArr=JSON.parse(localStorage.getItem("bl_mazz_photos")||"[]");}catch(e){}
+    mArr.push(islandPhotos.mazz);
+    try{localStorage.setItem("bl_mazz_photos",JSON.stringify(mArr));}catch(e){}
+    var el = document.getElementById("mazz_photo");
+    if(el) el.innerHTML = "<img src='"+islandPhotos.mazz+"' style='width:100%;height:160px;object-fit:cover'>";
+    if(typeof buildIslandStrip==="function") buildIslandStrip("mazz_strip","bl_mazz_photos");
+  }
+  if(islandPhotos.torc) {
+    var tArr=[];try{tArr=JSON.parse(localStorage.getItem("bl_torc_photos")||"[]");}catch(e){}
+    tArr.push(islandPhotos.torc);
+    try{localStorage.setItem("bl_torc_photos",JSON.stringify(tArr));}catch(e){}
+    var el2 = document.getElementById("torc_photo");
+    if(el2) el2.innerHTML = "<img src='"+islandPhotos.torc+"' style='width:100%;height:160px;object-fit:cover'>";
+  }
+  if(typeof buildIslandStrip==="function"){buildIslandStrip("mazz_strip","bl_mazz_photos");buildIslandStrip("torc_strip","bl_torc_photos");}
+    alert("Insel-Fotos gespeichert!");
+}
 
 // ============================================================
 // PARTNER ADMIN (Erweiterung: Foto + Location)
@@ -1883,7 +1963,17 @@ function renderAdminPartnerExt() {
   }).join("");
 }
 
-// loadPartnerPhoto -> siehe Upload-System oben
+function loadPartnerPhoto(input, idx) {
+  if(!input.files || !input.files[0]) return;
+  var reader = new FileReader();
+  reader.onload = function(e) {
+    partners[idx].photo = e.target.result;
+    localStorage.setItem("bl_partners", JSON.stringify(partners));
+    renderPart();
+    renderAdminPartnerExt();
+  };
+  reader.readAsDataURL(input.files[0]);
+}
 
 function savePartnerLocation(idx) {
   var lat = parseFloat(document.getElementById("p_lat_"+idx).value);
@@ -1929,222 +2019,257 @@ function dropPhoto(e) {
   dragSrcKey = null;
 }
 
-function showUploadPreview(file) {
-  var btn = document.getElementById("pc_save_btn");
-  if(btn) { btn.style.display="block"; btn.style.visibility="visible"; }
-  var reader = new FileReader();
-  reader.onload = function(ev) {
-    var prev = document.getElementById("pc_upload_preview");
-    if(prev) {
-      prev.innerHTML = "";
-      var img = document.createElement("img");
-      img.src = ev.target.result;
-      img.style.cssText = "max-width:100%;max-height:160px;border-radius:8px;display:block;margin:0 auto";
-      prev.appendChild(img);
-      var inf = document.createElement("div");
-      inf.style.cssText = "font-size:.72rem;color:var(--gold);margin-top:6px;text-align:center;font-weight:700";
-      inf.textContent = "Bereit zum Speichern - Format: " + (activeFmt||"");
-      prev.appendChild(inf);
-    }
-    if(typeof loadPcPhotoFile === "function") loadPcPhotoFile(file);
+
+// ════════════════════════════════════
+// VIDEO-SYSTEM - YouTube/Vimeo URLs
+// ════════════════════════════════════
+function getYouTubeId(url) {
+  var m = url.match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/|shorts\/))([A-Za-z0-9_-]{11})/);
+  return m ? m[1] : null;
+}
+function getVimeoId(url) {
+  var m = url.match(/vimeo\.com\/(\d+)/);
+  return m ? m[1] : null;
+}
+function getVideoEmbedUrl(url) {
+  var ytId=getYouTubeId(url); if(ytId) return "https://www.youtube.com/embed/"+ytId+"?rel=0";
+  var vmId=getVimeoId(url);   if(vmId) return "https://player.vimeo.com/video/"+vmId;
+  return null;
+}
+function getVideoThumbUrl(url) {
+  var ytId=getYouTubeId(url); if(ytId) return "https://img.youtube.com/vi/"+ytId+"/mqdefault.jpg";
+  return null;
+}
+function previewVideoUrl(vidId) {
+  var inp=document.getElementById(vidId+"_url"); if(!inp||!inp.value.trim()) return;
+  var url=inp.value.trim(), prev=document.getElementById(vidId+"_preview"); if(!prev) return;
+  var thumb=getVideoThumbUrl(url);
+  if(thumb){ prev.innerHTML=""; var img=document.createElement("img"); img.src=thumb; img.style.cssText="width:100%;height:100%;object-fit:cover;border-radius:8px"; prev.appendChild(img); }
+  else if(getVideoEmbedUrl(url)) prev.innerHTML="<div style='color:var(--gold);text-align:center;padding:10px;font-size:.8rem'>\u2713 Video-Link erkannt</div>";
+}
+function saveVideos() {
+  var p1=document.getElementById("vid1_price"),p2=document.getElementById("vid2_price");
+  var u1=document.getElementById("vid1_url"),u2=document.getElementById("vid2_url");
+  if(p1) localStorage.setItem("bl_vid1_price",p1.value);
+  if(p2) localStorage.setItem("bl_vid2_price",p2.value);
+  if(u1&&u1.value.trim()) localStorage.setItem("bl_vid1_url",u1.value.trim());
+  if(u2&&u2.value.trim()) localStorage.setItem("bl_vid2_url",u2.value.trim());
+  var b1=document.getElementById("vid1_buy_url"), b2=document.getElementById("vid2_buy_url");
+  if(b1&&b1.value.trim()) localStorage.setItem("bl_vid1_buy_url",b1.value.trim());
+  if(b2&&b2.value.trim()) localStorage.setItem("bl_vid2_buy_url",b2.value.trim());
+  updateVideoDisplay(); alert("Videos gespeichert!");
+}
+function updateVideoDisplay() {
+  var u1=localStorage.getItem("bl_vid1_url"), u2=localStorage.getItem("bl_vid2_url");
+  if(u1) updateVideoCard("vico1_img",u1, localStorage.getItem("bl_vid1_price")||"3.99", localStorage.getItem("bl_vid1_buy_url"));
+  if(u2) updateVideoCard("vico2_img",u2, localStorage.getItem("bl_vid2_price")||"5.99", localStorage.getItem("bl_vid2_buy_url"));
+  var i1=document.getElementById("vid1_url"); if(i1&&u1&&!i1.value) i1.value=u1;
+  var b1i=document.getElementById("vid1_buy_url"),b1v=localStorage.getItem("bl_vid1_buy_url"); if(b1i&&b1v&&!b1i.value) b1i.value=b1v;
+  var b2i=document.getElementById("vid2_buy_url"),b2v=localStorage.getItem("bl_vid2_buy_url"); if(b2i&&b2v&&!b2i.value) b2i.value=b2v;
+  var i2=document.getElementById("vid2_url"); if(i2&&u2&&!i2.value) i2.value=u2;
+  if(u1) previewVideoUrl("vid1"); if(u2) previewVideoUrl("vid2");
+}
+function updateVideoThumbs() { updateVideoDisplay(); }
+function updateVideoCard(cid, url, price, buyUrl) {
+  var el=document.getElementById(cid); if(!el||!url) return;
+  var thumb=getVideoThumbUrl(url); if(!thumb) return;
+  el.innerHTML="";
+  var wrap=document.createElement("div"); wrap.style.cssText="position:relative;cursor:pointer;border-radius:10px;overflow:hidden";
+  wrap.onclick=(function(u,p,b){return function(){playVideo(u,b,p);};})(url, price||"", buyUrl||"");
+  var img=document.createElement("img"); img.src=thumb; img.style.cssText="width:100%;display:block"; wrap.appendChild(img);
+  var ov=document.createElement("div"); ov.style.cssText="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.3)";
+  var pb=document.createElement("div"); pb.style.cssText="width:48px;height:48px;background:rgba(255,210,63,.9);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.3rem"; pb.textContent="\u25b6";
+  ov.appendChild(pb); wrap.appendChild(ov); el.appendChild(wrap);
+}
+function playVideo(url, buyUrl, price) {
+  var embed = getVideoEmbedUrl(url);
+  if(!embed){ window.open(url,"_blank"); return; }
+  price = price || "3.99";
+
+  // Overlay-Container
+  var ov = document.createElement("div");
+  ov.style.cssText = "position:fixed;inset:0;background:rgba(0,0,0,.92);z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:16px;gap:12px";
+  ov.onclick = function(e){ if(e.target===ov) ov.remove(); };
+
+  // Video-Wrapper mit Wasserzeichen-Overlay
+  var wrap = document.createElement("div");
+  wrap.style.cssText = "position:relative;width:min(90vw,800px)";
+
+  // iFrame
+  var fr = document.createElement("iframe");
+  fr.src = embed + "&autoplay=1";
+  fr.style.cssText = "width:100%;height:min(50vw,450px);border:none;border-radius:12px;display:block";
+  fr.allow = "autoplay; fullscreen";
+  wrap.appendChild(fr);
+
+  // Wasserzeichen-Overlay (pointer-events:none = klickbar durch)
+  var wm = document.createElement("div");
+  wm.style.cssText = "position:absolute;inset:0;pointer-events:none;overflow:hidden;border-radius:12px";
+  var wmPositions = [{t:"15%",l:"5%",r:"-15deg"},{t:"40%",l:"35%",r:"-15deg"},{t:"65%",l:"15%",r:"-15deg"},{t:"25%",l:"55%",r:"-15deg"},{t:"75%",l:"50%",r:"-15deg"}];
+  wmPositions.forEach(function(p) {
+    var s = document.createElement("span");
+    s.textContent = "shop.myburano.com";
+    s.style.cssText = "position:absolute;top:"+p.t+";left:"+p.l+";transform:rotate("+p.r+");color:rgba(255,210,63,0.55);font-size:clamp(10px,2.5vw,18px);font-weight:700;font-family:sans-serif;white-space:nowrap;text-shadow:0 1px 4px rgba(0,0,0,.7)";
+    wm.appendChild(s);
+  });
+  wrap.appendChild(wm);
+  ov.appendChild(wrap);
+
+  // Button-Leiste
+  var btns = document.createElement("div");
+  btns.style.cssText = "display:flex;gap:10px;flex-wrap:wrap;justify-content:center;width:100%;max-width:600px";
+
+  // WhatsApp teilen (Link zum WM-Video)
+  var waBtn = document.createElement("button");
+  waBtn.style.cssText = "flex:1;min-width:140px;padding:10px;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.3);border-radius:10px;color:#fff;cursor:pointer;font-family:Nunito,sans-serif;font-size:.82rem";
+  waBtn.innerHTML = "&#128172; WhatsApp teilen<br><small style='opacity:.65'>mit Wasserzeichen - gratis</small>";
+  waBtn.onclick = function() {
+    var text = encodeURIComponent("Burano Video: " + url + " - shop.myburano.com");
+
+
+    if(navigator.share) { navigator.share({title:"Burano Video",text:"Burano Video",url:url}).catch(function(){}); }
+    else window.open("https://wa.me/?text="+text,"_blank");
+  };
+  btns.appendChild(waBtn);
+
+  // Email teilen
+  var emBtn = document.createElement("button");
+  emBtn.style.cssText = "flex:1;min-width:140px;padding:10px;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.3);border-radius:10px;color:#fff;cursor:pointer;font-family:Nunito,sans-serif;font-size:.82rem";
+  emBtn.innerHTML = "&#9993; Per E-Mail teilen<br><small style='opacity:.65'>mit Wasserzeichen - gratis</small>";
+  emBtn.onclick = function() {
+    var subj = encodeURIComponent("Herzliche Gruesse von der Insel Burano!");
+    var body = encodeURIComponent("Burano Video: " + url + " - shop.myburano.com");
+
+
+
+    window.location.href = "mailto:?subject="+subj+"&body="+body;
+  };
+  btns.appendChild(emBtn);
+
+  // Kaufen (sauberes Video)
+  if(buyUrl || true) {
+    var buyBtn = document.createElement("button");
+    buyBtn.style.cssText = "flex:1;min-width:140px;padding:10px;background:linear-gradient(135deg,var(--gold),#e5a020);border:none;border-radius:10px;color:#0A1628;font-weight:900;cursor:pointer;font-family:Nunito,sans-serif;font-size:.82rem";
+    buyBtn.innerHTML = "&#128153; " + price + " EUR kaufen<br><small style='opacity:.7;font-weight:400'>OHNE Wasserzeichen & Download</small>";
+    buyBtn.onclick = function() {
+      var paypal = localStorage.getItem("bl_paypal") || "info@myburano.com";
+      var ppUrl = "https://www.paypal.com/paypalme/"+paypal.split("@")[0]+"/"+price+"EUR";
+      window.open(ppUrl,"_blank");
+      // Nach Zahlung: Clean-Video-URL zeigen
+      if(buyUrl) {
+        setTimeout(function() {
+          ov.remove();
+          showCleanVideoLink(buyUrl);
+        }, 3000);
+      }
+    };
+    btns.appendChild(buyBtn);
+  }
+
+  ov.appendChild(btns);
+
+  // Info-Text
+  var info = document.createElement("p");
+  info.style.cssText = "color:rgba(255,255,255,.45);font-size:.72rem;text-align:center;margin:0";
+  info.textContent = "Gratis teilen mit Wasserzeichen — Ohne Wasserzeichen fur " + price + " EUR";
+  ov.appendChild(info);
+
+  // Schliessen-Button
+  var cl = document.createElement("button");
+  cl.textContent = "\u00d7";
+  cl.style.cssText = "position:absolute;top:12px;right:12px;background:rgba(255,255,255,.15);border:none;color:#fff;width:38px;height:38px;border-radius:50%;font-size:1.3rem;cursor:pointer;z-index:1";
+  cl.onclick = function(){ ov.remove(); };
+  ov.appendChild(cl);
+
+  document.body.appendChild(ov);
+}
+
+function showCleanVideoLink(url) {
+  var d=document.createElement("div");
+  d.style.cssText="position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px";
+  var box=document.createElement("div");
+  box.style.cssText="background:#1A3A5C;border-radius:16px;padding:24px;max-width:400px;text-align:center;width:100%";
+  var h=document.createElement("h3");h.style.cssText="color:var(--gold);margin-bottom:10px";h.textContent="Vielen Dank!";
+  var p=document.createElement("p");p.style.cssText="opacity:.8;margin-bottom:16px";p.textContent="Ihr Video ohne Wasserzeichen:";
+  var a=document.createElement("a");a.href=url;a.target="_blank";
+  a.style.cssText="display:block;background:var(--gold);color:#0A1628;padding:12px;border-radius:10px;font-weight:900;text-decoration:none;margin-bottom:10px";
+  a.textContent="Video ansehen";
+  var b=document.createElement("button");
+  b.style.cssText="background:rgba(255,255,255,.1);border:none;color:#fff;padding:8px 20px;border-radius:8px;cursor:pointer;font-family:Nunito,sans-serif";
+  b.textContent="Schliessen";b.onclick=function(){d.remove();};
+  box.appendChild(h);box.appendChild(p);box.appendChild(a);box.appendChild(b);
+  d.appendChild(box);document.body.appendChild(d);
+}
+function loadVideoThumb(input, vidId) { /* Videos jetzt per URL */ }
+
+// ════════════════════════════════════
+// UPLOAD-SYSTEM (Postkarte/Inseln/Partner)
+// ════════════════════════════════════
+function showUploadPreview(file, prevEl, saveBtnId, label) {
+  if(saveBtnId){ var b=document.getElementById(saveBtnId); if(b){b.style.display="block";b.style.visibility="visible";} }
+  if(!prevEl||!file) return;
+  var reader=new FileReader();
+  reader.onload=function(e){
+    prevEl.innerHTML="";
+    var img=document.createElement("img"); img.src=e.target.result;
+    img.style.cssText="max-width:100%;max-height:150px;border-radius:8px;display:block;margin:0 auto";
+    prevEl.appendChild(img);
+    var inf=document.createElement("div"); inf.style.cssText="font-size:.72rem;color:var(--gold);margin-top:5px;text-align:center;font-weight:700";
+    inf.textContent=(label||"Foto")+" - Speichern nicht vergessen!"; prevEl.appendChild(inf);
   };
   reader.readAsDataURL(file);
 }
+function showUploadFeedback(prevEl,saveBtnId,file,label){ showUploadPreview(file,prevEl,saveBtnId,label); }
 
 function handlePcDrop(e) {
   e.preventDefault(); e.stopPropagation();
-  var files = e.dataTransfer ? e.dataTransfer.files : null;
-  if(!files || !files.length) return;
-  var file = files[0];
-  if(!file.type.startsWith("image/")) { alert("Bitte ein Bild hochladen."); return; }
-  showUploadPreview(file);
+  var files=e.dataTransfer?e.dataTransfer.files:null; if(!files||!files.length) return;
+  var file=files[0]; if(!file.type.startsWith("image/")){alert("Bitte ein Bild hochladen.");return;}
+  showUploadPreview(file, document.getElementById("pc_upload_preview"), "pc_save_btn", activeFmt||"");
+  if(typeof loadPcPhotoFile==="function") { var r=new FileReader(); r.onload=function(ev){var f2=new File([file],file.name,{type:file.type}); loadPcPhotoFile(file);}; r.readAsDataURL(file); }
 }
-
 function loadPcPhoto(input) {
-  if(!input.files || !input.files[0]) return;
-  showUploadPreview(input.files[0]);
+  if(!input.files||!input.files[0]) return;
+  var file=input.files[0];
+  showUploadPreview(file, document.getElementById("pc_upload_preview"), "pc_save_btn", activeFmt||"");
+  if(typeof loadPcPhotoFile==="function") loadPcPhotoFile(file);
 }
-
-
-// ═══════════════════════════════════════
-// UNIVERSELLES UPLOAD-SYSTEM
-// ═══════════════════════════════════════
-function showUploadFeedback(previewEl, saveBtnId, file, labelText) {
-  // Speichern-Button zeigen
-  var btn = saveBtnId ? document.getElementById(saveBtnId) : null;
-  if(btn) { btn.style.display="block"; btn.style.visibility="visible"; }
-  // Vorschau zeigen
-  if(!previewEl) return;
-  var reader = new FileReader();
-  reader.onload = function(ev) {
-    previewEl.innerHTML = "";
-    var isVideo = file.type.startsWith("video/");
-    var media = document.createElement(isVideo ? "video" : "img");
-    media.src = ev.target.result;
-    media.style.cssText = "max-width:100%;max-height:140px;border-radius:8px;display:block;margin:0 auto";
-    if(isVideo) { media.controls=true; media.muted=true; }
-    previewEl.appendChild(media);
-    var inf = document.createElement("div");
-    inf.style.cssText = "font-size:.72rem;color:var(--gold);margin-top:6px;text-align:center;font-weight:700";
-    inf.textContent = (labelText||"Bereit") + " - Speichern nicht vergessen!";
-    previewEl.appendChild(inf);
+var islandPhotos={mazz:null,torc:null};
+function loadIslandPhoto(input,island) {
+  if(!input.files||!input.files[0]) return;
+  var file=input.files[0], reader=new FileReader();
+  reader.onload=function(e){
+    islandPhotos[island]=e.target.result;
+    showUploadPreview(file, document.getElementById(island+"_prev"), "island_save_btn", island==="mazz"?"Mazzorbo":"Torcello");
   };
   reader.readAsDataURL(file);
 }
-
-// ── VIDEO-UPLOAD ──
-// Gespeicherte Video-Dateien (nur Referenz, nicht Base64)
-var pendingVideos = {};
-
-// loadVideoThumb -> neu definiert
-
-function showVideoSaveBtn(vidId, filename) {
-  // Dateiname unter Thumbnail anzeigen
-  var nameEl = document.getElementById(vidId+"_name");
-  if(nameEl) nameEl.textContent = filename;
-  // Globalen Speichern-Button zeigen
-  var saveBtn = document.getElementById("videos_save_btn");
-  if(saveBtn) { saveBtn.style.display="block"; saveBtn.style.visibility="visible"; }
-  updateVideoThumbs();
-}
-
-// ── INSEL-FOTO UPLOAD (Mazzorbo / Torcello) ──
-var islandPhotos = {mazz:null, torc:null};
-
-function loadIslandPhoto(input, island) {
-  if(!input.files || !input.files[0]) return;
-  var file = input.files[0];
-  var reader = new FileReader();
-  reader.onload = function(e) {
-    islandPhotos[island] = e.target.result;
-    // Vorschau im Admin
-    var prevEl = document.getElementById(island+"_prev");
-    var saveBtn = document.getElementById("island_save_btn");
-    showUploadFeedback(prevEl, null, file, island==="mazz"?"Mazzorbo":"Torcello");
-    if(saveBtn) { saveBtn.style.display="block"; saveBtn.style.visibility="visible"; }
-  };
-  reader.readAsDataURL(file);
-}
-
-// ── INSEL-FOTOS SPEICHERN ──
 function saveIslandPhotos() {
-  var saved = [];
-  if(islandPhotos.mazz) {
-    var mArr=[]; try{mArr=JSON.parse(localStorage.getItem("bl_mazz_photos")||"[]");}catch(e){}
-    mArr.push(islandPhotos.mazz);
-    try{localStorage.setItem("bl_mazz_photos",JSON.stringify(mArr));saved.push("Mazzorbo");}catch(e){}
-    var el=document.getElementById("mazz_photo");
-    if(el) el.innerHTML="<img src='"+islandPhotos.mazz+"' style='width:100%;height:160px;object-fit:cover'>";
-    if(typeof buildIslandStrip==="function") buildIslandStrip("mazz_strip","bl_mazz_photos");
-    islandPhotos.mazz = null;
-  }
-  if(islandPhotos.torc) {
-    var tArr=[]; try{tArr=JSON.parse(localStorage.getItem("bl_torc_photos")||"[]");}catch(e){}
-    tArr.push(islandPhotos.torc);
-    try{localStorage.setItem("bl_torc_photos",JSON.stringify(tArr));saved.push("Torcello");}catch(e){}
-    var el2=document.getElementById("torc_photo");
-    if(el2) el2.innerHTML="<img src='"+islandPhotos.torc+"' style='width:100%;height:160px;object-fit:cover'>";
-    if(typeof buildIslandStrip==="function") buildIslandStrip("torc_strip","bl_torc_photos");
-    islandPhotos.torc = null;
-  }
-  if(saved.length) {
-    var btn=document.getElementById("island_save_btn");
-    if(btn) btn.style.display="none";
-    alert("Gespeichert: "+saved.join(", "));
-  } else {
-    alert("Bitte zuerst ein Foto hochladen.");
-  }
+  var saved=[];
+  ["mazz","torc"].forEach(function(isl){
+    if(!islandPhotos[isl]) return;
+    var key="bl_"+isl+"_photos";
+    var arr=[]; try{arr=JSON.parse(localStorage.getItem(key)||"[]");}catch(e){}
+    arr.push(islandPhotos[isl]);
+    try{localStorage.setItem(key,JSON.stringify(arr)); saved.push(isl==="mazz"?"Mazzorbo":"Torcello");}catch(e){}
+    var el=document.getElementById(isl+"_photo"); if(el) el.innerHTML="<img src='"+islandPhotos[isl]+"' style='width:100%;height:160px;object-fit:cover'>";
+    if(typeof buildIslandStrip==="function") buildIslandStrip(isl+"_strip","bl_"+isl+"_photos");
+    islandPhotos[isl]=null;
+  });
+  var btn=document.getElementById("island_save_btn"); if(btn) btn.style.display="none";
+  if(saved.length) alert("Gespeichert: "+saved.join(", "));
+  else alert("Bitte zuerst ein Foto hochladen.");
 }
-
-// ── VIDEOS SPEICHERN ──
-function saveVideos() {
-  var p1=document.getElementById("vid1_price"), p2=document.getElementById("vid2_price");
-  if(p1) localStorage.setItem("bl_vid1_price", p1.value);
-  if(p2) localStorage.setItem("bl_vid2_price", p2.value);
-  // Thumbnails sind bereits in localStorage gespeichert (in loadVideoThumb)
-  var btn=document.getElementById("videos_save_btn");
-  if(btn) btn.style.display="none";
-  updateVideoThumbs();
-  alert("Video-Thumbnails und Preise gespeichert!");
-}
-
-// ── PARTNER-FOTO UPLOAD ──
-function loadPartnerPhoto(input, idx) {
-  if(!input.files || !input.files[0]) return;
-  var file = input.files[0];
-  var reader = new FileReader();
-  reader.onload = function(e) {
-    var partners=[];
-    try{partners=JSON.parse(localStorage.getItem("bl_partners")||"[]");}catch(ex){}
-    if(partners[idx]) {
-      partners[idx].photo = e.target.result;
-      localStorage.setItem("bl_partners", JSON.stringify(partners));
-      if(typeof renderPart==="function") renderPart();
-      if(typeof renderAdminPartnerExt==="function") renderAdminPartnerExt();
-      alert("Partner-Foto gespeichert: "+partners[idx].name);
-    }
+function loadPartnerPhoto(input,idx) {
+  if(!input.files||!input.files[0]) return;
+  var reader=new FileReader();
+  reader.onload=function(e){
+    var p=[]; try{p=JSON.parse(localStorage.getItem("bl_partners")||"[]");}catch(ex){}
+    if(p[idx]){ p[idx].photo=e.target.result; localStorage.setItem("bl_partners",JSON.stringify(p)); if(typeof renderPart==="function") renderPart(); alert("Partner-Foto gespeichert: "+p[idx].name); }
   };
-  reader.readAsDataURL(file);
+  reader.readAsDataURL(input.files[0]);
 }
 
-
-function loadVideoThumb(input, vidId) {
-  if(!input.files || !input.files[0]) return;
-  var file = input.files[0];
-  var thumb = document.getElementById(vidId+"_thumb");
-
-  if(file.type.startsWith("image/")) {
-    var reader = new FileReader();
-    reader.onload = function(e) {
-      if(thumb) {
-        thumb.innerHTML="";
-        var img=document.createElement("img");
-        img.src=e.target.result;
-        img.style.cssText="width:100%;height:100%;object-fit:cover;border-radius:8px";
-        thumb.appendChild(img);
-      }
-      localStorage.setItem("bl_"+vidId+"_thumb", e.target.result);
-      showVidSaveBtn(vidId, file.name);
-    };
-    reader.readAsDataURL(file);
-
-  } else if(file.type.startsWith("video/")) {
-    // Vorschau-Frame per Canvas extrahieren - kein Video-Player!
-    var objUrl = URL.createObjectURL(file);
-    var vid = document.createElement("video");
-    vid.muted=true; vid.playsInline=true; vid.style.display="none";
-    document.body.appendChild(vid);
-    vid.src = objUrl;
-    vid.addEventListener("loadeddata", function(){ vid.currentTime=1; });
-    vid.addEventListener("seeked", function(){
-      var cv=document.createElement("canvas"); cv.width=200; cv.height=120;
-      cv.getContext("2d").drawImage(vid,0,0,200,120);
-      var td=cv.toDataURL("image/jpeg",0.8);
-      localStorage.setItem("bl_"+vidId+"_thumb", td);
-      if(thumb){
-        thumb.innerHTML="";
-        thumb.style.position="relative";
-        var img=document.createElement("img");
-        img.src=td; img.style.cssText="width:100%;height:100%;object-fit:cover;border-radius:8px";
-        thumb.appendChild(img);
-        var ov=document.createElement("div");
-        ov.style.cssText="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:2rem;pointer-events:none;text-shadow:0 2px 8px rgba(0,0,0,.8)";
-        ov.textContent="\u25b6"; thumb.appendChild(ov);
-      }
-      URL.revokeObjectURL(objUrl); vid.remove();
-    });
-    vid.load();
-    localStorage.setItem("bl_"+vidId+"_name", file.name);
-    showVidSaveBtn(vidId, file.name);
-  }
-}
-
-function showVidSaveBtn(vidId, name) {
-  var el=document.getElementById(vidId+"_name");
-  if(el) el.textContent=name;
-  var btn=document.getElementById("videos_save_btn");
-  if(btn){ btn.style.display="block"; btn.style.visibility="visible"; }
-}
 
 window.addEventListener("load", function() {
   // Aktiven Sprachbutton setzen
@@ -2181,8 +2306,7 @@ window.addEventListener("load", function() {
   else setTimeout(initMap, 1000);
   loadWeather();
   setInterval(loadWeather, 600000); // alle 10 Min
-  // Video-Thumbnails laden
-  updateVideoThumbs();
+  updateVideoDisplay();
   renderAdminPhotoList();
   // Insel-Fotos laden
   var mazzPhoto = localStorage.getItem("bl_mazz_photo");
@@ -2203,9 +2327,5 @@ window.addEventListener("load", function() {
 
 
 
-
-
-</script>ipt>
-</body>
-<script src="format.js"></script>
+</script>pt>
 </html>
