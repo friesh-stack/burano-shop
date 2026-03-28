@@ -14,7 +14,7 @@
 <link rel="apple-touch-icon" sizes="512x512" href="icon-512.png">
 <!-- Fonts -->
 <link href="https://fonts.googleapis.com/css2?family=Pacifico&family=Nunito:wght@400;700;800;900&display=swap" rel="stylesheet">
-<script src="photos.js?v=1774698350"></script>
+<script src="photos.js"></script>
 <style>
 :root{--bd:#0A1628;--bm:#0D2B5E;--bv:#1565C0;--gold:#FFD23F;--org:#FF6B35;--teal:#00C2C7;--grn:#4CAF50;--wh:#fff;}
 *{margin:0;padding:0;box-sizing:border-box;}html{scroll-behavior:smooth;}
@@ -629,13 +629,13 @@ footer strong{color:var(--gold);}
     <div class="asec">
       <h4>📮 Postkarten-Foto hochladen</h4>
       <p style="font-size:.8rem;opacity:.65;margin-bottom:12px">Lade dein fertiges Foto (bereits mit Briefmarke) hoch. Der Kunde wählt nur noch den Grußtext und seinen Namen.</p>
-      <div id="pc_upload_area" style="border:2px dashed rgba(255,210,63,.4);border-radius:12px;padding:20px;text-align:center;cursor:pointer;margin-bottom:10px;transition:border-color .2s" onclick="document.getElementById('pc_file_input').click()" ondragover="event.preventDefault();this.style.borderColor='var(--gold)'" ondrop="handlePcDrop(event)" onchange="loadPcPhoto(this)">
+      <div id="pc_upload_area" style="border:2px dashed rgba(255,210,63,.4);border-radius:12px;padding:20px;text-align:center;cursor:pointer;margin-bottom:10px;transition:border-color .2s" onclick="document.getElementById('pc_file_input').click()" ondragover="event.preventDefault();this.style.borderColor='var(--gold)'" ondrop="handlePcDrop(event)">
         <div id="pc_upload_preview" style="margin-bottom:8px">
           <div style="font-size:2rem">🖼️</div>
           <div style="font-size:.85rem;opacity:.6">Foto hier reinziehen oder klicken</div>
           <div style="font-size:.75rem;opacity:.4;margin-top:4px">JPG, PNG – empfohlen 4:3 Querformat</div>
         </div>
-        <input type="file" id="pc_file_input" accept="image/*" style="display:none" onchange="loadPcPhoto(this);document.getElementById('pc_save_btn').style.display='block';">
+        <input type="file" id="pc_file_input" accept="image/*" style="display:none" onchange="loadPcPhoto(this)">
       </div>
       <div style="display:flex;gap:8px;margin-bottom:8px">
         <div style="flex:1">
@@ -656,7 +656,7 @@ footer strong{color:var(--gold);}
         </div>
       </div>
       <canvas id="pc_admin_preview" width="600" height="800" style="width:100%;border-radius:10px;display:none;margin-bottom:8px"></canvas>
-      <button class="abtn" onclick="savePcPhoto()" id="pc_save_btn" style="display:none;margin-top:10px">&#128190; Foto speichern</button>
+      <button class="abtn" onclick="savePcPhoto()" id="pc_save_btn" style="display:none">Foto speichern</button>
       <div style="margin-top:14px"><h4 style="color:var(--teal);font-size:.75rem;font-weight:900;letter-spacing:1px;text-transform:uppercase;margin-bottom:8px">Gespeicherte Fotos</h4><div id="admin_photo_list" style="background:rgba(255,255,255,.04);border-radius:10px;padding:10px;min-height:40px"></div></div>
     </div>
     <!-- GALERIE REIHENFOLGE -->
@@ -738,7 +738,7 @@ footer strong{color:var(--gold);}
     <button id="mic_big_btn" class="mic-big-btn" onclick="toggleMic()" title="Mikrofon aktivieren">
       &#127908;
     </button>
-    <div style="display:none" id="mic_timer"></div>
+    <div class="mic-timer" id="mic_timer"></div>
     <div class="mic-hint" id="mic_hint">Tippen um Marco zu fragen</div>
   </div>
   <!-- Text-Eingabe -->
@@ -789,44 +789,6 @@ if("serviceWorker" in navigator){
 }
 </script>
 <script>
-
-function loadPcPhoto(input) {
-  if(!input.files || !input.files[0]) return;
-  var file = input.files[0];
-  // Vorschau sofort zeigen
-  var reader = new FileReader();
-  reader.onload = function(e) {
-    var prev = document.getElementById("pc_upload_preview");
-    if(prev) {
-      prev.innerHTML = "";
-      var img = document.createElement("img");
-      img.src = e.target.result;
-      img.style.cssText = "max-width:100%;max-height:160px;border-radius:8px;display:block;margin:0 auto";
-      prev.appendChild(img);
-    }
-    // Canvas zeigen
-    var cv = document.getElementById("pc_admin_preview");
-    if(cv) cv.style.display = "block";
-    // Speichern-Button zeigen
-    var btn = document.getElementById("pc_save_btn");
-    if(btn) { btn.style.display = "block"; btn.style.cssText += ";display:block!important"; }
-  };
-  reader.readAsDataURL(file);
-  // format.js Funktion aufrufen
-  if(typeof loadPcPhotoFile === "function") loadPcPhotoFile(file);
-}
-
-// ── GLOBALER ERROR-HANDLER ──
-window.onerror = function(msg, src, line, col, err) {
-  var d=document.createElement("div");
-  d.style.cssText="position:fixed;bottom:0;left:0;right:0;background:#B71C1C;color:#fff;padding:10px;font-size:.75rem;z-index:99999;word-break:break-all;max-height:80px;overflow:auto";
-  d.textContent="JS Fehler Zeile "+line+": "+msg;
-  document.body.appendChild(d);
-  setTimeout(function(){if(d.parentNode)d.remove();},10000);
-  return false;
-};
-
-
 
 
 
@@ -1132,7 +1094,7 @@ function initHero() {
   var c = document.getElementById("hslides");
   // Default fallback slide schon vorhanden, jetzt echte Fotos hinzufuegen falls PHOTOS geladen
   if (typeof PHOTOS !== "undefined") {
-    c.innerHTML = "";
+  if(c) c.innerHTML = "";
     HKEYS.forEach(function(n, i) {
       var d = document.createElement("div");
       d.className = "hslide" + (i === 0 ? " on" : "");
@@ -1157,16 +1119,11 @@ function setHTML(id, html) { var el=document.getElementById(id); if(el) el.inner
 function setText(id, txt) { var el=document.getElementById(id); if(el) el.textContent=txt; }
 
 // Stubs falls format.js noch nicht geladen
-// Alle möglicherweise fehlenden Funktionen als Stubs
-var _allStubs=[
-  "updateGreetingSelect","renderPC","setPcPos","selectFmt",
+var _fmtStubs=["updateGreetingSelect","renderPC","setPcPos","selectFmt",
   "renderAdminPhotoList","renderFmtGallery","fmtDelPhoto","buildPcThumbs",
   "buildIslandStrip","getSelectedGreeting","saveIslandPhotos","loadPcPhotoFile",
-  "savePcPhoto","initPosButtons","ensureHeroSlides","setRegion",
-  "renderPart","setRental","genQR","rAdmPart","renderAdminPartnerExt",
-  "updatePcPreview","flushMsgQueue","updatePostcardSelect"
-];
-_allStubs.forEach(function(fn){if(typeof window[fn]==="undefined")window[fn]=function(){};});
+  "savePcPhoto","initPosButtons","ensureHeroSlides","setRegion"];
+_fmtStubs.forEach(function(fn){if(typeof window[fn]==="undefined")window[fn]=function(){};});
 
 var GDEFS = [
   {k:"canal_wide",l:"Burano Canal"},{k:"canal_winter",l:"Winter"},
@@ -1176,7 +1133,17 @@ var GDEFS = [
 ];
 
 function renderGallery() {
-  if(typeof renderFmtGallery === "function") renderFmtGallery();
+  var grid = document.getElementById("ggrid");
+  if(!grid) return;
+  if (typeof PHOTOS === "undefined") {
+    if(grid) grid.innerHTML = "<p style='opacity:.4;padding:20px'>Fotos nicht geladen.</p>";
+    return;
+  }
+  grid.innerHTML = GDEFS.map(function(d) {
+    return "<div class='gi' onclick=\"openMdl('" + d.l + "',0.99)\">" +
+      "<img src='" + (PHOTOS[d.k] || "") + "' alt='" + d.l + "' loading='lazy'>" +
+      "<div class='lbl'>" + d.l + "</div></div>";
+  }).join("");
 }
 
 // POSTCARD CANVAS
@@ -1320,8 +1287,7 @@ function ppGo(item, amount) {
 
 // AI CHAT
 function toggleChat() {
-  unlockTTS();
-  setTimeout(flushMsgQueue, 100); // Gepufferte Nachrichten anzeigen
+  unlockTTS(); // Android TTS entsperren beim ersten Tippen
   var c=document.getElementById("aichat");
   c.classList.toggle("open");
   if(c.classList.contains("open") && aiHist.length===0) initAI();
@@ -1433,22 +1399,7 @@ function initAI() {
   }
   aiHist=[{role:"user",content:"Greet me and tell me about Burano briefly."},{role:"assistant",content:welcome}];
 }
-// Nachrichten-Puffer falls Chat noch nicht offen
-var msgQueue = [];
-
 function addMsg(txt, who, autoSpeak) {
-  // Vorlesen (unabhängig vom DOM-Status)
-  if(who === "bot" && autoSpeak !== false) {
-    speak(txt);
-  }
-
-  var c = document.getElementById("aimsgs");
-  if(!c) {
-    // Puffern - wird angezeigt wenn Chat geöffnet wird
-    msgQueue.push({txt:txt, who:who});
-    return {parentNode: null, innerHTML: ""};
-  }
-
   var d = document.createElement("div");
   d.className = "msg " + who;
   var span = document.createElement("span");
@@ -1456,34 +1407,24 @@ function addMsg(txt, who, autoSpeak) {
   d.appendChild(span);
 
   if(who === "bot") {
+    // Vorlesen-Button
     var btn = document.createElement("button");
     btn.textContent = "▶";
     btn.title = "Vorlesen";
     btn.style.cssText = "background:rgba(255,255,255,.15);border:none;border-radius:50%;width:24px;height:24px;cursor:pointer;font-size:.7rem;margin-left:8px;vertical-align:middle;flex-shrink:0;";
     btn.onclick = function(e) { e.stopPropagation(); toggleSpeak(txt, btn); };
     d.appendChild(btn);
+
+    // Automatisch vorlesen wenn autoSpeak nicht false
+    if(autoSpeak !== false) {
+      speak(txt);
+    }
   }
 
+  var c = document.getElementById("aimsgs");
   c.appendChild(d);
   c.scrollTop = c.scrollHeight;
   return d;
-}
-
-// Gepufferte Nachrichten anzeigen wenn Chat geöffnet wird
-function flushMsgQueue() {
-  if(!msgQueue.length) return;
-  var c = document.getElementById("aimsgs");
-  if(!c) return;
-  msgQueue.forEach(function(m) {
-    var d = document.createElement("div");
-    d.className = "msg " + m.who;
-    var span = document.createElement("span");
-    span.textContent = m.txt;
-    d.appendChild(span);
-    c.appendChild(d);
-  });
-  msgQueue = [];
-  c.scrollTop = c.scrollHeight;
 }
 // ════════════════════════════════════════════════════
 // MIKROFON - 10s offen, grosser Button, Timer
@@ -1492,7 +1433,7 @@ var micRecognition = null;
 var micActive      = false;
 var micTimer       = null;
 var micSeconds     = 0;
-var MIC_DURATION   = 12; // MAX 12 Sekunden // Sekunden offen
+var MIC_DURATION   = 12; // Sekunden offen
 
 var MIC_HINTS = {
   de: ["Tippen um Marco zu fragen","Mikrofon: Frage sprechen","Hoere zu..."],
@@ -1514,43 +1455,77 @@ function toggleMic() {
 
 function startMic() {
   var SR = window.SpeechRecognition || window.webkitSpeechRecognition;
-  if(!SR) { addMsg("Mikrofon nicht verfuegbar. Text eingeben.", "bot", false); return; }
-  unlockTTS(); stopSpeak();
-  if(micRecognition) { try{micRecognition.stop();}catch(e){} micRecognition=null; }
+  if(!SR) {
+    addMsg("Mikrofon nicht verfuegbar. Bitte Text eingeben.", "bot", false);
+    setMicHint(getMicHints()[0]);
+    return;
+  }
+  unlockTTS();
+  stopSpeak();
+
   micRecognition = new SR();
   micRecognition.lang = ({"de":"de-DE","en":"en-US","it":"it-IT","fr":"fr-FR","es":"es-ES","ja":"ja-JP","zh":"zh-CN","pl":"pl-PL"})[curLang] || "de-DE";
-  micRecognition.continuous = true;
+  micRecognition.continuous     = false;
   micRecognition.interimResults = false;
+
   micRecognition.onstart = function() {
-    micActive = true; micSeconds = MIC_DURATION;
-    setMicActive(true); startMicTimer();
+    micActive = true;
+    micSeconds = MIC_DURATION;
+    setMicActive(true);
+    startMicTimer();
   };
+
   micRecognition.onresult = function(e) {
-    var last = e.results[e.results.length-1];
-    if(!last.isFinal) return;
-    var text = last[0].transcript.trim(); if(!text) return;
+    var transcript = e.results[0][0].transcript.trim();
+    if(!transcript) return;
     var inp = document.getElementById("aiinp");
-    if(inp) inp.value = text;
-    stopMic(); setTimeout(sendAI, 200);
+    if(inp) inp.value = transcript;
+    stopMic();
+    setTimeout(sendAI, 200);
   };
+
   micRecognition.onerror = function(e) {
+    stopMic();
     if(e.error==="not-allowed"||e.error==="permission-denied") {
-      stopMic();
-      addMsg("Mikrofon gesperrt. Browser-Einstellungen pruefen.", "bot", false);
+      addMsg("Mikrofon gesperrt. Android Chrome: Einstellungen > Datenschutz > Website-Einstellungen > Mikrofon > shop.myburano.com > Erlauben", "bot", false);
+    } else if(e.error==="no-speech") {
+      // Kein Fehler anzeigen - Timer laeuft weiter
+      setMicHint(getMicHints()[2]);
+    } else if(e.error==="network") {
+      addMsg("Netzwerkfehler. WLAN pruefen.", "bot", false);
     }
   };
+
   micRecognition.onend = function() {
-    if(micActive && micSeconds > 1) { try { micRecognition.start(); } catch(e) { stopMic(); } }
-    else { stopMic(); }
+    // Wenn noch aktiv: neu starten (kontinuierliches Hoeren)
+    if(micActive && micSeconds > 0) {
+      try { micRecognition.start(); } catch(e) {}
+    } else {
+      stopMic();
+    }
   };
-  try { micRecognition.start(); } catch(e) { stopMic(); addMsg("Mikrofon-Fehler: "+e.message,"bot",false); }
+
+  try { micRecognition.start(); }
+  catch(e) { stopMic(); addMsg("Mikrofon-Fehler: "+e.message,"bot",false); }
 }
 
 function startMicTimer() {
   clearInterval(micTimer);
   micTimer = setInterval(function() {
     micSeconds--;
-    if(micSeconds <= 0) { clearInterval(micTimer); stopMic(); }
+    var btn = document.getElementById("mic_big_btn");
+    var timerEl = document.getElementById("mic_timer");
+    if(timerEl) {
+      if(micSeconds > 0) {
+        timerEl.textContent = micSeconds + "s";
+        timerEl.style.color = micSeconds<=3 ? "var(--red)" : "var(--gold)";
+      } else {
+        if(timerEl) timerEl.textContent = "";
+      }
+    }
+    if(micSeconds <= 0) {
+      stopMic();
+    }
   }, 1000);
 }
 
@@ -1558,10 +1533,17 @@ function setMicActive(active) {
   var btn  = document.getElementById("mic_big_btn");
   var hint = document.getElementById("mic_hint");
   if(btn) {
-    if(active) { btn.classList.add("active");    btn.innerHTML = "&#9209;"; }
-    else        { btn.classList.remove("active"); btn.innerHTML = "&#127908;"; }
+    if(active) {
+      btn.classList.add("active");
+      if(btn) btn.innerHTML = "&#9209;";
+    } else {
+      btn.classList.remove("active");
+      if(btn) btn.innerHTML = "&#127908;";
+    }
   }
   if(hint) hint.textContent = active ? getMicHints()[2] : getMicHints()[0];
+  var timerEl = document.getElementById("mic_timer");
+  if(timerEl && !active) timerEl.textContent = "";
 }
 
 function setMicHint(text) {
@@ -1584,19 +1566,19 @@ function sendAI() {
   addMsg(msg, "usr", false);
   aiHist.push({role:"user", content:msg});
 
-  // Typing-Indikator - nur wenn Chat offen
-  var msgs = document.getElementById("aimsgs");
-  if(!msgs) {
-    // Chat nicht offen - Antwort trotzdem holen, aber kein UI-Update
-    msgs = document.createElement("div"); // Dummy
-  }
+  // Typing-Indikator (animiert)
   var typingEl = document.createElement("div");
   typingEl.className = "msg bot";
+  if(typingEl) typingEl.innerHTML = "<span class='typing-dots'><span>.</span><span>.</span><span>.</span></span>";
+  var msgs = document.getElementById("aimsgs");
+  var typingEl = null;
+  if(msgs) {
+    typingEl = document.createElement("div");
+    typingEl.className = "msg bot";
   typingEl.innerHTML = "<span class='typing-dots'><span>.</span><span>.</span><span>.</span></span>";
-  if(msgs.id === "aimsgs") {
     msgs.appendChild(typingEl);
     msgs.scrollTop = msgs.scrollHeight;
-  }
+  }ght;
 
   apiKey = getApiKey();
   if(!apiKey) {
@@ -1609,7 +1591,7 @@ function sendAI() {
   var timedOut = false;
   var timer = setTimeout(function() {
     timedOut = true;
-    typingEl.innerHTML = "Zeituberschreitung - bitte nochmal versuchen.";
+  if(typingEl && typingEl.parentNode) typingEl.innerHTML = "Zeituberschreitung.";
   }, 20000);
 
   var reqBody = JSON.stringify({
@@ -1649,9 +1631,9 @@ function sendAI() {
     // CORS-Fehler? Zeige hilfreiche Meldung
     var errMsg = err.message || "";
     if(errMsg.indexOf("Failed to fetch") > -1 || errMsg.indexOf("NetworkError") > -1 || errMsg.indexOf("CORS") > -1) {
-      if(typingEl && typingEl.parentNode) typingEl.innerHTML = "CORS-Fehler: API-Aufruf blockiert. Cloudflare Worker pruefen.";
+      typingEl.innerHTML = "CORS-Fehler: Der Browser blockiert den API-Aufruf.<br><small>Loesung: Cloudflare Worker einrichten (siehe unten)</small>";
     } else if(errMsg.indexOf("401") > -1 || errMsg.indexOf("authentication") > -1) {
-      if(typingEl && typingEl.parentNode) typingEl.innerHTML = "API-Key ungueltig. Bitte neuen Key eingeben:";
+      typingEl.innerHTML = "API-Key ungueltig. Bitte neuen Key eingeben:";
       document.getElementById("aikey").style.display = "flex";
     } else {
       if(typingEl && typingEl.parentNode) typingEl.innerHTML = "Fehler: " + errMsg;
@@ -2001,48 +1983,40 @@ function dropPhoto(e) {
   dragSrcKey = null;
 }
 
-
-// ── PARTNER RENDERN ──
-function renderPart() {
-  var grid = document.getElementById("pargrid");
-  if(!grid) return;
-  var partners = [];
-  try { partners = JSON.parse(localStorage.getItem("bl_partners")||"[]"); } catch(e){}
-  if(!partners.length) { grid.innerHTML="<p style='opacity:.4'>Noch keine Partner.</p>"; return; }
-  var ICONS = {apotheke:"&#128138;",restaurant:"&#127833;",hotel:"&#127968;",shop:"&#128717;"};
-  grid.innerHTML = partners.map(function(p) {
-    var photo = p.photo ? "<img src='"+p.photo+"' style='width:100%;height:100px;object-fit:cover;border-radius:10px;margin-bottom:10px'>" :
-      "<div style='height:60px;background:rgba(255,255,255,.06);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:2rem;margin-bottom:10px'>"+(ICONS[p.type]||"&#127978;")+"</div>";
-    var nav = (p.lat&&p.lng) ? "<button onclick='showPartnerRoute("+p.lat+","+p.lng+",\'"+p.name+"\')'  style='background:var(--teal);border:none;border-radius:8px;padding:6px 12px;color:#fff;font-size:.78rem;cursor:pointer;font-family:Nunito,sans-serif;margin-top:6px;width:100%'>&#128506; Route</button>" : "";
-    return "<div class='ptcard'>"+photo+"<h3>"+p.name+"</h3><p>"+p.prov+"% Provision</p><div class='cpn'>"+p.coupon+"% Rabatt - Code: "+p.code+"</div>"+nav+"</div>";
-  }).join("") || "<p style='opacity:.4'>Noch keine Partner.</p>";
+function showUploadPreview(file) {
+  var btn = document.getElementById("pc_save_btn");
+  if(btn) { btn.style.display="block"; btn.style.visibility="visible"; }
+  var reader = new FileReader();
+  reader.onload = function(ev) {
+    var prev = document.getElementById("pc_upload_preview");
+    if(prev) {
+      prev.innerHTML = "";
+      var img = document.createElement("img");
+      img.src = ev.target.result;
+      img.style.cssText = "max-width:100%;max-height:160px;border-radius:8px;display:block;margin:0 auto";
+      prev.appendChild(img);
+      var inf = document.createElement("div");
+      inf.style.cssText = "font-size:.72rem;color:var(--gold);margin-top:6px;text-align:center;font-weight:700";
+      inf.textContent = "Bereit zum Speichern - Format: " + (activeFmt||"");
+      prev.appendChild(inf);
+    }
+    if(typeof loadPcPhotoFile === "function") loadPcPhotoFile(file);
+  };
+  reader.readAsDataURL(file);
 }
 
-// ── RENTAL ANZEIGEN ──
-function setRental() {
-  var el = document.getElementById("rinfo");
-  if(!el) return;
-  var r1 = document.getElementById("t_r1");
-  var r2 = document.getElementById("t_r2");
-  // Rental-Texte aus localStorage
-  var n1 = localStorage.getItem("bl_r1_name") || "Blue Lagune";
-  var n2 = localStorage.getItem("bl_r2_name") || "Vista Laguna";
-  if(r1) r1.textContent = n1;
-  if(r2) r2.textContent = n2;
+function handlePcDrop(e) {
+  e.preventDefault(); e.stopPropagation();
+  var files = e.dataTransfer ? e.dataTransfer.files : null;
+  if(!files || !files.length) return;
+  var file = files[0];
+  if(!file.type.startsWith("image/")) { alert("Bitte ein Bild hochladen."); return; }
+  showUploadPreview(file);
 }
 
-// ── QR-CODE ──
-function genQR() {
-  var el = document.getElementById("qrcode");
-  if(!el || el.innerHTML.trim()) return;
-  if(typeof QRCode === "undefined") return;
-  try {
-    new QRCode(el, {
-      text: window.location.href,
-      width: 160, height: 160,
-      colorDark: "#0A1628", colorLight: "#ffffff"
-    });
-  } catch(e) {}
+function loadPcPhoto(input) {
+  if(!input.files || !input.files[0]) return;
+  showUploadPreview(input.files[0]);
 }
 
 window.addEventListener("load", function() {
@@ -2099,9 +2073,7 @@ window.addEventListener("load", function() {
 
 
 
-
-
 </script>ipt>
 </body>
-<script src="format.js?v=1774698350"></script>
+<script src="format.js"></script>
 </html>
