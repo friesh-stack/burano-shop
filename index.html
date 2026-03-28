@@ -73,8 +73,13 @@ body{font-family:'Nunito',sans-serif;background:var(--bd);color:var(--wh);overfl
 /* GALLERY */
 .ggrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:14px;}
 .gi{border-radius:14px;overflow:hidden;position:relative;cursor:pointer;aspect-ratio:4/3;border:3px solid transparent;transition:border-color .2s,transform .2s;background:var(--bm);}
+.gi{position:relative;overflow:hidden;border-radius:14px;cursor:pointer;border:3px solid transparent;transition:border-color .2s,transform .2s;background:var(--bm);}
+.gi::before{content:"";display:block;padding-top:75%;}
+.gi[data-fmt="16:9"]::before{padding-top:56.25%;}
+.gi[data-fmt="3:4"]::before{padding-top:133%;}
+.gi[data-fmt="9:16"]::before{padding-top:177%;}
 .gi:hover{border-color:var(--gold);transform:scale(1.02);}
-.gi img{width:100%;height:100%;object-fit:cover;display:block;}
+.gi img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;}
 .gi .lbl{position:absolute;bottom:8px;right:8px;background:rgba(0,0,0,.7);color:var(--gold);font-size:.68rem;font-weight:900;padding:3px 9px;border-radius:10px;}
 /* POSTCARD */
 .pcc{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);border-radius:20px;padding:24px;}

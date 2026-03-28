@@ -82,6 +82,16 @@ function savePcPhoto(){
   }else{alert("Speicherfehler - Foto zu gross? Max ca. 400KB.");}
 }
 
+function initFormatJs(){
+  if(typeof PHOTOS!=="undefined") ensureHeroSlides();
+  initPosButtons();
+  renderFmtGallery();
+  renderAdminPhotoList();
+  buildPcThumbs();
+  buildIslandStrip("mazz_strip","bl_mazz_photos");
+  buildIslandStrip("torc_strip","bl_torc_photos");
+}
+
 function renderFmtGallery(){
   Object.keys(FMTS).forEach(function(fmt){
     var cfg=FMTS[fmt],grid=document.getElementById("ggrid_"+cfg.id),sec=document.getElementById("sec_"+cfg.id);
@@ -97,7 +107,7 @@ function renderFmtGallery(){
     items.forEach(function(item){
       var div=document.createElement("div");div.className="gi";
       div.setAttribute("data-fmt",fmt);
-      div.style.cssText="aspect-ratio:"+cfg.ar+";position:relative;overflow:hidden;cursor:pointer";
+      div.style.cssText="position:relative;overflow:hidden;cursor:pointer";
       var img=document.createElement("img");img.src=item.src;img.loading="lazy";
       img.style.cssText="width:100%;height:100%;object-fit:cover;display:block";div.appendChild(img);
       var lbl=document.createElement("div");lbl.className="lbl";lbl.textContent=item.lbl;div.appendChild(lbl);
