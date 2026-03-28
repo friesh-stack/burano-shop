@@ -789,6 +789,7 @@ if("serviceWorker" in navigator){
 }
 </script>
 <script>
+
 // ── GLOBALER ERROR-HANDLER ──
 window.onerror = function(msg, src, line, col, err) {
   var d=document.createElement("div");
@@ -1130,11 +1131,16 @@ function setHTML(id, html) { var el=document.getElementById(id); if(el) el.inner
 function setText(id, txt) { var el=document.getElementById(id); if(el) el.textContent=txt; }
 
 // Stubs falls format.js noch nicht geladen
-var _fmtStubs=["updateGreetingSelect","renderPC","setPcPos","selectFmt",
+// Alle möglicherweise fehlenden Funktionen als Stubs
+var _allStubs=[
+  "updateGreetingSelect","renderPC","setPcPos","selectFmt",
   "renderAdminPhotoList","renderFmtGallery","fmtDelPhoto","buildPcThumbs",
   "buildIslandStrip","getSelectedGreeting","saveIslandPhotos","loadPcPhotoFile",
-  "savePcPhoto","initPosButtons","ensureHeroSlides","setRegion"];
-_fmtStubs.forEach(function(fn){if(typeof window[fn]==="undefined")window[fn]=function(){};});
+  "savePcPhoto","initPosButtons","ensureHeroSlides","setRegion",
+  "renderPart","setRental","genQR","rAdmPart","renderAdminPartnerExt",
+  "updatePcPreview","flushMsgQueue","updatePostcardSelect"
+];
+_allStubs.forEach(function(fn){if(typeof window[fn]==="undefined")window[fn]=function(){};});
 
 var GDEFS = [
   {k:"canal_wide",l:"Burano Canal"},{k:"canal_winter",l:"Winter"},
@@ -1144,16 +1150,7 @@ var GDEFS = [
 ];
 
 function renderGallery() {
-  var grid = document.getElementById("ggrid");
-  if (typeof PHOTOS === "undefined") {
-    grid.innerHTML = "<p style='opacity:.4;padding:20px'>Fotos nicht geladen - photos.js fehlt?</p>";
-    return;
-  }
-  grid.innerHTML = GDEFS.map(function(d) {
-    return "<div class='gi' onclick=\"openMdl('" + d.l + "',0.99)\">" +
-      "<img src='" + (PHOTOS[d.k] || "") + "' alt='" + d.l + "' loading='lazy'>" +
-      "<div class='lbl'>" + d.l + "</div></div>";
-  }).join("");
+  if(typeof renderFmtGallery === "function") renderFmtGallery();
 }
 
 // POSTCARD CANVAS
@@ -2027,6 +2024,50 @@ function dropPhoto(e) {
   dragSrcKey = null;
 }
 
+
+// ── PARTNER RENDERN ──
+function renderPart() {
+  var grid = document.getElementById("pargrid");
+  if(!grid) return;
+  var partners = [];
+  try { partners = JSON.parse(localStorage.getItem("bl_partners")||"[]"); } catch(e){}
+  if(!partners.length) { grid.innerHTML="<p style='opacity:.4'>Noch keine Partner.</p>"; return; }
+  var ICONS = {apotheke:"&#128138;",restaurant:"&#127833;",hotel:"&#127968;",shop:"&#128717;"};
+  grid.innerHTML = partners.map(function(p) {
+    var photo = p.photo ? "<img src='"+p.photo+"' style='width:100%;height:100px;object-fit:cover;border-radius:10px;margin-bottom:10px'>" :
+      "<div style='height:60px;background:rgba(255,255,255,.06);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:2rem;margin-bottom:10px'>"+(ICONS[p.type]||"&#127978;")+"</div>";
+    var nav = (p.lat&&p.lng) ? "<button onclick='showPartnerRoute("+p.lat+","+p.lng+",\'"+p.name+"\')'  style='background:var(--teal);border:none;border-radius:8px;padding:6px 12px;color:#fff;font-size:.78rem;cursor:pointer;font-family:Nunito,sans-serif;margin-top:6px;width:100%'>&#128506; Route</button>" : "";
+    return "<div class='ptcard'>"+photo+"<h3>"+p.name+"</h3><p>"+p.prov+"% Provision</p><div class='cpn'>"+p.coupon+"% Rabatt - Code: "+p.code+"</div>"+nav+"</div>";
+  }).join("") || "<p style='opacity:.4'>Noch keine Partner.</p>";
+}
+
+// ── RENTAL ANZEIGEN ──
+function setRental() {
+  var el = document.getElementById("rinfo");
+  if(!el) return;
+  var r1 = document.getElementById("t_r1");
+  var r2 = document.getElementById("t_r2");
+  // Rental-Texte aus localStorage
+  var n1 = localStorage.getItem("bl_r1_name") || "Blue Lagune";
+  var n2 = localStorage.getItem("bl_r2_name") || "Vista Laguna";
+  if(r1) r1.textContent = n1;
+  if(r2) r2.textContent = n2;
+}
+
+// ── QR-CODE ──
+function genQR() {
+  var el = document.getElementById("qrcode");
+  if(!el || el.innerHTML.trim()) return;
+  if(typeof QRCode === "undefined") return;
+  try {
+    new QRCode(el, {
+      text: window.location.href,
+      width: 160, height: 160,
+      colorDark: "#0A1628", colorLight: "#ffffff"
+    });
+  } catch(e) {}
+}
+
 window.addEventListener("load", function() {
   // Aktiven Sprachbutton setzen
   var activeLb = document.getElementById("lb_" + curLang);
@@ -2076,6 +2117,7 @@ window.addEventListener("load", function() {
   genQR();
   setTimeout(renderPC, 300);
 });
+
 
 
 
