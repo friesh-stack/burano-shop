@@ -14,7 +14,7 @@
 <link rel="apple-touch-icon" sizes="512x512" href="icon-512.png">
 <!-- Fonts -->
 <link href="https://fonts.googleapis.com/css2?family=Pacifico&family=Nunito:wght@400;700;800;900&display=swap" rel="stylesheet">
-<script src="photos.js"></script>
+<script src="photos.js?v=1774698350"></script>
 <style>
 :root{--bd:#0A1628;--bm:#0D2B5E;--bv:#1565C0;--gold:#FFD23F;--org:#FF6B35;--teal:#00C2C7;--grn:#4CAF50;--wh:#fff;}
 *{margin:0;padding:0;box-sizing:border-box;}html{scroll-behavior:smooth;}
@@ -175,8 +175,44 @@ footer strong{color:var(--gold);}
 .typing-dots span:nth-child(2){animation-delay:.2s;}
 .typing-dots span:nth-child(3){animation-delay:.4s;}
 @keyframes typingBlink{0%,80%,100%{opacity:.2}40%{opacity:1}}
+
+/* GROSSES MIKROFON */
+.mic-big{
+  display:flex;flex-direction:column;align-items:center;gap:10px;
+  padding:16px 0 8px;border-top:1px solid rgba(255,255,255,.08);
+}
+.mic-big-btn{
+  width:70px;height:70px;border-radius:50%;
+  background:linear-gradient(135deg,var(--teal),#0097A7);
+  border:none;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  font-size:2rem;color:#fff;
+  box-shadow:0 4px 20px rgba(0,200,200,.35);
+  transition:transform .15s, box-shadow .15s;
+  position:relative;
+}
+.mic-big-btn:active{transform:scale(.94);}
+.mic-big-btn.active{
+  background:linear-gradient(135deg,#E53935,#C62828);
+  box-shadow:0 4px 20px rgba(229,57,53,.5);
+  animation:micPulse 1s infinite;
+}
+@keyframes micPulse{
+  0%,100%{box-shadow:0 4px 20px rgba(229,57,53,.5),0 0 0 0 rgba(229,57,53,.4);}
+  50%{box-shadow:0 4px 20px rgba(229,57,53,.5),0 0 0 16px rgba(229,57,53,0);}
+}
+.mic-timer{
+  font-size:.78rem;font-weight:700;color:var(--gold);
+  min-height:1.2rem;text-align:center;
+}
+.mic-hint{
+  font-size:.72rem;opacity:.55;text-align:center;
+}
 @media(max-width:540px){.sec{padding:36px 14px;}.pack{flex-direction:column;}.vcard{flex-direction:column;}}
 </style>
+<!-- Leaflet im Head geladen -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 </head>
 <body>
 
@@ -413,8 +449,7 @@ footer strong{color:var(--gold);}
   </div>
 
   <!-- LEAFLET MAP -->
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
-  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <!-- Leaflet geladen im Head -->
   <div id="map" style="height:380px;border-radius:18px;overflow:hidden;border:1px solid rgba(255,255,255,.1);margin-bottom:12px"></div>
   <div style="display:flex;gap:10px;flex-wrap:wrap">
     <button onclick="locateUser()" class="btnH" style="flex:1">&#128205; Mein Standort anzeigen</button>
@@ -698,13 +733,18 @@ footer strong{color:var(--gold);}
     <input type="password" id="aikeyfld" placeholder="Anthropic API Key (sk-ant-...)">
     <button onclick="svKeyW()">OK</button>
   </div>
-  <div class="aiinpr">
-    <input type="text" id="aiinp" placeholder="Frag mich etwas ueber Burano..." onkeydown="if(event.key==='Enter')sendAI()">
-    <button id="mic_btn" onclick="toggleMic()" title="Mikrofon" style="background:rgba(255,255,255,.15);border:none;border-radius:10px;padding:9px 11px;color:#fff;cursor:pointer;font-size:1rem;transition:background .2s">&#127908;</button>
-    <button class="aisend" onclick="sendAI()">&#10148;</button>
+  <!-- Grosses Mikrofon -->
+  <div class="mic-big" id="mic_big_area">
+    <button id="mic_big_btn" class="mic-big-btn" onclick="toggleMic()" title="Mikrofon aktivieren">
+      &#127908;
+    </button>
+    <div class="mic-timer" id="mic_timer"></div>
+    <div class="mic-hint" id="mic_hint">Tippen um Marco zu fragen</div>
   </div>
-  <div id="mic_status" style="display:none;padding:6px 14px;font-size:.75rem;color:var(--gold);text-align:center;border-top:1px solid rgba(255,255,255,.08)">
-    &#127908; Hoere zu...
+  <!-- Text-Eingabe -->
+  <div class="aiinpr">
+    <input type="text" id="aiinp" placeholder="Oder Frage hier eintippen..." onkeydown="if(event.key==='Enter')sendAI()">
+    <button class="aisend" onclick="sendAI()">&#10148;</button>
   </div>
 </div>
 
@@ -739,16 +779,29 @@ footer strong{color:var(--gold);}
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<!-- SW wird nur registriert wenn sw.js vorhanden -->
 <script>
 if("serviceWorker" in navigator){
-  window.addEventListener("load", function(){
-    navigator.serviceWorker.register("sw.js").then(function(){
-      console.log("SW registered");
-    }).catch(function(e){ console.log("SW error:", e); });
-  });
+  // Pruefen ob sw.js erreichbar ist bevor registrieren
+  fetch("sw.js",{method:"HEAD"}).then(function(r){
+    if(r.ok) navigator.serviceWorker.register("sw.js");
+  }).catch(function(){});
 }
 </script>
 <script>
+// ── GLOBALER ERROR-HANDLER ──
+window.onerror = function(msg, src, line, col, err) {
+  var d=document.createElement("div");
+  d.style.cssText="position:fixed;bottom:0;left:0;right:0;background:#B71C1C;color:#fff;padding:10px;font-size:.75rem;z-index:99999;word-break:break-all;max-height:80px;overflow:auto";
+  d.textContent="JS Fehler Zeile "+line+": "+msg;
+  document.body.appendChild(d);
+  setTimeout(function(){if(d.parentNode)d.remove();},10000);
+  return false;
+};
+
+
+
+
 
 
 
@@ -1071,6 +1124,18 @@ function initHero() {
 }
 
 // GALLERY
+// Null-sicheres getElementById
+function gel(id) { return document.getElementById(id); }
+function setHTML(id, html) { var el=document.getElementById(id); if(el) el.innerHTML=html; }
+function setText(id, txt) { var el=document.getElementById(id); if(el) el.textContent=txt; }
+
+// Stubs falls format.js noch nicht geladen
+var _fmtStubs=["updateGreetingSelect","renderPC","setPcPos","selectFmt",
+  "renderAdminPhotoList","renderFmtGallery","fmtDelPhoto","buildPcThumbs",
+  "buildIslandStrip","getSelectedGreeting","saveIslandPhotos","loadPcPhotoFile",
+  "savePcPhoto","initPosButtons","ensureHeroSlides","setRegion"];
+_fmtStubs.forEach(function(fn){if(typeof window[fn]==="undefined")window[fn]=function(){};});
+
 var GDEFS = [
   {k:"canal_wide",l:"Burano Canal"},{k:"canal_winter",l:"Winter"},
   {k:"canal_lagoon",l:"Lagoon"},{k:"canal_sunset",l:"Sunset"},
@@ -1187,23 +1252,23 @@ function drawNameLine(ctx, W, H, yPos, color) {
 // MODAL
 function openMdl(name, price) {
   mPrice=price; mQty=1; mItem=name;
-  document.getElementById("mt").textContent = name;
-  document.getElementById("md").textContent = "Burano - sofort nach Zahlung verfuegbar";
-  document.getElementById("qdis").textContent = 1;
+  var __el=document.getElementById("mt");if(__el)__el.textContent=name;
+  var __el=document.getElementById("md");if(__el)__el.textContent="Burano - sofort nach Zahlung verfuegbar";
+  var __el=document.getElementById("qdis");if(__el)__el.textContent=1;
   updTotal();
   document.getElementById("bmdl").classList.add("open");
 }
-function chgQ(d) { mQty=Math.max(1,mQty+d); document.getElementById("qdis").textContent=mQty; updTotal(); }
+function chgQ(d) { mQty=Math.max(1,mQty+d); var __el=document.getElementById("qdis");if(__el)__el.textContent=mQty; updTotal(); }
 function updTotal() {
   var tot=(mPrice*mQty).toFixed(2).replace(".",",");
-  document.getElementById("mtot").textContent=tot+" EUR";
+  var __el=document.getElementById("mtot");if(__el)__el.textContent=tot+" EUR";
   document.getElementById("mpaybtn").onclick=function(){ppGo(mItem+(mQty>1?" x"+mQty:""),mPrice*mQty);};
 }
 var vmP = 3.99;
 function openVMdl(title, price) {
   vmP=price;
-  document.getElementById("vmt").textContent=title;
-  document.getElementById("vmpr").textContent=price.toFixed(2).replace(".",",")+' EUR';
+  var __el=document.getElementById("vmt");if(__el)__el.textContent=title;
+  var __el=document.getElementById("vmpr");if(__el)__el.textContent=price.toFixed(2).replace(".",",")+' EUR';
   document.getElementById("vmpaybtn").onclick=function(){
     var txt=document.getElementById("vtxt").value;
     ppGo(title+(txt?" - "+txt:""),vmP);
@@ -1232,7 +1297,8 @@ function ppGo(item, amount) {
 
 // AI CHAT
 function toggleChat() {
-  unlockTTS(); // Android TTS entsperren beim ersten Tippen
+  unlockTTS();
+  setTimeout(flushMsgQueue, 100); // Gepufferte Nachrichten anzeigen
   var c=document.getElementById("aichat");
   c.classList.toggle("open");
   if(c.classList.contains("open") && aiHist.length===0) initAI();
@@ -1344,7 +1410,22 @@ function initAI() {
   }
   aiHist=[{role:"user",content:"Greet me and tell me about Burano briefly."},{role:"assistant",content:welcome}];
 }
+// Nachrichten-Puffer falls Chat noch nicht offen
+var msgQueue = [];
+
 function addMsg(txt, who, autoSpeak) {
+  // Vorlesen (unabhängig vom DOM-Status)
+  if(who === "bot" && autoSpeak !== false) {
+    speak(txt);
+  }
+
+  var c = document.getElementById("aimsgs");
+  if(!c) {
+    // Puffern - wird angezeigt wenn Chat geöffnet wird
+    msgQueue.push({txt:txt, who:who});
+    return {parentNode: null, innerHTML: ""};
+  }
+
   var d = document.createElement("div");
   d.className = "msg " + who;
   var span = document.createElement("span");
@@ -1352,28 +1433,56 @@ function addMsg(txt, who, autoSpeak) {
   d.appendChild(span);
 
   if(who === "bot") {
-    // Vorlesen-Button
     var btn = document.createElement("button");
     btn.textContent = "▶";
     btn.title = "Vorlesen";
     btn.style.cssText = "background:rgba(255,255,255,.15);border:none;border-radius:50%;width:24px;height:24px;cursor:pointer;font-size:.7rem;margin-left:8px;vertical-align:middle;flex-shrink:0;";
     btn.onclick = function(e) { e.stopPropagation(); toggleSpeak(txt, btn); };
     d.appendChild(btn);
-
-    // Automatisch vorlesen wenn autoSpeak nicht false
-    if(autoSpeak !== false) {
-      speak(txt);
-    }
   }
 
-  var c = document.getElementById("aimsgs");
   c.appendChild(d);
   c.scrollTop = c.scrollHeight;
   return d;
 }
-// == MIKROFON / SPEECH-TO-TEXT ==
+
+// Gepufferte Nachrichten anzeigen wenn Chat geöffnet wird
+function flushMsgQueue() {
+  if(!msgQueue.length) return;
+  var c = document.getElementById("aimsgs");
+  if(!c) return;
+  msgQueue.forEach(function(m) {
+    var d = document.createElement("div");
+    d.className = "msg " + m.who;
+    var span = document.createElement("span");
+    span.textContent = m.txt;
+    d.appendChild(span);
+    c.appendChild(d);
+  });
+  msgQueue = [];
+  c.scrollTop = c.scrollHeight;
+}
+// ════════════════════════════════════════════════════
+// MIKROFON - 10s offen, grosser Button, Timer
+// ════════════════════════════════════════════════════
 var micRecognition = null;
-var micActive = false;
+var micActive      = false;
+var micTimer       = null;
+var micSeconds     = 0;
+var MIC_DURATION   = 12; // Sekunden offen
+
+var MIC_HINTS = {
+  de: ["Tippen um Marco zu fragen","Mikrofon: Frage sprechen","Hoere zu..."],
+  en: ["Tap to ask Marco","Microphone: ask your question","Listening..."],
+  it: ["Tocca per chiedere a Marco","Microfono: parla","Ascolto..."],
+  fr: ["Appuyez pour demander","Microphone: posez votre question","Ecoute..."],
+  es: ["Toca para preguntar","Microfono: haz tu pregunta","Escuchando..."],
+  ja: ["タップしてマルコに質問","マイク: 話してください","聞いています..."],
+  zh: ["点击向Marco提问","麦克风: 请说话","正在听..."],
+  pl: ["Nacisnij aby zapytac","Mikrofon: zadaj pytanie","Slucham..."]
+};
+
+function getMicHints() { return MIC_HINTS[curLang] || MIC_HINTS.de; }
 
 function toggleMic() {
   if(micActive) { stopMic(); return; }
@@ -1383,52 +1492,114 @@ function toggleMic() {
 function startMic() {
   var SR = window.SpeechRecognition || window.webkitSpeechRecognition;
   if(!SR) {
-    addMsg("Mikrofon wird auf diesem Geraet nicht unterstuetzt. Bitte Text eingeben.", "bot", false);
+    addMsg("Mikrofon nicht verfuegbar. Bitte Text eingeben.", "bot", false);
+    setMicHint(getMicHints()[0]);
     return;
   }
+  unlockTTS();
+  stopSpeak();
+
   micRecognition = new SR();
   micRecognition.lang = ({"de":"de-DE","en":"en-US","it":"it-IT","fr":"fr-FR","es":"es-ES","ja":"ja-JP","zh":"zh-CN","pl":"pl-PL"})[curLang] || "de-DE";
-  micRecognition.continuous = false;
-  micRecognition.interimResults = false;
+  micRecognition.continuous     = true;  // kontinuierlich hoeren
+  micRecognition.interimResults = true;  // Zwischenergebnisse anzeigen
+
   micRecognition.onstart = function() {
     micActive = true;
-    var btn = document.getElementById("mic_btn");
-    var st  = document.getElementById("mic_status");
-    if(btn) { btn.style.background="var(--red)"; btn.innerHTML="&#9209;"; }
-    if(st)  { st.style.display="block"; }
-    stopSpeak(); // Vorlesen stoppen waehrend Mikrofon aktiv
+    micSeconds = MIC_DURATION;
+    setMicActive(true);
+    startMicTimer();
   };
+
   micRecognition.onresult = function(e) {
-    var transcript = e.results[0][0].transcript;
+    // Letztes Ergebnis nehmen
+    var last = e.results[e.results.length-1];
+    var transcript = last[0].transcript.trim();
+    if(!transcript) return;
     var inp = document.getElementById("aiinp");
     if(inp) inp.value = transcript;
-    stopMic();
-    // Automatisch senden
-    setTimeout(sendAI, 300);
-  };
-  micRecognition.onerror = function(e) {
-    stopMic();
-    if(e.error === "not-allowed" || e.error === "permission-denied") {
-      addMsg("Mikrofon gesperrt. Android: Chrome-Einstellungen → Website-Einstellungen → Mikrofon → shop.myburano.com → Erlauben.", "bot", false);
-    } else if(e.error === "network") {
-      addMsg("Netzwerkfehler bei Spracherkennung. WLAN/Mobile-Daten pruefen.", "bot", false);
-    } else if(e.error === "no-speech") {
-      addMsg("Keine Sprache erkannt. Bitte nochmal versuchen.", "bot", false);
+    // Wenn finales Ergebnis: sofort senden
+    if(last.isFinal) {
+      stopMic();
+      setTimeout(sendAI, 200);
     } else {
-      addMsg("Mikrofon-Fehler: " + e.error + ". Bitte Text eingeben.", "bot", false);
+      // Zwischenergebnis: Timer auf 5s zuruecksetzen (noch hoert zu)
+      micSeconds = Math.max(micSeconds, 5);
     }
   };
-  micRecognition.onend = function() { stopMic(); };
-  try { micRecognition.start(); } catch(e) { stopMic(); }
+
+  micRecognition.onerror = function(e) {
+    stopMic();
+    if(e.error==="not-allowed"||e.error==="permission-denied") {
+      addMsg("Mikrofon gesperrt. Android Chrome: Einstellungen > Datenschutz > Website-Einstellungen > Mikrofon > shop.myburano.com > Erlauben", "bot", false);
+    } else if(e.error==="no-speech") {
+      // Kein Fehler anzeigen - Timer laeuft weiter
+      setMicHint(getMicHints()[2]);
+    } else if(e.error==="network") {
+      addMsg("Netzwerkfehler. WLAN pruefen.", "bot", false);
+    }
+  };
+
+  micRecognition.onend = function() {
+    // Wenn noch aktiv: neu starten (kontinuierliches Hoeren)
+    if(micActive && micSeconds > 0) {
+      try { micRecognition.start(); } catch(e) {}
+    } else {
+      stopMic();
+    }
+  };
+
+  try { micRecognition.start(); }
+  catch(e) { stopMic(); addMsg("Mikrofon-Fehler: "+e.message,"bot",false); }
+}
+
+function startMicTimer() {
+  clearInterval(micTimer);
+  micTimer = setInterval(function() {
+    micSeconds--;
+    var btn = document.getElementById("mic_big_btn");
+    var timerEl = document.getElementById("mic_timer");
+    if(timerEl) {
+      if(micSeconds > 0) {
+        timerEl.textContent = micSeconds + "s";
+        timerEl.style.color = micSeconds<=3 ? "var(--red)" : "var(--gold)";
+      } else {
+        timerEl.textContent = "";
+      }
+    }
+    if(micSeconds <= 0) {
+      stopMic();
+    }
+  }, 1000);
+}
+
+function setMicActive(active) {
+  var btn  = document.getElementById("mic_big_btn");
+  var hint = document.getElementById("mic_hint");
+  if(btn) {
+    if(active) {
+      btn.classList.add("active");
+      if(btn) btn.innerHTML = "&#9209;";
+    } else {
+      btn.classList.remove("active");
+      if(btn) btn.innerHTML = "&#127908;";
+    }
+  }
+  if(hint) hint.textContent = active ? getMicHints()[2] : getMicHints()[0];
+  var timerEl = document.getElementById("mic_timer");
+  if(timerEl && !active) timerEl.textContent = "";
+}
+
+function setMicHint(text) {
+  var el = document.getElementById("mic_hint");
+  if(el) el.textContent = text;
 }
 
 function stopMic() {
   micActive = false;
+  clearInterval(micTimer);
   if(micRecognition) { try{ micRecognition.stop(); }catch(e){} micRecognition=null; }
-  var btn = document.getElementById("mic_btn");
-  var st  = document.getElementById("mic_status");
-  if(btn) { btn.style.background="rgba(255,255,255,.15)"; btn.innerHTML="&#127908;"; }
-  if(st)  { st.style.display="none"; }
+  setMicActive(false);
 }
 
 function sendAI() {
@@ -1439,13 +1610,19 @@ function sendAI() {
   addMsg(msg, "usr", false);
   aiHist.push({role:"user", content:msg});
 
-  // Typing-Indikator (animiert)
+  // Typing-Indikator - nur wenn Chat offen
+  var msgs = document.getElementById("aimsgs");
+  if(!msgs) {
+    // Chat nicht offen - Antwort trotzdem holen, aber kein UI-Update
+    msgs = document.createElement("div"); // Dummy
+  }
   var typingEl = document.createElement("div");
   typingEl.className = "msg bot";
   typingEl.innerHTML = "<span class='typing-dots'><span>.</span><span>.</span><span>.</span></span>";
-  var msgs = document.getElementById("aimsgs");
-  msgs.appendChild(typingEl);
-  msgs.scrollTop = msgs.scrollHeight;
+  if(msgs.id === "aimsgs") {
+    msgs.appendChild(typingEl);
+    msgs.scrollTop = msgs.scrollHeight;
+  }
 
   apiKey = getApiKey();
   if(!apiKey) {
@@ -1498,12 +1675,12 @@ function sendAI() {
     // CORS-Fehler? Zeige hilfreiche Meldung
     var errMsg = err.message || "";
     if(errMsg.indexOf("Failed to fetch") > -1 || errMsg.indexOf("NetworkError") > -1 || errMsg.indexOf("CORS") > -1) {
-      typingEl.innerHTML = "CORS-Fehler: Der Browser blockiert den API-Aufruf.<br><small>Loesung: Cloudflare Worker einrichten (siehe unten)</small>";
+      if(typingEl && typingEl.parentNode) typingEl.innerHTML = "CORS-Fehler: API-Aufruf blockiert. Cloudflare Worker pruefen.";
     } else if(errMsg.indexOf("401") > -1 || errMsg.indexOf("authentication") > -1) {
-      typingEl.innerHTML = "API-Key ungueltig. Bitte neuen Key eingeben:";
+      if(typingEl && typingEl.parentNode) typingEl.innerHTML = "API-Key ungueltig. Bitte neuen Key eingeben:";
       document.getElementById("aikey").style.display = "flex";
     } else {
-      typingEl.innerHTML = "Fehler: " + errMsg + ". Bitte nochmal versuchen.";
+      if(typingEl && typingEl.parentNode) typingEl.innerHTML = "Fehler: " + errMsg;
     }
   });
 }
@@ -1533,9 +1710,9 @@ function chkPw(){
   }else{document.getElementById("pwerr").style.display="block";document.getElementById("apw").value="";}
 }
 function loadAdm(){
-  document.getElementById("ss").textContent=stats.s;
-  document.getElementById("sr").textContent=parseFloat(stats.r||0).toFixed(2)+" EUR";
-  document.getElementById("sp").textContent=partners.length;
+  var __el=document.getElementById("ss");if(__el)__el.textContent=stats.s;
+  var __el=document.getElementById("sr");if(__el)__el.textContent=parseFloat(stats.r||0).toFixed(2)+" EUR";
+  var __el=document.getElementById("sp");if(__el)__el.textContent=partners.length;
   document.getElementById("p1").value=prices.f1;
   document.getElementById("p10").value=prices.f10;
   document.getElementById("pvs").value=prices.vs;
@@ -1547,7 +1724,7 @@ function loadAdm(){
   renderAdminPhotoList();
 }
 function rAdmPart(){
-  document.getElementById("aplst").innerHTML=partners.map(function(p,i){
+  var _aplst=document.getElementById("aplst"); if(_aplst) _aplst.innerHTML=partners.map(function(p,i){
     return "<div class='pitem'><div><div class='pnm'>"+p.name+"</div><div class='ptp'>"+p.code+" - "+p.coupon+"%</div></div>"+
       "<div style='display:flex;align-items:center;gap:7px'><span class='prv'>"+p.prov+"%</span>"+
       "<button class='xbtn' onclick='rmPart("+i+")'>x</button></div></div>";
@@ -1605,6 +1782,7 @@ var LOCATIONS = {
 };
 
 function initMap() {
+  if(typeof L === "undefined") { setTimeout(initMap, 500); return; } // Leaflet noch nicht geladen
   if(map || !document.getElementById("map")) return;
   map = L.map("map").setView([45.4851, 12.4162], 14);
   L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
@@ -1646,7 +1824,7 @@ function showRoute() {
   var dist = Math.round(R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)));
   var distStr = dist < 1000 ? dist + " m" : (dist/1000).toFixed(1) + " km";
   document.getElementById("route_info").style.display = "block";
-  document.getElementById("route_info").innerHTML = "<b>Terra Nova 112, Burano</b><br>Entfernung: <b>" + distStr + "</b><br><small style='opacity:.6'>Tipp: Vaporetto-Linie 12 ab Fondamente Nove</small><br><a href='https://www.google.com/maps/dir/"+userLatLng.lat+","+userLatLng.lng+"/"+dest.lat+","+dest.lng+"' target='_blank' style='color:var(--teal)'>In Google Maps oeffnen</a>";
+  var _ri=document.getElementById("route_info"); if(_ri){_ri.style.display="block";_ri.innerHTML="<b>Terra Nova 112, Burano</b><br>Entfernung: <b>" + distStr + "</b><br><small style='opacity:.6'>Tipp: Vaporetto-Linie 12 ab Fondamente Nove</small><br><a href='https://www.google.com/maps/dir/"+userLatLng.lat+","+userLatLng.lng+"/"+dest.lat+","+dest.lng+"' target='_blank' style='color:var(--teal)'>In Google Maps oeffnen</a>";}
   // Linie auf Map
   if(map) {
     L.polyline([[userLatLng.lat,userLatLng.lng],[dest.lat,dest.lng]], {color:"#FFD23F",weight:3,dashArray:"8,6"}).addTo(map);
@@ -1682,13 +1860,18 @@ function loadWeather() {
     var WX = {0:"Klar",1:"Ueberwiegend klar",2:"Teils bewoelkt",3:"Bewoelkt",45:"Nebel",48:"Nebel",51:"Leichter Niesel",53:"Niesel",61:"Leichter Regen",63:"Regen",71:"Leichter Schnee",73:"Schnee",80:"Regenschauer",81:"Regenschauer",95:"Gewitter",96:"Gewitter"};
     var ICONS_WX = {0:"&#9728;&#65039;",1:"&#127780;&#65039;",2:"&#9925;",3:"&#9729;",45:"&#127787;&#65039;",48:"&#127787;&#65039;",51:"&#127746;",53:"&#127746;",61:"&#127783;&#65039;",63:"&#127783;&#65039;",71:"&#127784;&#65039;",73:"&#127784;&#65039;",80:"&#127783;&#65039;",81:"&#127783;&#65039;",95:"&#9928;&#65039;",96:"&#9928;&#65039;"};
     var code = c.weathercode;
-    document.getElementById("wx_icon").innerHTML = ICONS_WX[code] || "&#127780;";
-    document.getElementById("wx_temp").textContent = Math.round(c.temperature_2m) + " C - Burano, Venezia";
-    document.getElementById("wx_desc").textContent = WX[code] || "Aktuelles Wetter";
-    document.getElementById("wx_extra").textContent = "Wind: " + Math.round(c.windspeed_10m) + " km/h  |  Feuchte: " + c.relativehumidity_2m + "%";
-    document.getElementById("wx_time").textContent = "Aktualisiert: " + new Date().toLocaleTimeString();
+    var wxIcon=document.getElementById("wx_icon"),
+        wxTemp=document.getElementById("wx_temp"),
+        wxDesc=document.getElementById("wx_desc"),
+        wxExt=document.getElementById("wx_extra"),
+        wxTime=document.getElementById("wx_time");
+    if(wxIcon) wxIcon.innerHTML = ICONS_WX[code] || "&#127780;";
+    if(wxTemp) wxTemp.textContent = Math.round(c.temperature_2m) + " C - Burano, Venezia";
+    if(wxDesc) wxDesc.textContent = WX[code] || "Aktuelles Wetter";
+    if(wxExt)  wxExt.textContent = "Wind: " + Math.round(c.windspeed_10m) + " km/h  |  Feuchte: " + c.relativehumidity_2m + "%";
+    if(wxTime) wxTime.textContent = "Aktualisiert: " + new Date().toLocaleTimeString();
   }).catch(function() {
-    document.getElementById("wx_temp").textContent = "Wetter nicht verfuegbar";
+    var __el=document.getElementById("wx_temp");if(__el)__el.textContent="Wetter nicht verfuegbar";
   });
 }
 
@@ -1706,7 +1889,7 @@ function loadVideoThumb(input, vidId) {
       thumb.innerHTML = "<img src='"+data+"' style='width:100%;height:100%;object-fit:cover;border-radius:8px'>";
       localStorage.setItem("bl_"+vidId+"_thumb", data);
     } else {
-      thumb.innerHTML = "&#127909; Video gewaehlt";
+      if(thumb) thumb.innerHTML = "&#127909; Video gewaehlt";
       localStorage.setItem("bl_"+vidId+"_file", data);
     }
   };
@@ -1743,7 +1926,7 @@ function loadIslandPhoto(input, island) {
   var reader = new FileReader();
   reader.onload = function(e) {
     islandPhotos[island] = e.target.result;
-    document.getElementById(island+"_prev").innerHTML = "<img src='"+e.target.result+"' style='width:100%;height:100%;object-fit:cover;border-radius:8px'>";
+    var _ip=document.getElementById(island+"_prev"); if(_ip) _ip.innerHTML = "<img src='"+e.target.result+"' style='width:100%;height:100%;object-fit:cover;border-radius:8px'>";
   };
   reader.readAsDataURL(input.files[0]);
 }
@@ -1875,7 +2058,8 @@ window.addEventListener("load", function() {
   updateGreetingSelect();
   initHero();
   // Map + Wetter
-  setTimeout(initMap, 500);
+  if(typeof L !== "undefined") initMap();
+  else setTimeout(initMap, 1000);
   loadWeather();
   setInterval(loadWeather, 600000); // alle 10 Min
   // Video-Thumbnails laden
@@ -1895,7 +2079,10 @@ window.addEventListener("load", function() {
 
 
 
+
+
+
 </script>ipt>
 </body>
-<script src="format.js"></script>
+<script src="format.js?v=1774698350"></script>
 </html>

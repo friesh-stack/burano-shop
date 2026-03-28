@@ -46,6 +46,10 @@ function cropToRatio(src,tw,th,cb){
   };img.src=src;
 }
 
+function updatePcPreview(){
+  if(typeof renderPC==="function") renderPC(true);
+}
+
 function loadPcPhotoFile(file){
   var reader=new FileReader();
   reader.onload=function(e){
