@@ -80,22 +80,14 @@ body{font-family:'Nunito',sans-serif;background:var(--bd);color:var(--wh);overfl
   #ggrid_f3{grid-template-columns:repeat(3,1fr);}
   #ggrid_f4{grid-template-columns:repeat(3,1fr);}
 }
-.gi{border-radius:14px;overflow:hidden;position:relative;cursor:pointer;border:3px solid transparent;transition:border-color .2s, transform .15s;}
+.gi{border-radius:14px;overflow:hidden;position:relative;cursor:pointer;border:3px solid transparent;transition:border-color .2s,transform .2s;background:var(--bm);min-height:100px;}
 .gi:active{transform:scale(.97);}
-.gi img{width:100%;height:100%;object-fit:cover;display:block;}
-/* aspect-ratio Fallback für ältere Android-Browser */
-.gi[data-fmt="4:3"]  { aspect-ratio:4/3;  }
-.gi[data-fmt="16:9"] { aspect-ratio:16/9; }
-.gi[data-fmt="3:4"]  { aspect-ratio:3/4;  }
-.gi[data-fmt="9:16"] { aspect-ratio:9/16; min-height:120px; }
-/* Fallback wenn aspect-ratio nicht unterstützt */
-@supports not (aspect-ratio: 1) {
-  .gi[data-fmt="4:3"]  { padding-top:75%;  height:0; }
-  .gi[data-fmt="16:9"] { padding-top:56.25%; height:0; }
-  .gi[data-fmt="3:4"]  { padding-top:133%; height:0; }
-  .gi[data-fmt="9:16"] { padding-top:177%; height:0; }
-  .gi img { position:absolute;inset:0;width:100%;height:100%; }
-}
+.gi img{width:100%;height:100%;object-fit:cover;display:block;position:absolute;inset:0;}
+.gi::before{content:"";display:block;}
+.gi[data-fmt="4:3"]::before  {padding-top:75%;}
+.gi[data-fmt="16:9"]::before {padding-top:56.25%;}
+.gi[data-fmt="3:4"]::before  {padding-top:133%;}
+.gi[data-fmt="9:16"]::before {padding-top:177%;}
 .gi:hover{border-color:var(--gold);transform:scale(1.02);}
 .gi img{width:100%;height:100%;object-fit:cover;display:block;}
 .gi .lbl{position:absolute;bottom:8px;right:8px;background:rgba(0,0,0,.7);color:var(--gold);font-size:.68rem;font-weight:900;padding:3px 9px;border-radius:10px;}
