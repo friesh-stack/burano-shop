@@ -629,13 +629,13 @@ footer strong{color:var(--gold);}
     <div class="asec">
       <h4>📮 Postkarten-Foto hochladen</h4>
       <p style="font-size:.8rem;opacity:.65;margin-bottom:12px">Lade dein fertiges Foto (bereits mit Briefmarke) hoch. Der Kunde wählt nur noch den Grußtext und seinen Namen.</p>
-      <div id="pc_upload_area" style="border:2px dashed rgba(255,210,63,.4);border-radius:12px;padding:20px;text-align:center;cursor:pointer;margin-bottom:10px;transition:border-color .2s" onclick="document.getElementById('pc_file_input').click()" ondragover="event.preventDefault();this.style.borderColor='var(--gold)'" ondrop="handlePcDrop(event)">
+      <div id="pc_upload_area" style="border:2px dashed rgba(255,210,63,.4);border-radius:12px;padding:20px;text-align:center;cursor:pointer;margin-bottom:10px;transition:border-color .2s" onclick="document.getElementById('pc_file_input').click()" ondragover="event.preventDefault();this.style.borderColor='var(--gold)'" ondrop="handlePcDrop(event)" onchange="loadPcPhoto(this)">
         <div id="pc_upload_preview" style="margin-bottom:8px">
           <div style="font-size:2rem">🖼️</div>
           <div style="font-size:.85rem;opacity:.6">Foto hier reinziehen oder klicken</div>
           <div style="font-size:.75rem;opacity:.4;margin-top:4px">JPG, PNG – empfohlen 4:3 Querformat</div>
         </div>
-        <input type="file" id="pc_file_input" accept="image/*" style="display:none" onchange="loadPcPhoto(this)">
+        <input type="file" id="pc_file_input" accept="image/*" style="display:none" onchange="loadPcPhoto(this);document.getElementById('pc_save_btn').style.display='block';">
       </div>
       <div style="display:flex;gap:8px;margin-bottom:8px">
         <div style="flex:1">
@@ -738,7 +738,7 @@ footer strong{color:var(--gold);}
     <button id="mic_big_btn" class="mic-big-btn" onclick="toggleMic()" title="Mikrofon aktivieren">
       &#127908;
     </button>
-    <div class="mic-timer" id="mic_timer"></div>
+    <div style="display:none" id="mic_timer"></div>
     <div class="mic-hint" id="mic_hint">Tippen um Marco zu fragen</div>
   </div>
   <!-- Text-Eingabe -->
@@ -789,6 +789,13 @@ if("serviceWorker" in navigator){
 }
 </script>
 <script>
+
+function loadPcPhoto(input) {
+  if(!input.files || !input.files[0]) return;
+  if(typeof loadPcPhotoFile === "function") loadPcPhotoFile(input.files[0]);
+  var btn = document.getElementById("pc_save_btn");
+  if(btn) btn.style.display = "block";
+}
 
 // ── GLOBALER ERROR-HANDLER ──
 window.onerror = function(msg, src, line, col, err) {
@@ -1554,19 +1561,7 @@ function startMicTimer() {
   clearInterval(micTimer);
   micTimer = setInterval(function() {
     micSeconds--;
-    var btn = document.getElementById("mic_big_btn");
-    var timerEl = document.getElementById("mic_timer");
-    if(timerEl) {
-      if(micSeconds > 0) {
-        timerEl.textContent = micSeconds + "s";
-        timerEl.style.color = micSeconds<=3 ? "var(--red)" : "var(--gold)";
-      } else {
-        timerEl.textContent = "";
-      }
-    }
-    if(micSeconds <= 0) {
-      stopMic();
-    }
+    if(micSeconds <= 0) stopMic();
   }, 1000);
 }
 
@@ -1574,17 +1569,10 @@ function setMicActive(active) {
   var btn  = document.getElementById("mic_big_btn");
   var hint = document.getElementById("mic_hint");
   if(btn) {
-    if(active) {
-      btn.classList.add("active");
-      if(btn) btn.innerHTML = "&#9209;";
-    } else {
-      btn.classList.remove("active");
-      if(btn) btn.innerHTML = "&#127908;";
-    }
+    if(active) { btn.classList.add("active");    btn.innerHTML = "&#9209;"; }
+    else        { btn.classList.remove("active"); btn.innerHTML = "&#127908;"; }
   }
   if(hint) hint.textContent = active ? getMicHints()[2] : getMicHints()[0];
-  var timerEl = document.getElementById("mic_timer");
-  if(timerEl && !active) timerEl.textContent = "";
 }
 
 function setMicHint(text) {
