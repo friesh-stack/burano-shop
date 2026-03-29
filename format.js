@@ -441,8 +441,8 @@ function saveIslandPhotoToStrip(key, url) {
 
 // INIT
 window.addEventListener("load", function() {
-  setTimeout(function() {
-    ensureHeroSlides();
+  // Sofort ausführen - kein Timeout
+  ensureHeroSlides();
     // Pos-Buttons
     var pos=localStorage.getItem("bl_pc_pos")||"water";
     ["sky","middle","water"].forEach(function(p){
@@ -455,5 +455,5 @@ window.addEventListener("load", function() {
     buildPcThumbs();
     buildIslandStrip("mazz_strip","bl_mazz_photos");
     buildIslandStrip("torc_strip","bl_torc_photos");
-  }, 500);
 });
+
