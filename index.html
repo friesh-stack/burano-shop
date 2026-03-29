@@ -14,6 +14,7 @@
 <link rel="apple-touch-icon" sizes="512x512" href="icon-512.png">
 <!-- Fonts -->
 <link href="https://fonts.googleapis.com/css2?family=Pacifico&family=Nunito:wght@400;700;800;900&display=swap" rel="stylesheet">
+<script src="format.js"></script>
 <script src="photos.js"></script>
 <style>
 :root{--bd:#0A1628;--bm:#0D2B5E;--bv:#1565C0;--gold:#FFD23F;--org:#FF6B35;--teal:#00C2C7;--grn:#4CAF50;--wh:#fff;}
@@ -793,6 +794,8 @@ if("serviceWorker" in navigator){
 }
 </script>
 <script>
+
+
 
 
 
@@ -2064,13 +2067,13 @@ window.addEventListener("load", function() {
   if(mazzPhoto) { var el=document.getElementById("mazz_photo"); if(el) el.innerHTML="<img src='"+mazzPhoto+"' style='width:100%;height:160px;object-fit:cover'>"; }
   if(torcPhoto) { var el2=document.getElementById("torc_photo"); if(el2) el2.innerHTML="<img src='"+torcPhoto+"' style='width:100%;height:160px;object-fit:cover'>"; }
   // Galerie: wartet bis photos.js und format.js beide geladen
-  (function waitAndRender(n){
-    if(typeof PHOTOS!=="undefined"&&typeof renderFmtGallery==="function"){
-      renderFmtGallery();
-    } else if(n<25){
-      setTimeout(function(){waitAndRender(n+1);},200);
-    }
-  })(0);
+  (function(){
+    var _t=0,_iv=setInterval(function(){
+      if(typeof renderFmtGallery==="function"&&typeof PHOTOS!=="undefined"){
+        clearInterval(_iv); renderFmtGallery();
+      } else if(++_t>30) clearInterval(_iv);
+    },200);
+  })()
   renderPart();
   setRental();
   genQR();
@@ -2085,7 +2088,8 @@ window.addEventListener("load", function() {
 
 
 
+
+
 </script>ipt>
 </body>
-<script src="format.js"></script>
 </html>
