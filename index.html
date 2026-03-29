@@ -805,6 +805,7 @@ if("serviceWorker" in navigator){
 
 
 
+
 // Translations - nur ASCII, keine Sonderzeichen im JS
 var TXT = {
   de: {
@@ -2023,6 +2024,53 @@ function genQR(){
   try{new QRCode(el,{text:window.location.href,width:160,height:160});}catch(e){}
 }
 
+
+// ═══════════════════════════════════════
+// UPLOAD-FUNKTIONEN
+// ═══════════════════════════════════════
+function loadPcPhoto(input) {
+  if(!input.files || !input.files[0]) return;
+  var file = input.files[0];
+  var btn = document.getElementById("pc_save_btn");
+  if(btn) { btn.style.display="block"; btn.style.visibility="visible"; }
+  var prev = document.getElementById("pc_upload_preview");
+  if(prev) {
+    var reader = new FileReader();
+    reader.onload = function(e) {
+      prev.innerHTML = "";
+      var img = document.createElement("img");
+      img.src = e.target.result;
+      img.style.cssText = "max-width:100%;max-height:160px;border-radius:8px;display:block;margin:0 auto";
+      prev.appendChild(img);
+    };
+    reader.readAsDataURL(file);
+  }
+  if(typeof loadPcPhotoFile === "function") loadPcPhotoFile(file);
+}
+
+function handlePcDrop(e) {
+  e.preventDefault(); e.stopPropagation();
+  var files = e.dataTransfer ? e.dataTransfer.files : null;
+  if(!files || !files.length) return;
+  var file = files[0];
+  if(!file.type.startsWith("image/")) { alert("Bitte ein Bild hochladen."); return; }
+  var btn = document.getElementById("pc_save_btn");
+  if(btn) { btn.style.display="block"; btn.style.visibility="visible"; }
+  if(typeof loadPcPhotoFile === "function") loadPcPhotoFile(file);
+  var prev = document.getElementById("pc_upload_preview");
+  if(prev) {
+    var reader = new FileReader();
+    reader.onload = function(e) {
+      prev.innerHTML = "";
+      var img = document.createElement("img");
+      img.src = e.target.result;
+      img.style.cssText = "max-width:100%;max-height:160px;border-radius:8px;display:block;margin:0 auto";
+      prev.appendChild(img);
+    };
+    reader.readAsDataURL(file);
+  }
+}
+
 window.addEventListener("load", function() {
   // Aktiven Sprachbutton setzen
   var activeLb = document.getElementById("lb_" + curLang);
@@ -2079,6 +2127,7 @@ window.addEventListener("load", function() {
   genQR();
   setTimeout(renderPC,300);
 });
+
 
 
 
