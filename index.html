@@ -709,7 +709,7 @@ footer strong{color:var(--gold);}
           <input type="file" id="torc_file" accept="image/*" style="display:none" onchange="loadIslandPhoto(this,'torc')">
         </div>
       </div>
-      <button class="abtn" onclick="saveIslandPhotos()" style="margin-top:10px">Fotos speichern</button>
+      <button class="abtn" onclick="saveIslandPhotos()" style="margin-top:10px" style="display:none">Fotos speichern</button>
     </div>
 
     <div style="margin-top:14px;text-align:right">
@@ -790,6 +790,9 @@ if("serviceWorker" in navigator){
 }
 </script>
 <script>
+
+
+
 
 
 
@@ -1847,19 +1850,60 @@ function loadWeather() {
 function loadVideoThumb(input, vidId) {
   if(!input.files || !input.files[0]) return;
   var file = input.files[0];
-  var reader = new FileReader();
-  reader.onload = function(e) {
-    var data = e.target.result;
-    var thumb = document.getElementById(vidId + "_thumb");
-    if(file.type.startsWith("image/")) {
-      thumb.innerHTML = "<img src='"+data+"' style='width:100%;height:100%;object-fit:cover;border-radius:8px'>";
-      localStorage.setItem("bl_"+vidId+"_thumb", data);
-    } else {
-      if(thumb) thumb.innerHTML = "&#127909; Video gewaehlt";
-      localStorage.setItem("bl_"+vidId+"_file", data);
-    }
-  };
-  reader.readAsDataURL(file);
+  var thumb = document.getElementById(vidId+"_thumb");
+  var nameEl = document.getElementById(vidId+"_name");
+  if(nameEl) nameEl.textContent = file.name;
+
+  if(file.type.startsWith("image/")) {
+    // Vorschaubild hochladen
+    var reader = new FileReader();
+    reader.onload = function(e) {
+      localStorage.setItem("bl_"+vidId+"_thumb", e.target.result);
+      if(thumb) {
+        thumb.innerHTML="";
+        var img=document.createElement("img");
+        img.src=e.target.result;
+        img.style.cssText="width:100%;height:100%;object-fit:cover;border-radius:8px";
+        thumb.appendChild(img);
+        var ok=document.createElement("div");
+        ok.style.cssText="position:absolute;bottom:4px;left:0;right:0;text-align:center;color:#4CAF50;font-size:.7rem;font-weight:700;background:rgba(0,0,0,.5)";
+        ok.textContent="✓ Gespeichert";
+        thumb.appendChild(ok);
+        setTimeout(function(){if(ok.parentNode)ok.remove();},3000);
+      }
+      if(typeof updateVideoDisplay==="function") updateVideoDisplay();
+    };
+    reader.readAsDataURL(file);
+  } else if(file.type.startsWith("video/")) {
+    // Frame extrahieren
+    if(thumb) thumb.innerHTML="<div style='font-size:.72rem;color:var(--gold);text-align:center;padding:8px'>wird geladen...</div>";
+    var vid=document.createElement("video");
+    vid.muted=true;vid.playsInline=true;vid.style.display="none";
+    document.body.appendChild(vid);
+    var objUrl=URL.createObjectURL(file);
+    vid.src=objUrl;
+    vid.addEventListener("loadeddata",function(){vid.currentTime=1;});
+    vid.addEventListener("seeked",function(){
+      var cv=document.createElement("canvas");cv.width=200;cv.height=120;
+      cv.getContext("2d").drawImage(vid,0,0,200,120);
+      var td=cv.toDataURL("image/jpeg",.8);
+      localStorage.setItem("bl_"+vidId+"_thumb",td);
+      localStorage.setItem("bl_"+vidId+"_name",file.name);
+      if(thumb){
+        thumb.innerHTML="";
+        thumb.style.position="relative";
+        var img=document.createElement("img");
+        img.src=td;img.style.cssText="width:100%;height:100%;object-fit:cover;border-radius:8px";
+        thumb.appendChild(img);
+        var ov=document.createElement("div");
+        ov.style.cssText="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:1.6rem";
+        ov.textContent="▶";thumb.appendChild(ov);
+      }
+      URL.revokeObjectURL(objUrl);vid.remove();
+      if(typeof updateVideoDisplay==="function") updateVideoDisplay();
+    });
+    vid.load();
+  }
 }
 
 function saveVideos() {
@@ -1888,35 +1932,27 @@ function updateVideoThumbs() {
 var islandPhotos = {mazz:null, torc:null};
 
 function loadIslandPhoto(input, island) {
-  if(!input.files || !input.files[0]) return;
-  var reader = new FileReader();
-  reader.onload = function(e) {
-    islandPhotos[island] = e.target.result;
-    var _ip=document.getElementById(island+"_prev"); if(_ip) _ip.innerHTML = "<img src='"+e.target.result+"' style='width:100%;height:100%;object-fit:cover;border-radius:8px'>";
+  if(!input.files||!input.files[0]) return;
+  var file=input.files[0];
+  if(!file.type.startsWith("image/")){alert("Nur Bilder");return;}
+  var reader=new FileReader();
+  reader.onload=function(e){
+    var data=e.target.result;
+    var prev=document.getElementById(island+"_prev");
+    if(prev){prev.innerHTML="";var img=document.createElement("img");img.src=data;img.style.cssText="width:100%;height:160px;object-fit:cover;border-radius:8px";prev.appendChild(img);}
+    var key="bl_"+island+"_photos";
+    var arr=[];try{arr=JSON.parse(localStorage.getItem(key)||"[]");}catch(ex){}
+    arr.push(data);
+    try{
+      localStorage.setItem(key,JSON.stringify(arr));
+      if(typeof buildIslandStrip==="function")buildIslandStrip(island+"_strip",key);
+      if(prev){var ok=document.createElement("div");ok.style.cssText="color:#4CAF50;font-size:.78rem;margin-top:5px;text-align:center;font-weight:700";ok.textContent="✓ Gespeichert! ("+arr.length+" Fotos)";prev.appendChild(ok);}
+    }catch(ex){alert("Speicher voll!");}
   };
-  reader.readAsDataURL(input.files[0]);
+  reader.readAsDataURL(file);
 }
 
-function saveIslandPhotos() {
-  if(islandPhotos.mazz) {
-    // Array-Speicherung fuer Laufband
-    var mArr=[];try{mArr=JSON.parse(localStorage.getItem("bl_mazz_photos")||"[]");}catch(e){}
-    mArr.push(islandPhotos.mazz);
-    try{localStorage.setItem("bl_mazz_photos",JSON.stringify(mArr));}catch(e){}
-    var el = document.getElementById("mazz_photo");
-    if(el) el.innerHTML = "<img src='"+islandPhotos.mazz+"' style='width:100%;height:160px;object-fit:cover'>";
-    if(typeof buildIslandStrip==="function") buildIslandStrip("mazz_strip","bl_mazz_photos");
-  }
-  if(islandPhotos.torc) {
-    var tArr=[];try{tArr=JSON.parse(localStorage.getItem("bl_torc_photos")||"[]");}catch(e){}
-    tArr.push(islandPhotos.torc);
-    try{localStorage.setItem("bl_torc_photos",JSON.stringify(tArr));}catch(e){}
-    var el2 = document.getElementById("torc_photo");
-    if(el2) el2.innerHTML = "<img src='"+islandPhotos.torc+"' style='width:100%;height:160px;object-fit:cover'>";
-  }
-  if(typeof buildIslandStrip==="function"){buildIslandStrip("mazz_strip","bl_mazz_photos");buildIslandStrip("torc_strip","bl_torc_photos");}
-    alert("Insel-Fotos gespeichert!");
-}
+function saveIslandPhotos(){/* automatisch gespeichert */}
 
 // ============================================================
 // PARTNER ADMIN (Erweiterung: Foto + Location)
@@ -1937,14 +1973,19 @@ function renderAdminPartnerExt() {
   }).join("");
 }
 
-function loadPartnerPhoto(input, idx) {
-  if(!input.files || !input.files[0]) return;
-  var reader = new FileReader();
-  reader.onload = function(e) {
-    partners[idx].photo = e.target.result;
-    localStorage.setItem("bl_partners", JSON.stringify(partners));
-    renderPart();
-    renderAdminPartnerExt();
+function loadPartnerPhoto(input, pidx) {
+  if(!input.files||!input.files[0]) return;
+  var reader=new FileReader();
+  reader.onload=function(e){
+    var data=e.target.result;
+    if(partners&&partners[pidx]){
+      partners[pidx].photo=data;
+      try{
+        localStorage.setItem("bl_partners",JSON.stringify(partners));
+        if(typeof renderPart==="function")renderPart();
+        if(typeof rAdmPart==="function")rAdmPart();
+      }catch(ex){alert("Speicher voll!");}
+    }
   };
   reader.readAsDataURL(input.files[0]);
 }
@@ -2034,6 +2075,25 @@ function autoSavePhoto(file) {
 function loadPcPhoto(inp){if(inp.files&&inp.files[0])autoSavePhoto(inp.files[0]);}
 function handlePcDrop(e){e.preventDefault();e.stopPropagation();var f=e.dataTransfer&&e.dataTransfer.files;if(f&&f[0])autoSavePhoto(f[0]);}
 
+function renderPart(){
+  var g=document.getElementById("pargrid");if(!g)return;
+  var p=[];try{p=JSON.parse(localStorage.getItem("bl_partners")||"[]");}catch(e){}
+  if(!p.length){g.innerHTML="<p style='opacity:.4;padding:10px'>Noch keine Partner.</p>";return;}
+  g.innerHTML=p.map(function(x){
+    var ph=x.photo?"<img src='"+x.photo+"' style='width:100%;height:90px;object-fit:cover;border-radius:10px;margin-bottom:6px'>":"<div style='height:60px;background:rgba(255,255,255,.06);border-radius:10px;margin-bottom:6px'></div>";
+    return "<div class='ptcard'>"+ph+"<h3 style='font-size:.9rem;margin:0 0 4px'>"+x.name+"</h3></div>";
+  }).join("");
+}
+function setRental(){
+  var r1=document.getElementById("t_r1"),r2=document.getElementById("t_r2");
+  if(r1)r1.textContent=localStorage.getItem("bl_r1_name")||"Blue Lagune";
+  if(r2)r2.textContent=localStorage.getItem("bl_r2_name")||"Vista Laguna";
+}
+function genQR(){
+  var el=document.getElementById("qrcode");
+  if(!el||el.innerHTML.trim()||typeof QRCode==="undefined")return;
+  try{new QRCode(el,{text:window.location.href,width:160,height:160});}catch(e){}
+}
 window.addEventListener("load", function() {
   // Aktiven Sprachbutton setzen
   var activeLb = document.getElementById("lb_" + curLang);
@@ -2083,6 +2143,9 @@ window.addEventListener("load", function() {
   genQR();
   setTimeout(renderPC, 300);
 });
+
+
+
 
 
 
