@@ -637,7 +637,7 @@ footer strong{color:var(--gold);}
       <div id="pc_upload_area" style="border:2px dashed rgba(255,210,63,.4);border-radius:12px;padding:20px;text-align:center;cursor:pointer;margin-bottom:10px;transition:border-color .2s" onclick="document.getElementById('pc_file_input').click()" ondragover="event.preventDefault();this.style.borderColor='var(--gold)'" ondrop="handlePcDrop(event)">
         <div id="pc_upload_preview" style="margin-bottom:8px">
           <div style="font-size:2rem">🖼️</div>
-          <div style="font-size:.85rem;opacity:.6">Foto hier reinziehen oder klicken</div>
+          <div style="font-size:.85rem;opacity:.6">Foto reinziehen oder tippen → wird automatisch gespeichert</div>
           <div style="font-size:.75rem;opacity:.4;margin-top:4px">JPG, PNG – empfohlen 4:3 Querformat</div>
         </div>
         <input type="file" id="pc_file_input" accept="image/*" style="display:none" onchange="loadPcPhoto(this)">
@@ -661,7 +661,7 @@ footer strong{color:var(--gold);}
         </div>
       </div>
       <canvas id="pc_admin_preview" width="600" height="800" style="width:100%;border-radius:10px;display:none;margin-bottom:8px"></canvas>
-      <button class="abtn" onclick="savePcPhoto()" id="pc_save_btn" style="display:none">Foto speichern</button>
+      <button class="abtn" onclick="savePcPhoto()" id="pc_save_btn" style="display:none">Foto speichern</button><!-- Button nicht mehr nötig -->
       <div style="margin-top:14px"><h4 style="color:var(--teal);font-size:.75rem;font-weight:900;letter-spacing:1px;text-transform:uppercase;margin-bottom:8px">Gespeicherte Fotos</h4><div id="admin_photo_list" style="background:rgba(255,255,255,.04);border-radius:10px;padding:10px;min-height:40px"></div></div>
     </div>
     <!-- GALERIE REIHENFOLGE -->
@@ -789,11 +789,8 @@ footer strong{color:var(--gold);}
 if("serviceWorker" in navigator){
   // Pruefen ob sw.js erreichbar ist bevor registrieren
   fetch("sw.js",{method:"HEAD"}).then(function(r){
-    if(r.ok) navigator.serviceWorker.register("sw.js");
-  }).catch(function(){});
-}
-</script>
-<script>
+    if(r.ok) navigator.serviceWorker.<script>
+
 
 
 
@@ -2028,47 +2025,69 @@ function genQR(){
 // ═══════════════════════════════════════
 // UPLOAD-FUNKTIONEN
 // ═══════════════════════════════════════
-function loadPcPhoto(input) {
-  if(!input.files || !input.files[0]) return;
-  var file = input.files[0];
-  var btn = document.getElementById("pc_save_btn");
-  if(btn) { btn.style.display="block"; btn.style.visibility="visible"; }
-  var prev = document.getElementById("pc_upload_preview");
-  if(prev) {
-    var reader = new FileReader();
-    reader.onload = function(e) {
-      prev.innerHTML = "";
-      var img = document.createElement("img");
-      img.src = e.target.result;
-      img.style.cssText = "max-width:100%;max-height:160px;border-radius:8px;display:block;margin:0 auto";
-      prev.appendChild(img);
-    };
-    reader.readAsDataURL(file);
+// Upload-Foto: AUTOMATISCH speichern, kein Button nötig
+function autoSavePhoto(file) {
+  if(!file || !file.type.startsWith("image/")) { 
+    if(file) alert("Bitte ein Bild (JPG/PNG) hochladen."); 
+    return; 
   }
-  if(typeof loadPcPhotoFile === "function") loadPcPhotoFile(file);
+  var prev = document.getElementById("pc_upload_preview");
+  if(prev) prev.innerHTML = "<div style='padding:10px;color:var(--gold);font-size:.85rem'>⏳ Wird gespeichert...</div>";
+  
+  var reader = new FileReader();
+  reader.onload = function(e) {
+    var raw = e.target.result;
+    // Auf 9:16 zuschneiden und speichern
+    var img = new Image();
+    img.onload = function() {
+      var tw=540, th=960, sr=img.width/img.height, tr=tw/th;
+      var cx,cy,cw,ch;
+      if(sr>tr){ch=img.height;cw=Math.round(ch*tr);cx=Math.round((img.width-cw)/2);cy=0;}
+      else{cw=img.width;ch=Math.round(cw/tr);cx=0;cy=Math.round((img.height-ch)/3);}
+      var cv=document.createElement("canvas");cv.width=tw;cv.height=th;
+      cv.getContext("2d").drawImage(img,cx,cy,cw,ch,0,0,tw,th);
+      var data = cv.toDataURL("image/jpeg",0.85);
+      
+      // Direkt in localStorage speichern
+      var arr=[];
+      try{arr=JSON.parse(localStorage.getItem("bl_photos_916")||"[]");}catch(ex){}
+      arr.push(data);
+      try {
+        localStorage.setItem("bl_photos_916",JSON.stringify(arr));
+        localStorage.setItem("bl_fp_916",JSON.stringify(arr));
+        // Erfolg anzeigen
+        if(prev) {
+          prev.innerHTML="";
+          var pi=document.createElement("img");
+          pi.src=data;
+          pi.style.cssText="max-width:100%;max-height:150px;border-radius:8px;display:block;margin:0 auto";
+          prev.appendChild(pi);
+          var ok=document.createElement("div");
+          ok.style.cssText="color:#4CAF50;font-size:.82rem;margin-top:6px;text-align:center;font-weight:700";
+          ok.textContent="✓ Gespeichert! ("+arr.length+" Fotos)";
+          prev.appendChild(ok);
+        }
+        // Galerie sofort aktualisieren
+        if(typeof renderFmtGallery==="function") renderFmtGallery();
+        if(typeof renderAdminPhotoList==="function") renderAdminPhotoList();
+        if(typeof buildPcThumbs==="function") buildPcThumbs();
+      } catch(ex) {
+        if(prev) prev.innerHTML="<div style='color:#f44;padding:8px'>❌ Speicher voll. Bitte andere Fotos löschen.</div>";
+      }
+    };
+    img.src = raw;
+  };
+  reader.readAsDataURL(file);
+}
+
+function loadPcPhoto(input) {
+  if(input.files && input.files[0]) autoSavePhoto(input.files[0]);
 }
 
 function handlePcDrop(e) {
   e.preventDefault(); e.stopPropagation();
   var files = e.dataTransfer ? e.dataTransfer.files : null;
-  if(!files || !files.length) return;
-  var file = files[0];
-  if(!file.type.startsWith("image/")) { alert("Bitte ein Bild hochladen."); return; }
-  var btn = document.getElementById("pc_save_btn");
-  if(btn) { btn.style.display="block"; btn.style.visibility="visible"; }
-  if(typeof loadPcPhotoFile === "function") loadPcPhotoFile(file);
-  var prev = document.getElementById("pc_upload_preview");
-  if(prev) {
-    var reader = new FileReader();
-    reader.onload = function(e) {
-      prev.innerHTML = "";
-      var img = document.createElement("img");
-      img.src = e.target.result;
-      img.style.cssText = "max-width:100%;max-height:160px;border-radius:8px;display:block;margin:0 auto";
-      prev.appendChild(img);
-    };
-    reader.readAsDataURL(file);
-  }
+  if(files && files.length) autoSavePhoto(files[0]);
 }
 
 window.addEventListener("load", function() {
@@ -2125,6 +2144,22 @@ window.addEventListener("load", function() {
   renderPart();
   setRental();
   genQR();
+  setTimeout(renderPC,300);
+});
+
+
+
+
+
+
+
+
+
+
+
+
+
+</script>();
   setTimeout(renderPC,300);
 });
 
