@@ -786,7 +786,6 @@ footer strong{color:var(--gold);}
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <script>
-
 // ── AUTO-SAVE FOTO (9:16) ──
 function autoSavePhoto(file) {
   if(!file||!file.type.startsWith("image/")){if(file)alert("Nur Bilder (JPG/PNG)");return;}
@@ -796,12 +795,20 @@ function autoSavePhoto(file) {
   reader.onload=function(e){
     var img=new Image();
     img.onload=function(){
-      var tw=540,th=960,sr=img.width/img.height,tr=tw/th,cx,cy,cw,ch;
+      // Thumbnail (für Galerie, klein)
+      var tw=270,th=480,sr=img.width/img.height,tr=tw/th,cx,cy,cw,ch;
       if(sr>tr){ch=img.height;cw=Math.round(ch*tr);cx=Math.round((img.width-cw)/2);cy=0;}
       else{cw=img.width;ch=Math.round(cw/tr);cx=0;cy=Math.round((img.height-ch)/3);}
-      var cv=document.createElement("canvas");cv.width=tw;cv.height=th;
-      cv.getContext("2d").drawImage(img,cx,cy,cw,ch,0,0,tw,th);
-      var data=cv.toDataURL("image/jpeg",.85);
+      var cvT=document.createElement("canvas");cvT.width=tw;cvT.height=th;
+      cvT.getContext("2d").drawImage(img,cx,cy,cw,ch,0,0,tw,th);
+      var data=cvT.toDataURL("image/jpeg",.45);
+      // Vollbild (für Postkarte, hochauflösend)
+      var tw2=540,th2=960;
+      var cv2=document.createElement("canvas");cv2.width=tw2;cv2.height=th2;
+      cv2.getContext("2d").drawImage(img,cx,cy,cw,ch,0,0,tw2,th2);
+      var dataFull=cv2.toDataURL("image/jpeg",.82);
+      // Vollbild in separatem Key für aktive Session (nicht localStorage - zu gross)
+      window._lastUploadFull = dataFull;
       var arr=[];try{arr=JSON.parse(localStorage.getItem("bl_photos_916")||"[]");}catch(ex){}
       arr.push(data);
       try{
@@ -2135,22 +2142,6 @@ window.addEventListener("load", function() {
   setTimeout(renderPC, 300);
 });
 
-
-
-
-
-
-
-</script>Part();
-  setRental();
-  genQR();
-  setTimeout(renderPC, 300);
-});
-
-
-
-
-
-</script>ipt>
+</script>
 </body>
 </html>
