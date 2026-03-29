@@ -72,12 +72,8 @@ body{font-family:'Nunito',sans-serif;background:var(--bd);color:var(--wh);overfl
 .btnPP{display:inline-block;background:linear-gradient(135deg,#009CDE,#003087);color:#fff;border:none;border-radius:50px;padding:12px 26px;font-size:.9rem;font-weight:800;cursor:pointer;font-family:'Nunito',sans-serif;box-shadow:0 4px 16px rgba(0,144,222,.35);transition:transform .2s;}
 .btnPP:hover{transform:scale(1.05);}
 /* GALLERY */
-.ggrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:10px;}
-.gi{border-radius:14px;overflow:hidden;position:relative;cursor:pointer;border:3px solid transparent;transition:border-color .2s,transform .2s;background:var(--bm);display:block;width:100%;}
-.gi-inner{position:relative;width:100%;padding-top:177.78%;}
-.gi-inner img{position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;display:block;}
-.gi-inner .lbl{position:absolute;bottom:8px;right:8px;background:rgba(0,0,0,.75);color:#fff;font-size:.72rem;padding:3px 8px;border-radius:8px;}
-.gi:hover{border-color:var(--gold);}
+.ggrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:14px;}
+.gi{border-radius:14px;overflow:hidden;position:relative;cursor:pointer;aspect-ratio:4/3;border:3px solid transparent;transition:border-color .2s,transform .2s;background:var(--bm);}
 .gi:hover{border-color:var(--gold);transform:scale(1.02);}
 .gi img{width:100%;height:100%;object-fit:cover;display:block;}
 .gi .lbl{position:absolute;bottom:8px;right:8px;background:rgba(0,0,0,.7);color:var(--gold);font-size:.68rem;font-weight:900;padding:3px 9px;border-radius:10px;}
@@ -173,7 +169,7 @@ body{font-family:'Nunito',sans-serif;background:var(--bd);color:var(--wh);overfl
 footer{background:#040b14;text-align:center;padding:30px 16px;color:rgba(255,255,255,.4);font-size:.85rem;border-top:1px solid rgba(255,255,255,.06);}
 footer strong{color:var(--gold);}
 /* REVEAL */
-.rev{opacity:0;transform:translateY(20px);transition:opacity .5s,transform .5s;}
+.rev{opacity:1;transform:none;}
 .rev.vis{opacity:1;transform:none;}
 /* TYPING ANIMATION */
 .typing-dots span{animation:typingBlink 1.2s infinite;display:inline-block;font-size:1.4rem;line-height:1;}
@@ -637,7 +633,7 @@ footer strong{color:var(--gold);}
       <div id="pc_upload_area" style="border:2px dashed rgba(255,210,63,.4);border-radius:12px;padding:20px;text-align:center;cursor:pointer;margin-bottom:10px;transition:border-color .2s" onclick="document.getElementById('pc_file_input').click()" ondragover="event.preventDefault();this.style.borderColor='var(--gold)'" ondrop="handlePcDrop(event)">
         <div id="pc_upload_preview" style="margin-bottom:8px">
           <div style="font-size:2rem">🖼️</div>
-          <div style="font-size:.85rem;opacity:.6">Foto reinziehen oder tippen → wird automatisch gespeichert</div>
+          <div style="font-size:.85rem;opacity:.6">Foto hier reinziehen oder klicken</div>
           <div style="font-size:.75rem;opacity:.4;margin-top:4px">JPG, PNG – empfohlen 4:3 Querformat</div>
         </div>
         <input type="file" id="pc_file_input" accept="image/*" style="display:none" onchange="loadPcPhoto(this)">
@@ -661,7 +657,7 @@ footer strong{color:var(--gold);}
         </div>
       </div>
       <canvas id="pc_admin_preview" width="600" height="800" style="width:100%;border-radius:10px;display:none;margin-bottom:8px"></canvas>
-      <button class="abtn" onclick="savePcPhoto()" id="pc_save_btn" style="display:none">Foto speichern</button><!-- Button nicht mehr nötig -->
+      <button class="abtn" onclick="savePcPhoto()" id="pc_save_btn" style="display:none">Foto speichern</button>
       <div style="margin-top:14px"><h4 style="color:var(--teal);font-size:.75rem;font-weight:900;letter-spacing:1px;text-transform:uppercase;margin-bottom:8px">Gespeicherte Fotos</h4><div id="admin_photo_list" style="background:rgba(255,255,255,.04);border-radius:10px;padding:10px;min-height:40px"></div></div>
     </div>
     <!-- GALERIE REIHENFOLGE -->
@@ -789,14 +785,17 @@ footer strong{color:var(--gold);}
 if("serviceWorker" in navigator){
   // Pruefen ob sw.js erreichbar ist bevor registrieren
   fetch("sw.js",{method:"HEAD"}).then(function(r){
-    if(r.ok) navigator.serviceWorker.<script>
+    if(r.ok) navigator.serviceWorker.register("sw.js");
+  }).catch(function(){});
+}
+</script>
+<script>
 
 
 
 
 
-
-
+// Translations - nur ASCII, keine <script>
 
 
 
@@ -1141,24 +1140,18 @@ var GDEFS = [
   {k:"canal_wide2",l:"Promenade"},{k:"waterfront",l:"Waterfront"}
 ];
 
-function renderGallery() {
-  if(typeof renderFmtGallery==="function"){ renderFmtGallery(); return; }
-  var grid=document.getElementById("ggrid_f4");
-  if(!grid||typeof PHOTOS==="undefined") return;
-  grid.innerHTML="";
-  GDEFS.forEach(function(d){
-    if(!PHOTOS[d.k]) return;
-    var div=document.createElement("div"); div.className="gi";
-    div.onclick=(function(l){return function(){if(typeof openMdl==="function")openMdl(l,0.99);};})(d.l);
-    var inner=document.createElement("div"); inner.className="gi-inner";
-    var img=document.createElement("img"); img.src=PHOTOS[d.k]; img.loading="lazy";
-    inner.appendChild(img);
-    var lbl=document.createElement("div"); lbl.className="lbl"; lbl.textContent=d.l;
-    inner.appendChild(lbl);
-    div.appendChild(inner);
-    grid.appendChild(div);
+function renderGallery(){
+  if(typeof renderFmtGallery==="function"){renderFmtGallery();return;}
+  var g=document.getElementById("ggrid_f4");if(!g||typeof PHOTOS==="undefined")return;
+  g.innerHTML="";GDEFS.forEach(function(d){
+    if(!PHOTOS[d.k])return;
+    var div=document.createElement("div");div.className="gi";
+    div.onclick=(function(l){return function(){if(typeof openMdl==="function")openMdl(l,.99);};})(d.l);
+    var inner=document.createElement("div");inner.className="gi-inner";
+    var img=document.createElement("img");img.src=PHOTOS[d.k];img.loading="lazy";
+    inner.appendChild(img);div.appendChild(inner);g.appendChild(div);
   });
-  var sec=document.getElementById("sec_f4"); if(sec) sec.style.display="block";
+  var s=document.getElementById("sec_f4");if(s)s.style.display="block";
 }
 
 // POSTCARD CANVAS
@@ -2001,94 +1994,45 @@ function dropPhoto(e) {
 }
 
 
-function renderPart(){
-  var g=document.getElementById("pargrid");if(!g)return;
-  var p=[];try{p=JSON.parse(localStorage.getItem("bl_partners")||"[]");}catch(e){}
-  if(!p.length){g.innerHTML="<p style='opacity:.4'>Noch keine Partner.</p>";return;}
-  g.innerHTML=p.map(function(x){
-    var ph=x.photo?"<img src='"+x.photo+"' style='width:100%;height:90px;object-fit:cover;border-radius:10px;margin-bottom:8px'>":"";
-    return "<div class='ptcard'>"+ph+"<h3>"+x.name+"</h3></div>";
-  }).join("");
-}
-function setRental(){
-  var r1=document.getElementById("t_r1"),r2=document.getElementById("t_r2");
-  if(r1)r1.textContent=localStorage.getItem("bl_r1_name")||"Blue Lagune";
-  if(r2)r2.textContent=localStorage.getItem("bl_r2_name")||"Vista Laguna";
-}
-function genQR(){
-  var el=document.getElementById("qrcode");
-  if(!el||el.innerHTML.trim()||typeof QRCode==="undefined")return;
-  try{new QRCode(el,{text:window.location.href,width:160,height:160});}catch(e){}
-}
-
-
-// ═══════════════════════════════════════
-// UPLOAD-FUNKTIONEN
-// ═══════════════════════════════════════
-// Upload-Foto: AUTOMATISCH speichern, kein Button nötig
 function autoSavePhoto(file) {
-  if(!file || !file.type.startsWith("image/")) { 
-    if(file) alert("Bitte ein Bild (JPG/PNG) hochladen."); 
-    return; 
-  }
-  var prev = document.getElementById("pc_upload_preview");
-  if(prev) prev.innerHTML = "<div style='padding:10px;color:var(--gold);font-size:.85rem'>⏳ Wird gespeichert...</div>";
-  
-  var reader = new FileReader();
-  reader.onload = function(e) {
-    var raw = e.target.result;
-    // Auf 9:16 zuschneiden und speichern
-    var img = new Image();
-    img.onload = function() {
-      var tw=540, th=960, sr=img.width/img.height, tr=tw/th;
-      var cx,cy,cw,ch;
+  if(!file||!file.type.startsWith("image/")){if(file)alert("Nur Bilder (JPG/PNG)");return;}
+  var prev=document.getElementById("pc_upload_preview");
+  if(prev)prev.innerHTML="<div style='padding:10px;color:var(--gold)'>wird gespeichert...</div>";
+  var reader=new FileReader();
+  reader.onload=function(e){
+    var img=new Image();
+    img.onload=function(){
+      var tw=540,th=960,sr=img.width/img.height,tr=tw/th,cx,cy,cw,ch;
       if(sr>tr){ch=img.height;cw=Math.round(ch*tr);cx=Math.round((img.width-cw)/2);cy=0;}
       else{cw=img.width;ch=Math.round(cw/tr);cx=0;cy=Math.round((img.height-ch)/3);}
       var cv=document.createElement("canvas");cv.width=tw;cv.height=th;
       cv.getContext("2d").drawImage(img,cx,cy,cw,ch,0,0,tw,th);
-      var data = cv.toDataURL("image/jpeg",0.85);
-      
-      // Direkt in localStorage speichern
-      var arr=[];
-      try{arr=JSON.parse(localStorage.getItem("bl_photos_916")||"[]");}catch(ex){}
+      var data=cv.toDataURL("image/jpeg",.85);
+      var arr=[];try{arr=JSON.parse(localStorage.getItem("bl_photos_916")||"[]");}catch(ex){}
       arr.push(data);
-      try {
+      try{
         localStorage.setItem("bl_photos_916",JSON.stringify(arr));
-        localStorage.setItem("bl_fp_916",JSON.stringify(arr));
-        // Erfolg anzeigen
-        if(prev) {
+        if(prev){
           prev.innerHTML="";
-          var pi=document.createElement("img");
-          pi.src=data;
+          var pi=document.createElement("img");pi.src=data;
           pi.style.cssText="max-width:100%;max-height:150px;border-radius:8px;display:block;margin:0 auto";
           prev.appendChild(pi);
-          var ok=document.createElement("div");
-          ok.style.cssText="color:#4CAF50;font-size:.82rem;margin-top:6px;text-align:center;font-weight:700";
-          ok.textContent="✓ Gespeichert! ("+arr.length+" Fotos)";
-          prev.appendChild(ok);
+          var ok=document.createElement("div");ok.style.cssText="color:#4CAF50;font-size:.82rem;margin-top:6px;text-align:center;font-weight:700";
+          ok.textContent="✓ Gespeichert! ("+arr.length+" Fotos)";prev.appendChild(ok);
         }
-        // Galerie sofort aktualisieren
-        if(typeof renderFmtGallery==="function") renderFmtGallery();
-        if(typeof renderAdminPhotoList==="function") renderAdminPhotoList();
-        if(typeof buildPcThumbs==="function") buildPcThumbs();
-      } catch(ex) {
-        if(prev) prev.innerHTML="<div style='color:#f44;padding:8px'>❌ Speicher voll. Bitte andere Fotos löschen.</div>";
+        if(typeof renderFmtGallery==="function")renderFmtGallery();
+        if(typeof renderAdminPhotoList==="function")renderAdminPhotoList();
+        if(typeof buildPcThumbs==="function")buildPcThumbs();
+      }catch(ex){
+        if(prev)prev.innerHTML="<div style='color:#f44;padding:8px'>Speicher voll</div>";
       }
     };
-    img.src = raw;
+    img.src=e.target.result;
   };
   reader.readAsDataURL(file);
 }
-
-function loadPcPhoto(input) {
-  if(input.files && input.files[0]) autoSavePhoto(input.files[0]);
-}
-
-function handlePcDrop(e) {
-  e.preventDefault(); e.stopPropagation();
-  var files = e.dataTransfer ? e.dataTransfer.files : null;
-  if(files && files.length) autoSavePhoto(files[0]);
-}
+function loadPcPhoto(inp){if(inp.files&&inp.files[0])autoSavePhoto(inp.files[0]);}
+function handlePcDrop(e){e.preventDefault();e.stopPropagation();var f=e.dataTransfer&&e.dataTransfer.files;if(f&&f[0])autoSavePhoto(f[0]);}
 
 window.addEventListener("load", function() {
   // Aktiven Sprachbutton setzen
@@ -2133,18 +2077,11 @@ window.addEventListener("load", function() {
   var torcPhoto = localStorage.getItem("bl_torc_photo");
   if(mazzPhoto) { var el=document.getElementById("mazz_photo"); if(el) el.innerHTML="<img src='"+mazzPhoto+"' style='width:100%;height:160px;object-fit:cover'>"; }
   if(torcPhoto) { var el2=document.getElementById("torc_photo"); if(el2) el2.innerHTML="<img src='"+torcPhoto+"' style='width:100%;height:160px;object-fit:cover'>"; }
-  // Galerie: wartet bis photos.js und format.js beide geladen
-  (function(){
-    var _t=0,_iv=setInterval(function(){
-      if(typeof renderFmtGallery==="function"&&typeof PHOTOS!=="undefined"){
-        clearInterval(_iv); renderFmtGallery();
-      } else if(++_t>30) clearInterval(_iv);
-    },200);
-  })()
+  (function(){var t=0,iv=setInterval(function(){if(typeof renderFmtGallery==="function"&&typeof PHOTOS!=="undefined"){clearInterval(iv);renderFmtGallery();}else if(++t>30)clearInterval(iv);},200);})();
   renderPart();
   setRental();
   genQR();
-  setTimeout(renderPC,300);
+  setTimeout(renderPC, 300);
 });
 
 
@@ -2152,28 +2089,4 @@ window.addEventListener("load", function() {
 
 
 
-
-
-
-
-
-
-
-</script>();
-  setTimeout(renderPC,300);
-});
-
-
-
-
-
-
-
-
-
-
-
-
-</script>ipt>
-</body>
-</html>
+</script></html>
