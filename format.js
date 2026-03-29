@@ -6,10 +6,26 @@ window.pcSelectedPhoto = null;
 
 // Storage
 function getPhotos916() {
-  try { return JSON.parse(localStorage.getItem("bl_photos_916") || "[]"); } catch(e) { return []; }
+  var result = [];
+  // Neuer Key
+  try { result = JSON.parse(localStorage.getItem("bl_photos_916") || "[]"); } catch(e) {}
+  // Alter Key (bl_fp_916) - Migration
+  try {
+    var old = JSON.parse(localStorage.getItem("bl_fp_916") || "[]");
+    if (old.length) {
+      old.forEach(function(src) { if (result.indexOf(src) < 0) result.push(src); });
+      // In neuen Key migrieren
+      localStorage.setItem("bl_photos_916", JSON.stringify(result));
+    }
+  } catch(e) {}
+  return result;
 }
 function savePhotos916(arr) {
-  try { localStorage.setItem("bl_photos_916", JSON.stringify(arr)); return true; } catch(e) { return false; }
+  try {
+    localStorage.setItem("bl_photos_916", JSON.stringify(arr));
+    localStorage.setItem("bl_fp_916", JSON.stringify(arr)); // Kompatibilität
+    return true;
+  } catch(e) { return false; }
 }
 
 // Alle Fotos (Standard + Custom)
