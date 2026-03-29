@@ -326,7 +326,7 @@ footer strong{color:var(--gold);}
     <h3 style="font-family:Pacifico,cursive;font-size:1.1rem;color:var(--pink);margin-bottom:8px">Format 3 &mdash; 3:4</h3>
     <div class="ggrid" id="ggrid_f3"></div>
   </div>
-  <div id="sec_f4" style="display:none">
+  <div id="sec_f4">
     <h3 style="font-family:Pacifico,cursive;font-size:1.1rem;color:var(--org);margin-bottom:8px">Format 4 &mdash; 9:16</h3>
     <div class="ggrid" id="ggrid_f4"></div>
   </div>
@@ -793,6 +793,8 @@ if("serviceWorker" in navigator){
 }
 </script>
 <script>
+
+
 
 
 
@@ -2061,12 +2063,21 @@ window.addEventListener("load", function() {
   var torcPhoto = localStorage.getItem("bl_torc_photo");
   if(mazzPhoto) { var el=document.getElementById("mazz_photo"); if(el) el.innerHTML="<img src='"+mazzPhoto+"' style='width:100%;height:160px;object-fit:cover'>"; }
   if(torcPhoto) { var el2=document.getElementById("torc_photo"); if(el2) el2.innerHTML="<img src='"+torcPhoto+"' style='width:100%;height:160px;object-fit:cover'>"; }
-  renderGallery();
+  // Galerie: wartet bis photos.js und format.js beide geladen
+  (function waitAndRender(n){
+    if(typeof PHOTOS!=="undefined"&&typeof renderFmtGallery==="function"){
+      renderFmtGallery();
+    } else if(n<25){
+      setTimeout(function(){waitAndRender(n+1);},200);
+    }
+  })(0);
   renderPart();
   setRental();
   genQR();
-  setTimeout(renderPC, 300);
+  setTimeout(renderPC,300);
 });
+
+
 
 
 

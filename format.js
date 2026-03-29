@@ -427,7 +427,7 @@ function saveIslandPhotoToStrip(storageKey, dataUrl) {
 // ════════════════════════════════════════
 // INIT
 // ════════════════════════════════════════
-window.addEventListener("DOMContentLoaded",function(){
+window.addEventListener("load",function(){
   setTimeout(function(){
     ensureHeroSlides();
     initPosButtons();
