@@ -97,11 +97,12 @@ function renderFmtGallery(){
     var cfg=FMTS[fmt],grid=document.getElementById("ggrid_"+cfg.id),sec=document.getElementById("sec_"+cfg.id);
     if(!grid)return;
     var photos=getFmtPhotos(fmt),items=[];
-    if(fmt==="4:3"&&typeof PHOTOS!=="undefined"&&typeof GDEFS!=="undefined"){
-      GDEFS.forEach(function(d){items.push({src:PHOTOS[d.k]||"",lbl:d.l,isCustom:false});});
+    // Standard-Fotos NUR in 9:16 anzeigen (einziges Format)
+    if(fmt==="9:16"&&typeof PHOTOS!=="undefined"&&typeof GDEFS!=="undefined"){
+      GDEFS.forEach(function(d){if(PHOTOS[d.k])items.push({src:PHOTOS[d.k],lbl:d.l,isCustom:false});});
     }
     photos.forEach(function(src,i){items.push({src:src,lbl:"Foto "+(items.length+1),idx:i,isCustom:true,fmt:fmt});});
-    if(sec)sec.style.display=items.length?"block":"none";
+    if(sec){sec.style.display=items.length?"block":"none";}
     if(!items.length){grid.innerHTML="";return;}
     grid.innerHTML="";
     items.forEach(function(item){

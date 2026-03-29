@@ -799,6 +799,7 @@ if("serviceWorker" in navigator){
 
 
 
+
 // Translations - nur ASCII, keine Sonderzeichen im JS
 var TXT = {
   de: {
@@ -1996,6 +1997,27 @@ function dropPhoto(e) {
   dragSrcKey = null;
 }
 
+
+function renderPart(){
+  var g=document.getElementById("pargrid");if(!g)return;
+  var p=[];try{p=JSON.parse(localStorage.getItem("bl_partners")||"[]");}catch(e){}
+  if(!p.length){g.innerHTML="<p style='opacity:.4'>Noch keine Partner.</p>";return;}
+  g.innerHTML=p.map(function(x){
+    var ph=x.photo?"<img src='"+x.photo+"' style='width:100%;height:90px;object-fit:cover;border-radius:10px;margin-bottom:8px'>":"";
+    return "<div class='ptcard'>"+ph+"<h3>"+x.name+"</h3></div>";
+  }).join("");
+}
+function setRental(){
+  var r1=document.getElementById("t_r1"),r2=document.getElementById("t_r2");
+  if(r1)r1.textContent=localStorage.getItem("bl_r1_name")||"Blue Lagune";
+  if(r2)r2.textContent=localStorage.getItem("bl_r2_name")||"Vista Laguna";
+}
+function genQR(){
+  var el=document.getElementById("qrcode");
+  if(!el||el.innerHTML.trim()||typeof QRCode==="undefined")return;
+  try{new QRCode(el,{text:window.location.href,width:160,height:160});}catch(e){}
+}
+
 window.addEventListener("load", function() {
   // Aktiven Sprachbutton setzen
   var activeLb = document.getElementById("lb_" + curLang);
@@ -2045,6 +2067,7 @@ window.addEventListener("load", function() {
   genQR();
   setTimeout(renderPC, 300);
 });
+
 
 
 
