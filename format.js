@@ -37,9 +37,19 @@ function getAllPhotos() {
       if (PHOTOS[d.k]) all.push({ src: PHOTOS[d.k], lbl: d.l, custom: false });
     });
   }
-  // Hochgeladene Fotos
+  // Hochgeladene Fotos (Thumbnails für Galerie, Full für Postkarte)
+  var fullArr = [];
+  try { fullArr = JSON.parse(localStorage.getItem("bl_photos_916_full") || "[]"); } catch(e) {}
+  var origArr = [];
+  try { origArr = JSON.parse(localStorage.getItem("bl_photos_916_orig") || "[]"); } catch(e) {}
   getPhotos916().forEach(function(src, i) {
-    all.push({ src: src, lbl: "Foto " + (i+1), custom: true, idx: i });
+    all.push({
+      src:  src,                           // Thumbnail (270x480) für Galerie
+      full: fullArr[i] || src,             // Vollbild (540x960) für Postkarte
+      orig: origArr[i] || fullArr[i] || src, // Original GitHub-URL für Download
+      lbl:  "Foto " + (i+1),
+      custom: true, idx: i
+    });
   });
   return all;
 }
@@ -104,23 +114,30 @@ function renderFmtGallery() {
 // ═══════════════════════════════════════════
 // ADMIN: Foto hochladen
 // ═══════════════════════════════════════════
+function cropImg(img, tw, th, quality) {
+  var sr=img.width/img.height, tr=tw/th, cx,cy,cw,ch;
+  if(sr>tr){ch=img.height;cw=Math.round(ch*tr);cx=Math.round((img.width-cw)/2);cy=0;}
+  else{cw=img.width;ch=Math.round(cw/tr);cx=0;cy=Math.round((img.height-ch)/3);}
+  var cv=document.createElement("canvas");cv.width=tw;cv.height=th;
+  cv.getContext("2d").drawImage(img,cx,cy,cw,ch,0,0,tw,th);
+  return cv.toDataURL("image/jpeg", quality);
+}
+
 function loadPcPhotoFile(file) {
   var reader = new FileReader();
   reader.onload = function(e) {
     var raw = e.target.result;
-    // Auf 9:16 zuschneiden
     var img = new Image();
     img.onload = function() {
-      var tw = 540, th = 960;
-      var sr = img.width / img.height;
-      var tr = tw / th;
-      var cx, cy, cw, ch;
-      if (sr > tr) { ch = img.height; cw = Math.round(ch * tr); cx = Math.round((img.width - cw) / 2); cy = 0; }
-      else          { cw = img.width;  ch = Math.round(cw / tr); cx = 0; cy = Math.round((img.height - ch) / 3); }
-      var cv = document.createElement("canvas");
-      cv.width = tw; cv.height = th;
-      cv.getContext("2d").drawImage(img, cx, cy, cw, ch, 0, 0, tw, th);
-      window.pcAdminImg = cv.toDataURL("image/jpeg", 0.88);
+      // Thumbnail (klein) für Galerie/Laufband
+      var thumb = cropImg(img, 270, 480, 0.45);
+      // Vollbild (gross) für Postkarte/Download
+      var full  = cropImg(img, 540, 960, 0.82);
+      // Vollbild für Postkarte merken
+      window.pcAdminImg     = thumb; // gespeichert in Array
+      window.pcAdminImgFull = full;  // für Canvas-Rendering
+      // Canvas mit Full-Auflösung rendern
+      window.pcSelectedPhoto = full;
       // Vorschau
       var prev = document.getElementById("pc_upload_preview");
       if (prev) {
@@ -146,7 +163,7 @@ function loadPcPhotoFile(file) {
 function savePcPhoto() {
   if (!window.pcAdminImg) { alert("Bitte zuerst ein Foto hochladen."); return; }
   var arr = getPhotos916();
-  arr.push(window.pcAdminImg);
+  arr.push(window.pcAdminImg); // Thumbnail (klein) speichern
   if (savePhotos916(arr)) {
     alert("Gespeichert! (" + arr.length + " Fotos)");
     window.pcAdminImg = null;
@@ -213,16 +230,17 @@ function buildPcThumbs() {
     img.loading = "lazy";
     img.style.cssText = "width:100%;height:100%;object-fit:cover;display:block;";
     div.appendChild(img);
-    div.onclick = (function(s, d) {
+    div.onclick = (function(s, f, o, d) {
       return function() {
         document.querySelectorAll("#pc_thumb_row > div").forEach(function(el) { el.style.borderColor = "transparent"; });
         d.style.borderColor = "var(--gold)";
-        window.pcSelectedPhoto = s;
+        window.pcSelectedPhoto = f || s;
+        window.pcSelectedOrig  = o || null; // Original-URL für Download
         var cv = document.getElementById("pcanv");
         if (cv) { cv.width = 540; cv.height = 960; }
         if (typeof renderPC === "function") renderPC(true);
       };
-    })(item.src, div);
+    })(item.src, item.full, item.orig, div);
     row.appendChild(div);
     if (idx === 0 && !window.pcSelectedPhoto) {
       div.style.borderColor = "var(--gold)";
