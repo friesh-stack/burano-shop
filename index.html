@@ -2,7 +2,7 @@
 <html lang="de">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>my-burano.com - Terra Nova 112</title>
 <!-- PWA -->
 <link rel="manifest" href="manifest.json">
@@ -72,13 +72,13 @@ body{-webkit-tap-highlight-color:transparent;font-family:'Nunito',sans-serif;bac
 .btnPP{display:inline-block;background:linear-gradient(135deg,#009CDE,#003087);color:#fff;border:none;border-radius:50px;padding:12px 26px;font-size:.9rem;font-weight:800;cursor:pointer;font-family:'Nunito',sans-serif;box-shadow:0 4px 16px rgba(0,144,222,.35);transition:transform .2s;}
 .btnPP:hover{transform:scale(1.05);}
 /* GALLERY */
-.ggrid{display:flex;flex-direction:row;overflow-x:auto;gap:10px;padding:6px 0;-webkit-overflow-scrolling:touch;scroll-snap-type:x mandatory;}
-.gi{border-radius:14px;overflow:hidden;position:relative;cursor:pointer;border:3px solid transparent;transition:border-color .2s,transform .2s;background:var(--bm);width:100%;}
+.ggrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:10px;}
+@media(max-width:480px){.ggrid{grid-template-columns:repeat(2,1fr);gap:8px;}}
+.gi{border-radius:14px;overflow:hidden;position:relative;cursor:pointer;border:3px solid transparent;transition:border-color .2s,transform .2s;background:var(--bm);}
 .gi-inner{position:relative;width:100%;padding-top:177.78%;}
 .gi-inner img{position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;display:block;}
 .gi-inner .lbl{position:absolute;bottom:0;left:0;right:0;background:linear-gradient(transparent,rgba(0,0,0,.75));color:#fff;font-size:.72rem;padding:20px 8px 6px;text-align:center;}
-.gi:active{border-color:var(--gold);transform:scale(.97);}
-.gi:hover{border-color:var(--gold);}
+.gi:hover{border-color:var(--gold);transform:scale(1.02);}
 .gi img{width:100%;height:100%;object-fit:cover;display:block;}
 .gi .lbl{position:absolute;bottom:8px;right:8px;background:rgba(0,0,0,.7);color:var(--gold);font-size:.68rem;font-weight:900;padding:3px 9px;border-radius:10px;}
 /* POSTCARD */
@@ -635,7 +635,7 @@ footer strong{color:var(--gold);}
     <div class="asec">
       <h4>📮 Postkarten-Foto hochladen</h4>
       <p style="font-size:.8rem;opacity:.65;margin-bottom:12px">Lade dein fertiges Foto (bereits mit Briefmarke) hoch. Der Kunde wählt nur noch den Grußtext und seinen Namen.</p>
-      <div id="pc_upload_area" style="border:2px dashed rgba(255,210,63,.4);border-radius:12px;padding:20px;text-align:center;cursor:pointer;margin-bottom:10px;transition:border-color .2s" onclick="document.getElementById('pc_file_input').click()" ondragover="event.preventDefault();this.style.borderColor='var(--gold)'" ondrop="handlePcDrop(event)">
+      <div id="pc_upload_area" style="border:2px dashed rgba(255,210,63,.4);border-radius:12px;padding:20px;text-align:center;cursor:pointer;margin-bottom:10px;transition:border-color .2s" id="pc_upload_area_wrap"><div style="display:flex;gap:8px;margin-bottom:10px"><input class="ainput" id="github_url_input" placeholder="GitHub Raw-URL: raw.githubusercontent.com/friesh-stack/photos/main/foto.jpg" style="flex:1;font-size:.72rem"><button class="abtn" onclick="addPhotoFromUrl()" style="padding:10px 14px;white-space:nowrap">+ URL</button></div><div style="text-align:center;font-size:.72rem;opacity:.5;margin-bottom:8px">— oder Datei —</div><div onclick="document.getElementById('pc_file_input').click()" ondragover="event.preventDefault();this.style.borderColor='var(--gold)'" ondrop="handlePcDrop(event)">
         <div id="pc_upload_preview" style="margin-bottom:8px">
           <div style="font-size:2rem">🖼️</div>
           <div style="font-size:.85rem;opacity:.6">Foto hier reinziehen oder klicken</div>
@@ -785,113 +785,18 @@ footer strong{color:var(--gold);}
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<!-- SW wird nur registriert wenn sw.js vorhanden -->
 <script>
-// ── AUTO-SAVE FOTO (9:16) ──
-function autoSavePhoto(file) {
-  if(!file||!file.type.startsWith("image/")){if(file)alert("Nur Bilder (JPG/PNG)");return;}
-  var prev=document.getElementById("pc_upload_preview");
-  if(prev)prev.innerHTML="<div style='padding:10px;color:var(--gold)'>wird gespeichert...</div>";
-  var reader=new FileReader();
-  reader.onload=function(e){
-    var img=new Image();
-    img.onload=function(){
-      // Thumbnail (für Galerie, klein)
-      var tw=270,th=480,sr=img.width/img.height,tr=tw/th,cx,cy,cw,ch;
-      if(sr>tr){ch=img.height;cw=Math.round(ch*tr);cx=Math.round((img.width-cw)/2);cy=0;}
-      else{cw=img.width;ch=Math.round(cw/tr);cx=0;cy=Math.round((img.height-ch)/3);}
-      var cvT=document.createElement("canvas");cvT.width=tw;cvT.height=th;
-      cvT.getContext("2d").drawImage(img,cx,cy,cw,ch,0,0,tw,th);
-      var data=cvT.toDataURL("image/jpeg",.45);
-      // Vollbild (für Postkarte, hochauflösend)
-      var tw2=540,th2=960;
-      var cv2=document.createElement("canvas");cv2.width=tw2;cv2.height=th2;
-      cv2.getContext("2d").drawImage(img,cx,cy,cw,ch,0,0,tw2,th2);
-      var dataFull=cv2.toDataURL("image/jpeg",.82);
-      // Vollbild in separatem Key für aktive Session (nicht localStorage - zu gross)
-      window._lastUploadFull = dataFull;
-      var arr=[];try{arr=JSON.parse(localStorage.getItem("bl_photos_916")||"[]");}catch(ex){}
-      arr.push(data);
-      try{
-        localStorage.setItem("bl_photos_916",JSON.stringify(arr));
-        if(prev){
-          prev.innerHTML="";
-          var pi=document.createElement("img");pi.src=data;
-          pi.style.cssText="max-width:100%;max-height:150px;border-radius:8px;display:block;margin:0 auto";
-          prev.appendChild(pi);
-          var ok=document.createElement("div");
-          ok.style.cssText="color:#4CAF50;font-size:.82rem;margin-top:6px;text-align:center;font-weight:700";
-          ok.textContent="\u2713 Gespeichert! ("+arr.length+" Fotos)";
-          prev.appendChild(ok);
-        }
-        if(typeof renderFmtGallery==="function")renderFmtGallery();
-        if(typeof renderAdminPhotoList==="function")renderAdminPhotoList();
-        if(typeof buildPcThumbs==="function")buildPcThumbs();
-      }catch(ex){
-        if(prev)prev.innerHTML="<div style='color:#f44;padding:8px'>Speicher voll</div>";
-      }
-    };
-    img.src=e.target.result;
-  };
-  reader.readAsDataURL(file);
+if("serviceWorker" in navigator){
+  // Pruefen ob sw.js erreichbar ist bevor registrieren
+  fetch("sw.js",{method:"HEAD"}).then(function(r){
+    if(r.ok) navigator.serviceWorker.register("sw.js");
+  }).catch(function(){});
 }
-function loadPcPhoto(inp){if(inp.files&&inp.files[0])autoSavePhoto(inp.files[0]);}
-function handlePcDrop(e){
-  e.preventDefault();e.stopPropagation();
-  var f=e.dataTransfer&&e.dataTransfer.files;
-  if(f&&f[0])autoSavePhoto(f[0]);
-}
+</script>
+<script>
 
-// ── PARTNER + RENTAL + QR ──
-function renderPart(){
-  var g=document.getElementById("pargrid");if(!g)return;
-  var p=[];try{p=JSON.parse(localStorage.getItem("bl_partners")||"[]");}catch(e){}
-  if(!p.length){g.innerHTML="<p style='opacity:.4;padding:10px'>Noch keine Partner.</p>";return;}
-  g.innerHTML=p.map(function(x){
-    var ph=x.photo?"<img src='"+x.photo+"' style='width:100%;height:90px;object-fit:cover;border-radius:10px;margin-bottom:6px'>":"";
-    return "<div class='ptcard'>"+ph+"<h3 style='font-size:.9rem;margin:0 0 4px'>"+x.name+"</h3></div>";
-  }).join("");
-}
-function setRental(){
-  var r1=document.getElementById("t_r1"),r2=document.getElementById("t_r2");
-  if(r1)r1.textContent=localStorage.getItem("bl_r1_name")||"Blue Lagune";
-  if(r2)r2.textContent=localStorage.getItem("bl_r2_name")||"Vista Laguna";
-}
-function genQR(){
-  var el=document.getElementById("qrcode");
-  if(!el||el.innerHTML.trim()||typeof QRCode==="undefined")return;
-  try{new QRCode(el,{text:window.location.href,width:160,height:160});}catch(e){}
-}
 
-// ── EXPORT / IMPORT ──
-function exportAllData(){
-  var data={};
-  for(var i=0;i<localStorage.length;i++){
-    var k=localStorage.key(i);
-    if(k&&k.startsWith("bl_"))data[k]=localStorage.getItem(k);
-  }
-  var blob=new Blob([JSON.stringify(data)],{type:"application/json"});
-  var url=URL.createObjectURL(blob);
-  var a=document.createElement("a");
-  a.href=url;a.download="burano_backup_"+new Date().toISOString().slice(0,10)+".json";
-  document.body.appendChild(a);a.click();
-  document.body.removeChild(a);URL.revokeObjectURL(url);
-  alert("Backup gespeichert! Auf dem Smartphone: Admin > Import laden.");
-}
-function importAllData(input){
-  if(!input.files||!input.files[0])return;
-  var reader=new FileReader();
-  reader.onload=function(e){
-    try{
-      var data=JSON.parse(e.target.result),count=0;
-      Object.keys(data).forEach(function(k){
-        if(k.startsWith("bl_")){localStorage.setItem(k,data[k]);count++;}
-      });
-      alert(count+" Einstellungen importiert! Seite wird neu geladen...");
-      location.reload();
-    }catch(ex){alert("Import-Fehler: "+ex.message);}
-  };
-  reader.readAsText(input.files[0]);
-}
 
 
 
@@ -1237,18 +1142,7 @@ var GDEFS = [
   {k:"canal_wide2",l:"Promenade"},{k:"waterfront",l:"Waterfront"}
 ];
 
-function renderGallery() {
-  var grid = document.getElementById("ggrid");
-  if (typeof PHOTOS === "undefined") {
-    grid.innerHTML = "<p style='opacity:.4;padding:20px'>Fotos nicht geladen - photos.js fehlt?</p>";
-    return;
-  }
-  grid.innerHTML = GDEFS.map(function(d) {
-    return "<div class='gi' onclick=\"openMdl('" + d.l + "',0.99)\">" +
-      "<img src='" + (PHOTOS[d.k] || "") + "' alt='" + d.l + "' loading='lazy'>" +
-      "<div class='lbl'>" + d.l + "</div></div>";
-  }).join("");
-}
+function renderGallery(){if(typeof renderFmtGallery==="function"){renderFmtGallery();return;}var g=document.getElementById("ggrid_f4");if(!g||typeof PHOTOS==="undefined")return;GDEFS.forEach(function(d){if(!PHOTOS[d.k])return;var div=document.createElement("div");div.className="gi";div.onclick=(function(l){return function(){if(typeof openMdl==="function")openMdl(l,.99);};})(d.l);var inner=document.createElement("div");inner.className="gi-inner";var img=document.createElement("img");img.src=PHOTOS[d.k];img.loading="lazy";inner.appendChild(img);div.appendChild(inner);g.appendChild(div);});var s=document.getElementById("sec_f4");if(s)s.style.display="block";}
 
 // POSTCARD CANVAS
 function drawCurvedText(ctx, text, cx, cy, radius, startAngle, color, fontSize) {
@@ -1344,10 +1238,13 @@ function drawNameLine(ctx, W, H, yPos, color) {
 // renderPC ist in format.js definiert
 
 // MODAL
-function openMdl(name, price) {
+var mOrigUrl = null; // Original-URL für Download nach Zahlung
+
+function openMdl(name, price, origUrl) {
   mPrice=price; mQty=1; mItem=name;
+  mOrigUrl = origUrl || null;
   var __el=document.getElementById("mt");if(__el)__el.textContent=name;
-  var __el=document.getElementById("md");if(__el)__el.textContent="Burano - sofort nach Zahlung verfuegbar";
+  var __el=document.getElementById("md");if(__el)__el.textContent=origUrl?"Foto in Originalqualitat - sofort nach Zahlung":"Burano - sofort nach Zahlung verfuegbar";
   var __el=document.getElementById("qdis");if(__el)__el.textContent=1;
   updTotal();
   document.getElementById("bmdl").classList.add("open");
@@ -1387,6 +1284,23 @@ function ppGo(item, amount) {
   var user=ppe.indexOf("@")>-1?ppe.split("@")[0]:ppe;
   window.open("https://www.paypal.com/paypalme/"+user+"/"+amount+"EUR?note="+note,"_blank");
   document.getElementById("bmdl").classList.remove("open");
+  // Nach PayPal: Download-Link anzeigen
+  if(mOrigUrl) {
+    setTimeout(function(){
+      var d=document.createElement("div");
+      d.style.cssText="position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px";
+      var box=document.createElement("div");
+      box.style.cssText="background:#1A3A5C;border-radius:16px;padding:24px;max-width:380px;text-align:center;width:100%";
+      box.innerHTML="<div style='font-size:2rem;margin-bottom:10px'>&#127881;</div><h3 style='color:var(--gold);margin-bottom:10px'>Vielen Dank!</h3><p style='opacity:.8;margin-bottom:16px'>Hier ist dein Foto in voller Auflosung:</p>";
+      var a=document.createElement("a");a.href=mOrigUrl;a.target="_blank";a.download="burano_foto.jpg";
+      a.style.cssText="display:block;background:var(--gold);color:#0A1628;padding:12px;border-radius:10px;font-weight:900;text-decoration:none;margin-bottom:10px";
+      a.textContent="Foto herunterladen (Original)";
+      var b=document.createElement("button");
+      b.style.cssText="background:rgba(255,255,255,.1);border:none;color:#fff;padding:8px 20px;border-radius:8px;cursor:pointer;font-family:Nunito,sans-serif";
+      b.textContent="Schliessen";b.onclick=function(){d.remove();};
+      box.appendChild(a);box.appendChild(b);d.appendChild(box);document.body.appendChild(d);
+    },2000);
+  }
 }
 
 // AI CHAT
@@ -1599,7 +1513,7 @@ function startMic() {
   micRecognition.onerror = function(e) {
     stopMic();
     if(e.error==="not-allowed"||e.error==="permission-denied") {
-      addMsg("Mikrofon gesperrt. Bitte oben in der Adressleiste auf das Schloss-Symbol tippen → Berechtigungen → Mikrofon → Erlauben", "bot", false);
+      addMsg("Mikrofon gesperrt. Android Chrome: Einstellungen > Datenschutz > Website-Einstellungen > Mikrofon > shop.myburano.com > Erlauben", "bot", false);
     } else if(e.error==="no-speech") {
       // Kein Fehler anzeigen - Timer laeuft weiter
       setMicHint(getMicHints()[2]);
@@ -2089,6 +2003,120 @@ function dropPhoto(e) {
   dragSrcKey = null;
 }
 
+
+function addPhotoFromUrl() {
+  var inp=document.getElementById("github_url_input");
+  if(!inp||!inp.value.trim()){alert("Bitte URL eingeben.");return;}
+  var url=inp.value.trim();
+  url=url.replace("github.com","raw.githubusercontent.com").replace("/blob/","/");
+  if(!url.startsWith("http")) url="https://"+url;
+  var prev=document.getElementById("pc_upload_preview");
+  if(prev)prev.innerHTML="<div style='padding:12px;color:var(--gold);text-align:center'>wird geladen...</div>";
+  var img=new Image(); img.crossOrigin="anonymous";
+  img.onload=function(){
+    function compress(tw,th,q){
+      var sr=img.width/img.height,tr=tw/th,cx,cy,cw,ch;
+      if(sr>tr){ch=img.height;cw=Math.round(ch*tr);cx=Math.round((img.width-cw)/2);cy=0;}
+      else{cw=img.width;ch=Math.round(cw/tr);cx=0;cy=Math.round((img.height-ch)/3);}
+      var cv=document.createElement("canvas");cv.width=tw;cv.height=th;
+      cv.getContext("2d").drawImage(img,cx,cy,cw,ch,0,0,tw,th);
+      return cv.toDataURL("image/jpeg",q);
+    }
+    var thumb=compress(270,480,.50);
+    var full=compress(540,960,.82);
+    var arr=[];try{arr=JSON.parse(localStorage.getItem("bl_photos_916")||"[]");}catch(e){}
+    var aFull=[];try{aFull=JSON.parse(localStorage.getItem("bl_photos_916_full")||"[]");}catch(e){}
+    arr.push(thumb); aFull.push(full);
+    try{
+      localStorage.setItem("bl_photos_916",JSON.stringify(arr));
+      localStorage.setItem("bl_photos_916_full",JSON.stringify(aFull));
+      if(inp)inp.value="";
+      if(prev){
+        prev.innerHTML="";
+        var pi=document.createElement("img");pi.src=thumb;
+        pi.style.cssText="max-height:140px;border-radius:8px;display:block;margin:0 auto";
+        prev.appendChild(pi);
+        var ok=document.createElement("div");
+        ok.style.cssText="color:#4CAF50;font-size:.8rem;margin-top:6px;text-align:center;font-weight:700";
+        ok.textContent="✓ Gespeichert! ("+arr.length+" Fotos) - 8MB → ~60KB";
+        prev.appendChild(ok);
+      }
+      if(typeof renderFmtGallery==="function")renderFmtGallery();
+      if(typeof buildPcThumbs==="function")buildPcThumbs();
+    }catch(ex){alert("Speicher voll!");}
+  };
+  img.onerror=function(){
+    if(prev)prev.innerHTML="<div style='color:#f44;padding:8px;text-align:center'>Nicht ladbar - Raw-URL verwenden</div>";
+  };
+  img.src=url+(url.indexOf("?")<0?"?":"&")+"t="+Date.now();
+}
+
+function loadPcPhoto(inp){if(inp.files&&inp.files[0])autoSavePhoto(inp.files[0]);}
+function handlePcDrop(e){e.preventDefault();e.stopPropagation();var f=e.dataTransfer&&e.dataTransfer.files;if(f&&f[0])autoSavePhoto(f[0]);}
+
+function autoSavePhoto(file) {
+  if(!file||!file.type.startsWith("image/")){if(file)alert("Nur Bilder");return;}
+  var prev=document.getElementById("pc_upload_preview");
+  if(prev)prev.innerHTML="<div style='padding:10px;color:var(--gold)'>wird gespeichert...</div>";
+  var reader=new FileReader();
+  reader.onload=function(e){
+    var img=new Image();
+    img.onload=function(){
+      var tw=270,th=480,sr=img.width/img.height,tr=tw/th,cx,cy,cw,ch;
+      if(sr>tr){ch=img.height;cw=Math.round(ch*tr);cx=Math.round((img.width-cw)/2);cy=0;}
+      else{cw=img.width;ch=Math.round(cw/tr);cx=0;cy=Math.round((img.height-ch)/3);}
+      var cvT=document.createElement("canvas");cvT.width=tw;cvT.height=th;
+      cvT.getContext("2d").drawImage(img,cx,cy,cw,ch,0,0,tw,th);
+      var data=cvT.toDataURL("image/jpeg",.45);
+      var cv2=document.createElement("canvas");cv2.width=540;cv2.height=960;
+      cv2.getContext("2d").drawImage(img,cx,cy,cw,ch,0,0,540,960);
+      var dataFull=cv2.toDataURL("image/jpeg",.82);
+      var arr=[];try{arr=JSON.parse(localStorage.getItem("bl_photos_916")||"[]");}catch(ex){}
+      var aF=[];try{aF=JSON.parse(localStorage.getItem("bl_photos_916_full")||"[]");}catch(ex){}
+      arr.push(data); aF.push(dataFull);
+      try{
+        localStorage.setItem("bl_photos_916",JSON.stringify(arr));
+        localStorage.setItem("bl_photos_916_full",JSON.stringify(aF));
+        if(prev){
+          prev.innerHTML="";
+          var pi=document.createElement("img");pi.src=data;
+          pi.style.cssText="max-height:150px;border-radius:8px;display:block;margin:0 auto";
+          prev.appendChild(pi);
+          var ok=document.createElement("div");ok.style.cssText="color:#4CAF50;font-size:.8rem;margin-top:6px;text-align:center;font-weight:700";
+          ok.textContent="✓ Gespeichert! ("+arr.length+" Fotos)";prev.appendChild(ok);
+        }
+        if(typeof renderFmtGallery==="function")renderFmtGallery();
+        if(typeof renderAdminPhotoList==="function")renderAdminPhotoList();
+        if(typeof buildPcThumbs==="function")buildPcThumbs();
+      }catch(ex){
+        if(prev)prev.innerHTML="<div style='color:#f44;padding:8px'>Speicher voll</div>";
+      }
+    };
+    img.src=e.target.result;
+  };
+  reader.readAsDataURL(file);
+}
+
+function renderPart(){
+  var g=document.getElementById("pargrid");if(!g)return;
+  var p=[];try{p=JSON.parse(localStorage.getItem("bl_partners")||"[]");}catch(e){}
+  if(!p.length){g.innerHTML="<p style='opacity:.4;padding:10px'>Noch keine Partner.</p>";return;}
+  g.innerHTML=p.map(function(x){
+    var ph=x.photo?"<img src='"+x.photo+"' style='width:100%;height:90px;object-fit:cover;border-radius:10px;margin-bottom:6px'>":"";
+    return "<div class='ptcard'>"+ph+"<h3 style='font-size:.9rem;margin:0 0 4px'>"+x.name+"</h3></div>";
+  }).join("");
+}
+function setRental(){
+  var r1=document.getElementById("t_r1"),r2=document.getElementById("t_r2");
+  if(r1)r1.textContent=localStorage.getItem("bl_r1_name")||"Blue Lagune";
+  if(r2)r2.textContent=localStorage.getItem("bl_r2_name")||"Vista Laguna";
+}
+function genQR(){
+  var el=document.getElementById("qrcode");
+  if(!el||el.innerHTML.trim()||typeof QRCode==="undefined")return;
+  try{new QRCode(el,{text:window.location.href,width:160,height:160});}catch(e){}
+}
+
 window.addEventListener("load", function() {
   // Aktiven Sprachbutton setzen
   var activeLb = document.getElementById("lb_" + curLang);
@@ -2132,16 +2160,22 @@ window.addEventListener("load", function() {
   var torcPhoto = localStorage.getItem("bl_torc_photo");
   if(mazzPhoto) { var el=document.getElementById("mazz_photo"); if(el) el.innerHTML="<img src='"+mazzPhoto+"' style='width:100%;height:160px;object-fit:cover'>"; }
   if(torcPhoto) { var el2=document.getElementById("torc_photo"); if(el2) el2.innerHTML="<img src='"+torcPhoto+"' style='width:100%;height:160px;object-fit:cover'>"; }
-  (function(){var t=0,iv=setInterval(function(){
-    if(typeof renderFmtGallery==="function"&&typeof PHOTOS!=="undefined"){clearInterval(iv);renderFmtGallery();}
-    else if(++t>30)clearInterval(iv);
-  },100);})();
+  (function(){var t=0,iv=setInterval(function(){if(typeof renderFmtGallery==="function"&&typeof PHOTOS!=="undefined"){clearInterval(iv);renderFmtGallery();}else if(++t>30)clearInterval(iv);},100);})();
   renderPart();
   setRental();
   genQR();
   setTimeout(renderPC, 300);
 });
 
-</script>
+
+
+
+
+
+
+
+
+</script>ipt>
 </body>
+<script src="format.js"></script>
 </html>
